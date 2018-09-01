@@ -1,0 +1,8 @@
+pids
+*.pid
+*.seed
+logs
+*.log
+node_modules
+.vscode
+lib
