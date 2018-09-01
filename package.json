@@ -32,7 +32,6 @@
     "lint": "tslint src/**/*.ts",
     "tsc": "./node_modules/.bin/tsc",
     "webpack": "./node_modules/.bin/webpack-cli",
-    "mocha-webpack": "./node_modules/.bin/mocha-webpack",
     "nyc": "./node_modules/.bin/nyc",
     "tslint": "./node_modules/.bin/tslint",
     "rimraf": "./node_modules/.bin/rimraf"
