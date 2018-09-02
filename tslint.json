@@ -9,7 +9,8 @@
         "max-line-length": [true, 100],
         "object-literal-sort-keys": false,
         "no-console": false,
-        "interface-name": false
+        "interface-name": false,
+        "no-bitwise": false
     },
     "rulesDirectory": []
 }
