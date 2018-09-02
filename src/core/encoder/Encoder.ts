@@ -26,14 +26,8 @@ export class Encoder {
         data[0] = version;
         data[1] = content.length;
 
-        content = content.toUpperCase();
         for (let i = 0; i < content.length; i++) {
-            const c: string = content.charAt(i);
-            if (c >= "0" && c <= "9") {
-                data[i + 2] = 26 + c.charCodeAt(0) - "0".charCodeAt(0);
-            } else {
-                data[i + 2] = c.charCodeAt(0) - "A".charCodeAt(0);
-            }
+            data[i + 2] = Constants.MAPPING_TABLE[content.charCodeAt(i)];
         }
 
         return { version, rows, cols, data };
