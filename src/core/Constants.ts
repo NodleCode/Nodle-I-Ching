@@ -1,7 +1,9 @@
 export const Constants = {
     VERSION: 0,
-    ROWS: 8,
-    COLS: 8,
+    SPECS: {
+        ROWS: 8,
+        COLS: 8,
+    },
     MAPPING_TABLE: [
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

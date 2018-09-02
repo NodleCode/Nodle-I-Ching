@@ -15,8 +15,8 @@ export class Encoder {
      */
     public static encode(content: string): EncodedIChing {
         const version: number = Constants.VERSION;
-        const rows: number = Constants.ROWS;
-        const cols: number = Constants.COLS;
+        const rows: number = Constants.SPECS.ROWS;
+        const cols: number = Constants.SPECS.COLS;
 
         const data: number[] = [];
         for (let i = 0; i < rows * cols; i++) {
