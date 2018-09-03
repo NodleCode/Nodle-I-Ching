@@ -1,5 +1,5 @@
 import { BitMatrix } from "../BitMatrix";
-import * as Constants from "../Constants";
+import * as Constants from "../constants";
 import { EncodedIChing } from "../EncodedIChing";
 import { ImageData } from "../ImageData";
 import { Point } from "../Point";

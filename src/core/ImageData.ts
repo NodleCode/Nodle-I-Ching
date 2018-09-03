@@ -12,8 +12,8 @@ export class ImageData {
     public data: Uint8ClampedArray;
 
     public constructor(matrix: BitMatrix) {
-        this.height = matrix.height;
-        this.width = matrix.width;
+        this.height = matrix.rows;
+        this.width = matrix.cols;
         this.data = new Uint8ClampedArray(4 * this.height * this.width);
         let idx: number = 0;
         for (let i = 0; i < this.height; i++) {
