@@ -80,17 +80,21 @@ export class Writer {
     }
 
     private static drawCircle(c: Point, r: number, color: number, matrix: BitMatrix): void {
-        let x = 0;
-        let y = r;
-        let d = 3 - 2 * r;
-        while (y >= x) {
+        let x = r - 1;
+        let y = 0;
+        let dx = 1;
+        let dy = 1;
+        let err = dx - 2 * r;
+        while (x >= y) {
             this.setPixelSymmetricOctant(c, x, y, color, matrix);
-            x++;
-            if (d > 0) {
-                y--;
-                d = d + 4 * (x - y) + 10;
+            if (err <= 0) {
+                y++;
+                err += dy;
+                dy += 2;
             } else {
-                d = d + 4 * x + 6;
+                x--;
+                dx += 2;
+                err += dx - 2 * r;
             }
         }
     }
