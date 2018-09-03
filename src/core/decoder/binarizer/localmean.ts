@@ -1,8 +1,8 @@
 import { ByteMatrix } from "../../ByteMatrix";
 import { BLOCK_SIZE, MAX_VARIANCE } from "../../constants";
 
-export function localMean(mat): ByteMatrix {
-    const mean = new ByteMatrix(Math.ceil(mat.rows), Math.ceil(mat.cols));
+export function localMean(mat: ByteMatrix): ByteMatrix {
+    const mean = new ByteMatrix(mat.rows, mat.cols);
     for (let y = 0; y < mat.rows; ++y) {
         for (let x = 0; x < mat.cols; ++x) {
             // Boundaries for block y coordinates.

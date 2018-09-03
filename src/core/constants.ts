@@ -17,7 +17,7 @@ export const Constants = {
 };
 
 /**
- * Greyscale conversion cofficients.
+ * Grayscale conversion cofficients.
  * ITU-R recommendation (BT.709).  This formula, sometimes called Luma
  * Gray = (Red * 0.2126 + Green * 0.7152 + Blue * 0.0722)
  */

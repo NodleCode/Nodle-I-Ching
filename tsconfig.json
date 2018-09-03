@@ -11,7 +11,7 @@
         ],
         "outDir": "./lib/esm5/-",
         "alwaysStrict": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "sourceMap": true,
         "declaration": true,
         "preserveConstEnums": true

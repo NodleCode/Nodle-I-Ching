@@ -8,15 +8,15 @@ export function binarize(data: Uint8ClampedArray, rows: number, cols: number): B
         throw new Error("incorrect data length!");
     }
     // Convert the photo to single channel.
-    const greyscaleMatrix: ByteMatrix = toGrayscale(data, rows, cols);
+    const grayscaleMatrix = toGrayscale(data, rows, cols);
     // Calculate the local mean for each pixels from surrounding pixels.
-    const mean: ByteMatrix = localMean(greyscaleMatrix);
+    const mean = localMean(grayscaleMatrix);
 
     // Threshold each pixel using the localmean threshold value calculated from surrounding block.
     const binarized = new BitMatrix(rows, cols);
     for (let y = 0; y < rows; ++y) {
         for (let x = 0; x < cols; ++x) {
-            const pixelVal = greyscaleMatrix.get(x, y);
+            const pixelVal = grayscaleMatrix.get(x, y);
             const threshold = mean.get(x, y);
             binarized.set(x, y, pixelVal < threshold ? 1 : 0);
         }
