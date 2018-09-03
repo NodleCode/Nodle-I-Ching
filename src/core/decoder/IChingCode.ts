@@ -1,4 +1,4 @@
-import { Point } from "./Point";
+import { Point } from "../Point";
 
 /**
  * Interface representing the decoded IChing code and information about the image.
