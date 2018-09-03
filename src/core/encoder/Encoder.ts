@@ -1,4 +1,4 @@
-import { Constants } from "../constants";
+import * as Constants from "../constants";
 import { EncodedIChing } from "../EncodedIChing";
 
 /**
@@ -15,8 +15,8 @@ export class Encoder {
      */
     public static encode(content: string): EncodedIChing {
         const version: number = Constants.VERSION;
-        const rows: number = Constants.SPECS.ROWS;
-        const cols: number = Constants.SPECS.COLS;
+        const rows: number = Constants.ROWS;
+        const cols: number = Constants.COLS;
 
         const data: number[] = [];
         for (let i = 0; i < rows * cols; i++) {

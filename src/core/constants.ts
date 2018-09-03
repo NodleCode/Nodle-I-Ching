@@ -1,10 +1,10 @@
-export const Constants = {
-    VERSION: 0,
-    SPECS: {
-        ROWS: 8,
-        COLS: 8,
-    },
-    MAPPING_TABLE: [
+/**
+ * Encoder-related constants.
+ */
+export const VERSION: number = 0;
+export const ROWS: number = 8;
+export const COLS: number = 8;
+export const MAPPING_TABLE: number[] = [
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -40,3 +40,13 @@ export const MEAN_CONST = 7;
  * Maximum possible variance for a block in order to be considered from the same color.
  */
 export const MAX_VARIANCE = 25;
+
+/**
+ * Writer-related constants.
+ */
+export const UNIT_DIM: number = 14;
+export const BITS_PER_SYMBOL: number = 6;
+export const SYMBOL_DIM: number = (BITS_PER_SYMBOL * 2 - 1) * UNIT_DIM;
+export const GAP_DIM: number = UNIT_DIM * 3;
+export const GRID_OFFSET: number = SYMBOL_DIM * 2;
+export const FINDER_RADIUS: number = SYMBOL_DIM * 0.5;
