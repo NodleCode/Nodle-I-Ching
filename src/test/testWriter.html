@@ -6,12 +6,16 @@
         <img id="myImg" width="500" height="500">
         <script>
             function loadImage() {
-                const writer = new iching.Writer("myImg");
-                let data = [];
-                for (let i = 0; i < 64; i++)
-                    data[i] = i;
-                console.log(data);
-                writer.createImage(data, 8, 8);
+                const encoded = iching.Encoder.encode("oroboro2018");
+                const imgData = iching.Writer.render(encoded);
+                const canvas = document.createElement("canvas");
+                canvas.width = imgData.width;
+                canvas.height = imgData.height;
+                const ctx = canvas.getContext('2d');
+                const ctxImgData = new ImageData(imgData.data, imgData.width, imgData.height);
+                ctx.putImageData(ctxImgData, 0, 0);
+                const img = document.getElementById("myImg");
+                img.src = canvas.toDataURL();
             }
         </script>
     </body>
