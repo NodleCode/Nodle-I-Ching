@@ -2,6 +2,8 @@ import * as Constants from "../constants";
 import { EncodedIChing } from "../EncodedIChing";
 
 /**
+ * Encoder class encapsulating IChing content encoding methods.
+ *
  * @export
  * @class Encoder
  */
@@ -11,7 +13,7 @@ export class Encoder {
      *
      * @static
      * @param {string} content
-     * @returns {EncodedIChing}
+     * @returns {@link EncodedIChing}
      */
     public static encode(content: string): EncodedIChing {
         const version: number = Constants.VERSION;

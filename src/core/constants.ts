@@ -50,3 +50,4 @@ export const SYMBOL_DIM: number = (BITS_PER_SYMBOL * 2 - 1) * UNIT_DIM;
 export const GAP_DIM: number = UNIT_DIM * 3;
 export const GRID_OFFSET: number = SYMBOL_DIM * 2;
 export const FINDER_RADIUS: number = SYMBOL_DIM * 0.5;
+export const FINDER_OFFSET: number = SYMBOL_DIM * 1.5;
