@@ -9,7 +9,7 @@
             "es7",
             "dom"
         ],
-        "outDir": "./lib/esm5/-",
+        "outDir": "./lib/esm5",
         "alwaysStrict": true,
         "noImplicitAny": true,
         "sourceMap": true,

@@ -1,5 +1,5 @@
 import { ByteMatrix } from "../../ByteMatrix";
-import { BLOCK_SIZE, MAX_VARIANCE } from "../../constants";
+import { BLOCK_SIZE, MAX_VARIANCE, MEAN_CONST } from "../../constants";
 
 export function localMean(mat: ByteMatrix): ByteMatrix {
     const mean = new ByteMatrix(mat.rows, mat.cols);
@@ -32,22 +32,23 @@ export function localMean(mat: ByteMatrix): ByteMatrix {
             }
 
             const variance = max - min;
+            let average;
             if (variance > MAX_VARIANCE) {
                 // If the variance between block pixels is larger than the maximum variance
                 // then consider them from different colors and use the average as
                 // the local threshold.
-                mean.set(x, y, sum / (BLOCK_SIZE * BLOCK_SIZE));
+                average = sum / (BLOCK_SIZE * BLOCK_SIZE);
             } else {
-                // If the variance is small then consider the block pixels has the same color
-                // equal to the left/top pixel color since they are contained in the same block.
-                if (x > 0) {
-                    mean.set(x, y, mean.get(x - 1, y));
-                } else if (y > 0) {
-                    mean.set(x, y, mean.get(x, y - 1));
+                // If the variance is small then consider the block pixels has the same color equal
+                // to the left & top pixel average color since they are contained in the same block.
+                if (x > 0 && y > 0) {
+                    average = (mean.get(x - 1, y) + mean.get(x, y - 1)) / 2;
                 } else {
-                    mean.set(x, y, 0);
+                    // if it's border pixel then assume it's a white background, make average < min
+                    average = min / 2;
                 }
             }
+            mean.set(x, y, average - MEAN_CONST);
         }
     }
 

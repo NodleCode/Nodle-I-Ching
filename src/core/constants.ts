@@ -16,7 +16,7 @@ export const BLOCK_SIZE = 8;
 /**
  * Constant substracted from the local mean value for each block.
  */
-export const MEAN_CONST = 7;
+export const MEAN_CONST = 4;
 
 /**
  * Maximum possible variance for a block in order to be considered from the same color.
