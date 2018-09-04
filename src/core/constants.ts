@@ -1,5 +1,11 @@
 /**
  * Encoder-related constants.
+ *
+ * VERSION - IChing code version.
+ * ROWS - Number of rows of symbols in an IChing code.
+ * COLS - Number of columns of symbols in an IChing code.
+ * MAPPING_TABLE - Table used to convert alpha-numeric characters from Unicode (index of the table)
+ *                 to internal codes used in IChing.
  */
 export const VERSION: number = 0;
 export const ROWS: number = 8;
@@ -42,6 +48,14 @@ export const MAX_VARIANCE = 25;
 
 /**
  * Writer-related constants.
+ *
+ * UNIT_DIM - Basic "unit" dimension in pixels. All other dimensions are based on this.
+ * BITS_PER_SYMBOL - Number of bits represented in a single symbol.
+ * SYMBOL_DIM - Height/width of a single symbol.
+ * GAP_DIM - Size of the gap between any two adjacent symbols.
+ * GRID_OFFSET - Where the grid of symbols begin/end, relative to the edges of the image.
+ * FINDER_RADIUS - Radius of the finder pattern.
+ * FINDER_OFFSET - Distance between the centres of the finder patterns and the edges of the image.
  */
 export const UNIT_DIM: number = 14;
 export const BITS_PER_SYMBOL: number = 6;

@@ -21,8 +21,10 @@ export class Writer {
     public static render(code: EncodedIChing): ImageData {
         const rows = code.rows;
         const cols = code.cols;
-        const imgHeight = (rows + 4) * Constants.SYMBOL_DIM + (rows - 1) * Constants.GAP_DIM;
-        const imgWidth = (cols + 4) * Constants.SYMBOL_DIM + (cols - 1) * Constants.GAP_DIM;
+        const imgHeight = rows * Constants.SYMBOL_DIM + (rows - 1) * Constants.GAP_DIM
+            + Constants.GRID_OFFSET * 2;
+        const imgWidth = cols * Constants.SYMBOL_DIM + (cols - 1) * Constants.GAP_DIM
+            + Constants.GRID_OFFSET * 2;
 
         // Creates a BitMatrix filled with 0s.
         const matrix = new BitMatrix(imgHeight, imgWidth);
@@ -79,8 +81,15 @@ export class Writer {
         }
     }
 
+    /**
+     * Draws a circle with the given parameters, using the mid-point algorithm variant with
+     * integer-based arithmetic.
+     *
+     * @see [Wikipedia's page]{@link https://en.wikipedia.org/wiki/Midpoint_circle_algorithm}
+     * for more info.
+     */
     private static drawCircle(c: Point, r: number, color: number, matrix: BitMatrix): void {
-        let x = r - 1;
+        let x = r;
         let y = 0;
         let dx = 1;
         let dy = 1;
@@ -99,6 +108,10 @@ export class Writer {
         }
     }
 
+    /**
+     * Takes pixel coordinates in one octant and sets it symmetrically in all 8 octants,
+     * relative to the given centre.
+     */
     private static setPixelSymmetricOctant(
         c: Point, x: number, y: number, color: number, matrix: BitMatrix,
     ): void {
@@ -116,21 +129,24 @@ export class Writer {
         const startX = col * (Constants.SYMBOL_DIM + Constants.GAP_DIM) + Constants.GRID_OFFSET;
         const startY = row * (Constants.SYMBOL_DIM + Constants.GAP_DIM) + Constants.GRID_OFFSET;
 
-        for (let b = 0; b < Constants.BITS_PER_SYMBOL; b++) {
+        for (let bit = 0; bit < Constants.BITS_PER_SYMBOL; bit++) {
+            // Draw a filled rectangle representing the bit.
             this.fillRect(
-                startX, startY + Constants.UNIT_DIM * b * 2,
+                startX, startY + Constants.UNIT_DIM * bit * 2,
                 Constants.SYMBOL_DIM, Constants.UNIT_DIM, 1, matrix,
             );
 
-            if ((mask & (1 << b)) === 0) {
+            // If bit is zero, clear middle area.
+            if ((mask & (1 << bit)) === 0) {
                 this.fillRect(
-                    startX + Constants.UNIT_DIM * 4.5, startY + Constants.UNIT_DIM * b * 2,
+                    startX + Constants.UNIT_DIM * 4.5, startY + Constants.UNIT_DIM * bit * 2,
                     Constants.UNIT_DIM * 2, Constants.UNIT_DIM, 0, matrix,
                 );
             }
         }
     }
 
+    // Draws a filled rectangle with given parameters.
     private static fillRect(
         x: number, y: number, width: number, height: number, color: number, matrix: BitMatrix,
     ): void {
