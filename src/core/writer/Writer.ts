@@ -78,14 +78,14 @@ export class Writer {
     public render(code: EncodedIChing): ImageData {
         const rows = code.rows;
         const cols = code.cols;
-        const imgHeight = rows * Writer.SYMBOL_DIM + (rows - 1) * Writer.GAP_DIM
+        const baseHeight = rows * Writer.SYMBOL_DIM + (rows - 1) * Writer.GAP_DIM
             + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
-        const imgWidth = cols * Writer.SYMBOL_DIM + (cols - 1) * Writer.GAP_DIM
+        const baseWidth = cols * Writer.SYMBOL_DIM + (cols - 1) * Writer.GAP_DIM
             + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
 
-        // Calculate scale.
+        // Calculate scaling factor based on base dimensions and desired output image dimension.
         this.scale = Math.min(
-            Math.floor(this.width / imgWidth), Math.floor(this.height / imgHeight),
+            Math.floor(this.width / baseWidth), Math.floor(this.height / baseHeight),
         );
         if (this.scale < 1) {
             throw new Error("Resolution is too small!");
@@ -95,8 +95,8 @@ export class Writer {
         this.matrix = new BitMatrix(this.height, this.width);
 
         // Calculate padding.
-        this.padX = Math.floor((this.width - imgWidth * this.scale) / 2);
-        this.padY = Math.floor((this.height - imgHeight * this.scale) / 2);
+        this.padX = Math.floor((this.width - baseWidth * this.scale) / 2);
+        this.padY = Math.floor((this.height - baseHeight * this.scale) / 2);
 
         // Draw finder patterns.
         const finderOffsetX = (Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS) * this.scale
@@ -156,8 +156,8 @@ export class Writer {
      * for more info.
      */
     private drawCircle(c: Point, r: number, color: number): void {
-        r = Math.floor(r);
-        c = { x: Math.floor(c.x), y: Math.floor(c.y) };
+        r = Math.round(r);
+        c = { x: Math.round(c.x), y: Math.round(c.y) };
         let x = r;
         let y = 0;
         let dx = 1;
