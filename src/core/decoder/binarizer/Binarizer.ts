@@ -22,9 +22,9 @@ export abstract class Binarizer {
     public static MEAN_CONST = 4;
 
     /**
-     * Maximum possible variance for a block in order to be considered from the same color.
+     * Minimum possible variance for a block in order to be considered mix of different colors.
      */
-    public static MAX_VARIANCE = 25;
+    public static MIN_VARIANCE = 25;
 
     /**
      * @description Transforms image data to grayscale ByteMatrix

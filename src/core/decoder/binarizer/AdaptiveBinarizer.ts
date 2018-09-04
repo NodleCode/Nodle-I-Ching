@@ -61,15 +61,12 @@ export class AdaptiveBinarizer extends Binarizer {
                 const xEnd = Math.min(mat.cols, x + Binarizer.BLOCK_SIZE / 2);
 
                 let sum = 0;
-                // initialize min, max with the lowest, larget possible pixel values respectivily.
+                // Initialise min, max with the highest, lowest possible pixel values respectively.
                 let min = 255;
                 let max = 0;
                 for (let yPix = yStart; yPix < yEnd; ++yPix) {
                     for (let xPix = xStart; xPix < xEnd; ++ xPix) {
-                        const pixelValue = mat.get(
-                            x * Binarizer.BLOCK_SIZE + xPix,
-                            y * Binarizer.BLOCK_SIZE + yPix,
-                        );
+                        const pixelValue = mat.get(xPix, yPix);
                         // Calculate the pixels sum in the block
                         sum += pixelValue;
                         // Determine the lowest and larget pixel in the block
@@ -84,11 +81,12 @@ export class AdaptiveBinarizer extends Binarizer {
 
                 const variance = max - min;
                 let average;
-                if (variance > Binarizer.MAX_VARIANCE) {
+                if (variance > Binarizer.MIN_VARIANCE) {
                     // If the variance between block pixels is larger than the maximum variance
                     // then consider them from different colors and use the average as
                     // the local threshold.
-                    average = sum / (Binarizer.BLOCK_SIZE * Binarizer.BLOCK_SIZE);
+                    average = sum / (Binarizer.BLOCK_SIZE * Binarizer.BLOCK_SIZE)
+                        - Binarizer.MEAN_CONST;
                 } else {
                     // If the variance is small then consider the block pixels has the same
                     // color equal to the left & top pixel average color since they are contained
@@ -97,10 +95,10 @@ export class AdaptiveBinarizer extends Binarizer {
                         average = (mean.get(x - 1, y) + mean.get(x, y - 1)) / 2;
                     } else {
                         // if it's border then assume it's a white background, make average < min
-                        average = min / 2;
+                        average = min - Binarizer.MEAN_CONST;
                     }
                 }
-                mean.set(x, y, average - Binarizer.MEAN_CONST);
+                mean.set(x, y, average);
             }
         }
 
