@@ -10,7 +10,8 @@
         "object-literal-sort-keys": false,
         "no-console": false,
         "interface-name": false,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "member-ordering": [true, {"order": "fields-first"}]
     },
     "rulesDirectory": []
 }

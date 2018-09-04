@@ -1,5 +1,4 @@
 import { BitMatrix } from "../BitMatrix";
-import * as Constants from "../constants";
 import { EncodedIChing } from "../EncodedIChing";
 import { ImageData } from "../ImageData";
 import { Point } from "../Point";
@@ -12,6 +11,48 @@ import { Point } from "../Point";
  */
 export class Writer {
     /**
+     * UNIT_DIM - Basic "unit" dimension in pixels. All other dimensions are based on this.
+     */
+    public static UNIT_DIM: number = 14;
+    /**
+     * BITS_PER_SYMBOL - Number of bits represented in a single symbol.
+     */
+    public static BITS_PER_SYMBOL: number = 6;
+    /**
+     * SYMBOL_DIM - Height/width of a single symbol.
+     */
+    public static SYMBOL_DIM: number = (Writer.BITS_PER_SYMBOL * 2 - 1) * Writer.UNIT_DIM;
+    /**
+     * BIT_ZERO_OFFSET - Offset, from the left edge of the symbol,
+     * of the middle bit area to be cleared if bit is zero.
+     */
+    public static BIT_ZERO_OFFSET: number = Writer.UNIT_DIM * 4.5;
+    /**
+     * BIT_ZERO_WIDTH - Width of the middle bit area to be cleared if bit is zero.
+     */
+    public static BIT_ZERO_WIDTH: number = Writer.UNIT_DIM * 2;
+    /**
+     * GAP_DIM - Size of the gap between any two adjacent symbols.
+     */
+    public static GAP_DIM: number = Writer.UNIT_DIM * 3;
+    /**
+     * FINDER_OUTER_RADIUS - Radius of the finder pattern's outer ring.
+     */
+    public static FINDER_OUTER_RADIUS: number = Writer.SYMBOL_DIM * 0.5;
+    /**
+     * FINDER_MIDDLE_RADIUS - Radius of the finder pattern's middle ring.
+     */
+    public static FINDER_MIDDLE_RADIUS: number = Writer.FINDER_OUTER_RADIUS * 5 / 7;
+    /**
+     * FINDER_INNER_RADIUS - Radius of the finder pattern's inner ring.
+     */
+    public static FINDER_INNER_RADIUS: number = Writer.FINDER_OUTER_RADIUS * 3 / 7;
+    /**
+     * QUIET_ZONE - Size of the quiet zone around the rendered symbol.
+     */
+    public static QUIET_ZONE: number = Writer.SYMBOL_DIM;
+
+    /**
      * Renders the provided encoded IChing.
      *
      * @static
@@ -21,29 +62,23 @@ export class Writer {
     public static render(code: EncodedIChing): ImageData {
         const rows = code.rows;
         const cols = code.cols;
-        const imgHeight = rows * Constants.SYMBOL_DIM + (rows - 1) * Constants.GAP_DIM
-            + Constants.GRID_OFFSET * 2;
-        const imgWidth = cols * Constants.SYMBOL_DIM + (cols - 1) * Constants.GAP_DIM
-            + Constants.GRID_OFFSET * 2;
+        const imgHeight = rows * this.SYMBOL_DIM + (rows - 1) * this.GAP_DIM
+            + (this.FINDER_OUTER_RADIUS * 2 + this.QUIET_ZONE) * 2;
+        const imgWidth = cols * this.SYMBOL_DIM + (cols - 1) * this.GAP_DIM
+            + (this.FINDER_OUTER_RADIUS * 2 + this.QUIET_ZONE) * 2;
 
         // Creates a BitMatrix filled with 0s.
         const matrix = new BitMatrix(imgHeight, imgWidth);
 
         // Draw finder patterns.
-        this.drawFinderPattern(
-            { x: Constants.FINDER_OFFSET, y: Constants.FINDER_OFFSET }, matrix,
-        );
-        this.drawFinderPattern(
-            { x: imgWidth - Constants.FINDER_OFFSET, y: Constants.FINDER_OFFSET }, matrix,
-        );
-        this.drawFinderPattern(
-            { x: Constants.FINDER_OFFSET, y: imgHeight - Constants.FINDER_OFFSET }, matrix,
-        );
+        const finderOffset = this.QUIET_ZONE + this.FINDER_OUTER_RADIUS;
+        this.drawFinderPattern({ x: finderOffset, y: finderOffset }, matrix);
+        this.drawFinderPattern({ x: imgWidth - finderOffset, y: finderOffset }, matrix);
+        this.drawFinderPattern({ x: finderOffset, y: imgHeight - finderOffset }, matrix);
 
         // Draw alignment pattern.
         this.drawAlignmentPattern(
-            { x: imgWidth - Constants.FINDER_OFFSET, y: imgHeight - Constants.FINDER_OFFSET },
-            matrix,
+            { x: imgWidth - finderOffset, y: imgHeight - finderOffset }, matrix,
         );
 
         // Draw symbols.
@@ -56,10 +91,11 @@ export class Writer {
         return new ImageData(matrix);
     }
 
+    // TODO: Change filling algorithm.
     private static drawFinderPattern(centre: Point, matrix: BitMatrix): void {
-        const r1 = Constants.FINDER_RADIUS * 3 / 7;
-        const r2 = Constants.FINDER_RADIUS * 5 / 7;
-        const r3 = Constants.FINDER_RADIUS;
+        const r1 = this.FINDER_INNER_RADIUS;
+        const r2 = this.FINDER_MIDDLE_RADIUS;
+        const r3 = this.FINDER_OUTER_RADIUS;
 
         // Inner black circle.
         for (let i = 0; i <= r1; i++) {
@@ -73,8 +109,8 @@ export class Writer {
     }
 
     private static drawAlignmentPattern(centre: Point, matrix: BitMatrix): void {
-        const r1 = Constants.FINDER_RADIUS * 3 / 7;
-        const r2 = Constants.FINDER_RADIUS * 5 / 7;
+        const r1 = this.FINDER_INNER_RADIUS;
+        const r2 = this.FINDER_MIDDLE_RADIUS;
 
         for (let i = r1 + 1; i <= r2; i++) {
             this.drawCircle(centre, i, 1, matrix);
@@ -126,21 +162,21 @@ export class Writer {
     }
 
     private static drawSymbol(row: number, col: number, mask: number, matrix: BitMatrix): void {
-        const startX = col * (Constants.SYMBOL_DIM + Constants.GAP_DIM) + Constants.GRID_OFFSET;
-        const startY = row * (Constants.SYMBOL_DIM + Constants.GAP_DIM) + Constants.GRID_OFFSET;
+        const gridOffset = this.QUIET_ZONE + this.FINDER_OUTER_RADIUS * 2;
+        const startX = col * (this.SYMBOL_DIM + this.GAP_DIM) + gridOffset;
+        const startY = row * (this.SYMBOL_DIM + this.GAP_DIM) + gridOffset;
+        const bitWidth = this.SYMBOL_DIM;
+        const bitHeight = this.UNIT_DIM;
 
-        for (let bit = 0; bit < Constants.BITS_PER_SYMBOL; bit++) {
+        for (let bit = 0, x = startX, y = startY; bit < this.BITS_PER_SYMBOL;
+                bit++, y += bitHeight * 2) {
             // Draw a filled rectangle representing the bit.
-            this.fillRect(
-                startX, startY + Constants.UNIT_DIM * bit * 2,
-                Constants.SYMBOL_DIM, Constants.UNIT_DIM, 1, matrix,
-            );
+            this.fillRect(x, y, bitWidth, bitHeight, 1, matrix);
 
             // If bit is zero, clear middle area.
             if ((mask & (1 << bit)) === 0) {
                 this.fillRect(
-                    startX + Constants.UNIT_DIM * 4.5, startY + Constants.UNIT_DIM * bit * 2,
-                    Constants.UNIT_DIM * 2, Constants.UNIT_DIM, 0, matrix,
+                    x + this.BIT_ZERO_OFFSET, y, this.BIT_ZERO_WIDTH, bitHeight, 0, matrix,
                 );
             }
         }
