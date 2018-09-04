@@ -13,7 +13,7 @@ export class Writer {
     /**
      * UNIT_DIM - Basic "unit" dimension in pixels. All other dimensions are based on this.
      */
-    public static UNIT_DIM: number = 14;
+    public static UNIT_DIM: number = 2;
     /**
      * BITS_PER_SYMBOL - Number of bits represented in a single symbol.
      */
@@ -52,68 +52,99 @@ export class Writer {
      */
     public static QUIET_ZONE: number = Writer.SYMBOL_DIM;
 
+    private matrix: BitMatrix;
+    private scale: number;
+    private width: number;
+    private height: number;
+    private padX: number;
+    private padY: number;
+
+    /**
+     * Creates an instance of Writer.
+     *
+     * @param {number} [resolution=2142] - desired height and width of the rendered image.
+     */
+    public constructor(resolution: number = 2142) {
+        this.height = resolution;
+        this.width = resolution;
+    }
+
     /**
      * Renders the provided encoded IChing.
      *
-     * @static
      * @param {EncodedIChing} code - Object representing an encoded IChing.
      * @returns {ImageData} - Image data for the rendered IChing.
      */
-    public static render(code: EncodedIChing): ImageData {
+    public render(code: EncodedIChing): ImageData {
         const rows = code.rows;
         const cols = code.cols;
-        const imgHeight = rows * this.SYMBOL_DIM + (rows - 1) * this.GAP_DIM
-            + (this.FINDER_OUTER_RADIUS * 2 + this.QUIET_ZONE) * 2;
-        const imgWidth = cols * this.SYMBOL_DIM + (cols - 1) * this.GAP_DIM
-            + (this.FINDER_OUTER_RADIUS * 2 + this.QUIET_ZONE) * 2;
+        const baseHeight = rows * Writer.SYMBOL_DIM + (rows - 1) * Writer.GAP_DIM
+            + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
+        const baseWidth = cols * Writer.SYMBOL_DIM + (cols - 1) * Writer.GAP_DIM
+            + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
+
+        // Calculate scaling factor based on base dimensions and desired output image dimension.
+        this.scale = Math.min(
+            Math.floor(this.width / baseWidth), Math.floor(this.height / baseHeight),
+        );
+        if (this.scale < 1) {
+            throw new Error("Resolution is too small!");
+        }
 
         // Creates a BitMatrix filled with 0s.
-        const matrix = new BitMatrix(imgHeight, imgWidth);
+        this.matrix = new BitMatrix(this.height, this.width);
+
+        // Calculate padding.
+        this.padX = Math.floor((this.width - baseWidth * this.scale) / 2);
+        this.padY = Math.floor((this.height - baseHeight * this.scale) / 2);
 
         // Draw finder patterns.
-        const finderOffset = this.QUIET_ZONE + this.FINDER_OUTER_RADIUS;
-        this.drawFinderPattern({ x: finderOffset, y: finderOffset }, matrix);
-        this.drawFinderPattern({ x: imgWidth - finderOffset, y: finderOffset }, matrix);
-        this.drawFinderPattern({ x: finderOffset, y: imgHeight - finderOffset }, matrix);
+        const finderOffsetX = (Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS) * this.scale
+            + this.padX;
+        const finderOffsetY = (Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS) * this.scale
+            + this.padY;
+        this.drawFinderPattern({ x: finderOffsetX, y: finderOffsetY });
+        this.drawFinderPattern({ x: this.width - finderOffsetX, y: finderOffsetY });
+        this.drawFinderPattern({ x: finderOffsetX, y: this.height - finderOffsetY });
 
         // Draw alignment pattern.
         this.drawAlignmentPattern(
-            { x: imgWidth - finderOffset, y: imgHeight - finderOffset }, matrix,
+            { x: this.width - finderOffsetX, y: this.height - finderOffsetY },
         );
 
         // Draw symbols.
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
-                this.drawSymbol(i, j, code.data[i * cols + j], matrix);
+                this.drawSymbol(i, j, code.data[i * cols + j]);
             }
         }
 
-        return new ImageData(matrix);
+        return new ImageData(this.matrix);
     }
 
     // TODO: Change filling algorithm.
-    private static drawFinderPattern(centre: Point, matrix: BitMatrix): void {
-        const r1 = this.FINDER_INNER_RADIUS;
-        const r2 = this.FINDER_MIDDLE_RADIUS;
-        const r3 = this.FINDER_OUTER_RADIUS;
+    private drawFinderPattern(centre: Point): void {
+        const r1 = Writer.FINDER_INNER_RADIUS * this.scale;
+        const r2 = Writer.FINDER_MIDDLE_RADIUS * this.scale;
+        const r3 = Writer.FINDER_OUTER_RADIUS * this.scale;
 
         // Inner black circle.
         for (let i = 0; i <= r1; i++) {
-            this.drawCircle(centre, i, 1, matrix);
+            this.drawCircle(centre, i, 1);
         }
 
         // Outer black ring.
         for (let i = r2 + 1; i <= r3; i++) {
-            this.drawCircle(centre, i, 1, matrix);
+            this.drawCircle(centre, i, 1);
         }
     }
 
-    private static drawAlignmentPattern(centre: Point, matrix: BitMatrix): void {
-        const r1 = this.FINDER_INNER_RADIUS;
-        const r2 = this.FINDER_MIDDLE_RADIUS;
+    private drawAlignmentPattern(centre: Point): void {
+        const r1 = Writer.FINDER_INNER_RADIUS * this.scale;
+        const r2 = Writer.FINDER_MIDDLE_RADIUS * this.scale;
 
         for (let i = r1 + 1; i <= r2; i++) {
-            this.drawCircle(centre, i, 1, matrix);
+            this.drawCircle(centre, i, 1);
         }
     }
 
@@ -124,14 +155,16 @@ export class Writer {
      * @see [Wikipedia's page]{@link https://en.wikipedia.org/wiki/Midpoint_circle_algorithm}
      * for more info.
      */
-    private static drawCircle(c: Point, r: number, color: number, matrix: BitMatrix): void {
+    private drawCircle(c: Point, r: number, color: number): void {
+        r = Math.round(r);
+        c = { x: Math.round(c.x), y: Math.round(c.y) };
         let x = r;
         let y = 0;
         let dx = 1;
         let dy = 1;
         let err = dx - 2 * r;
         while (x >= y) {
-            this.setPixelSymmetricOctant(c, x, y, color, matrix);
+            this.setPixelSymmetricOctant(c, x, y, color);
             if (err <= 0) {
                 y++;
                 err += dy;
@@ -148,47 +181,45 @@ export class Writer {
      * Takes pixel coordinates in one octant and sets it symmetrically in all 8 octants,
      * relative to the given centre.
      */
-    private static setPixelSymmetricOctant(
-        c: Point, x: number, y: number, color: number, matrix: BitMatrix,
-    ): void {
-        matrix.set(c.x + x, c.y + y, color);
-        matrix.set(c.x + x, c.y - y, color);
-        matrix.set(c.x - x, c.y + y, color);
-        matrix.set(c.x - x, c.y - y, color);
-        matrix.set(c.x + y, c.y + x, color);
-        matrix.set(c.x + y, c.y - x, color);
-        matrix.set(c.x - y, c.y + x, color);
-        matrix.set(c.x - y, c.y - x, color);
+    private setPixelSymmetricOctant(c: Point, x: number, y: number, color: number): void {
+        this.matrix.set(c.x + x, c.y + y, color);
+        this.matrix.set(c.x + x, c.y - y, color);
+        this.matrix.set(c.x - x, c.y + y, color);
+        this.matrix.set(c.x - x, c.y - y, color);
+        this.matrix.set(c.x + y, c.y + x, color);
+        this.matrix.set(c.x + y, c.y - x, color);
+        this.matrix.set(c.x - y, c.y + x, color);
+        this.matrix.set(c.x - y, c.y - x, color);
     }
 
-    private static drawSymbol(row: number, col: number, mask: number, matrix: BitMatrix): void {
-        const gridOffset = this.QUIET_ZONE + this.FINDER_OUTER_RADIUS * 2;
-        const startX = col * (this.SYMBOL_DIM + this.GAP_DIM) + gridOffset;
-        const startY = row * (this.SYMBOL_DIM + this.GAP_DIM) + gridOffset;
-        const bitWidth = this.SYMBOL_DIM;
-        const bitHeight = this.UNIT_DIM;
+    private drawSymbol(row: number, col: number, mask: number): void {
+        const gridOffset = Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS * 2;
+        const startX = (col * (Writer.SYMBOL_DIM + Writer.GAP_DIM) + gridOffset) * this.scale
+            + this.padX;
+        const startY = (row * (Writer.SYMBOL_DIM + Writer.GAP_DIM) + gridOffset) * this.scale
+            + this.padY;
+        const bitWidth = Writer.SYMBOL_DIM * this.scale;
+        const bitHeight = Writer.UNIT_DIM * this.scale;
+        const zeroOffset = Writer.BIT_ZERO_OFFSET * this.scale;
+        const zeroWidth = Writer.BIT_ZERO_WIDTH * this.scale;
 
-        for (let bit = 0, x = startX, y = startY; bit < this.BITS_PER_SYMBOL;
+        for (let bit = 0, x = startX, y = startY; bit < Writer.BITS_PER_SYMBOL;
                 bit++, y += bitHeight * 2) {
             // Draw a filled rectangle representing the bit.
-            this.fillRect(x, y, bitWidth, bitHeight, 1, matrix);
+            this.fillRect(x, y, bitWidth, bitHeight, 1);
 
             // If bit is zero, clear middle area.
             if ((mask & (1 << bit)) === 0) {
-                this.fillRect(
-                    x + this.BIT_ZERO_OFFSET, y, this.BIT_ZERO_WIDTH, bitHeight, 0, matrix,
-                );
+                this.fillRect(x + zeroOffset, y, zeroWidth, bitHeight, 0);
             }
         }
     }
 
     // Draws a filled rectangle with given parameters.
-    private static fillRect(
-        x: number, y: number, width: number, height: number, color: number, matrix: BitMatrix,
-    ): void {
+    private fillRect(x: number, y: number, width: number, height: number, color: number): void {
         for (let i = 0; i < height; i++) {
             for (let j = 0; j < width; j++) {
-                matrix.set(x + j, y + i, color);
+                this.matrix.set(x + j, y + i, color);
             }
         }
     }
