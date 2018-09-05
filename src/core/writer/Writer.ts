@@ -128,24 +128,25 @@ export class Writer {
         const r2 = Writer.FINDER_MIDDLE_RADIUS * this.scale;
         const r3 = Writer.FINDER_OUTER_RADIUS * this.scale;
 
-        // Inner black circle.
-        for (let i = 0; i <= r1; i++) {
-            this.drawCircle(centre, i, 1);
-        }
-
         // Outer black ring.
-        for (let i = r2 + 1; i <= r3; i++) {
-            this.drawCircle(centre, i, 1);
-        }
+        this.fillCircle(centre, r3, 1);
+
+        // Middle white ring.
+        this.fillCircle(centre, r2, 0);
+
+        // Inner black circle.
+        this.fillCircle(centre, r1, 1);
     }
 
     private drawAlignmentPattern(centre: Point): void {
         const r1 = Writer.FINDER_INNER_RADIUS * this.scale;
         const r2 = Writer.FINDER_MIDDLE_RADIUS * this.scale;
 
-        for (let i = r1 + 1; i <= r2; i++) {
-            this.drawCircle(centre, i, 1);
-        }
+        // Outer black ring.
+        this.fillCircle(centre, r2, 1);
+
+        // Inner white circle.
+        this.fillCircle(centre, r1, 0);
     }
 
     /**
@@ -155,16 +156,16 @@ export class Writer {
      * @see [Wikipedia's page]{@link https://en.wikipedia.org/wiki/Midpoint_circle_algorithm}
      * for more info.
      */
-    private drawCircle(c: Point, r: number, color: number): void {
+    private fillCircle(c: Point, r: number, color: number): void {
         r = Math.round(r);
         c = { x: Math.round(c.x), y: Math.round(c.y) };
         let x = r;
         let y = 0;
         let dx = 1;
         let dy = 1;
-        let err = dx - 2 * r;
+        let err = dx - r * 2;
         while (x >= y) {
-            this.setPixelSymmetricOctant(c, x, y, color);
+            this.fillSymmetricOctant(c, x, y, color);
             if (err <= 0) {
                 y++;
                 err += dy;
@@ -172,24 +173,29 @@ export class Writer {
             } else {
                 x--;
                 dx += 2;
-                err += dx - 2 * r;
+                err += dx - r * 2;
             }
         }
     }
 
     /**
-     * Takes pixel coordinates in one octant and sets it symmetrically in all 8 octants,
-     * relative to the given centre.
+     * Takes pixel coordinates on a circle's circumference in one octant and fills symmetrically in
+     * all 8 octants, relative to the given centre.
      */
-    private setPixelSymmetricOctant(c: Point, x: number, y: number, color: number): void {
-        this.matrix.set(c.x + x, c.y + y, color);
-        this.matrix.set(c.x + x, c.y - y, color);
-        this.matrix.set(c.x - x, c.y + y, color);
-        this.matrix.set(c.x - x, c.y - y, color);
-        this.matrix.set(c.x + y, c.y + x, color);
-        this.matrix.set(c.x + y, c.y - x, color);
-        this.matrix.set(c.x - y, c.y + x, color);
-        this.matrix.set(c.x - y, c.y - x, color);
+    private fillSymmetricOctant(c: Point, x: number, y: number, color: number): void {
+        this.fillHorizontalLine(c.x - x, c.x + x, c.y + y, color);
+        this.fillHorizontalLine(c.x - x, c.x + x, c.y - y, color);
+        this.fillHorizontalLine(c.x - y, c.x + y, c.y + x, color);
+        this.fillHorizontalLine(c.x - y, c.x + y, c.y - x, color);
+    }
+
+    /**
+     * Fills the horizontal line from (x1, y) to (x2, y) with the desired color.
+     */
+    private fillHorizontalLine(x1: number, x2: number, y: number, color: number) {
+        for (let i = x1; i <= x2; i++) {
+            this.matrix.set(i, y, color);
+        }
     }
 
     private drawSymbol(row: number, col: number, mask: number): void {
