@@ -16,10 +16,7 @@
         "declaration": true,
         "preserveConstEnums": true
     },
-    "include": [
-        "src/**/*.ts"
-    ],
-    "exclude": [
-        "src/test"
+    "files": [
+      "./src/index.ts"
     ]
 }

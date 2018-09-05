@@ -14,12 +14,13 @@ export abstract class Binarizer {
 
     /**
      * block size for the local mean calculations required in the adaptive thresholding algorithm.
+     * Have to be Even Number
      */
-    public static BLOCK_SIZE = 8;
+    public static BLOCK_SIZE = 6;
     /**
      * Constant substracted from the local mean value for each block.
      */
-    public static MEAN_CONST = 4;
+    public static MEAN_CONST = 0;
 
     /**
      * Minimum possible variance for a block in order to be considered mix of different colors.

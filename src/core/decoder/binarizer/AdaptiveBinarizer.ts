@@ -95,7 +95,7 @@ export class AdaptiveBinarizer extends Binarizer {
                         average = (mean.get(x - 1, y) + mean.get(x, y - 1)) / 2;
                     } else {
                         // if it's border then assume it's a white background, make average < min
-                        average = min - Binarizer.MEAN_CONST;
+                        average = min / 2 - Binarizer.MEAN_CONST;
                     }
                 }
                 mean.set(x, y, average);

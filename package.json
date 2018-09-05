@@ -27,14 +27,20 @@
     }
   ],
   "scripts": {
-    "prebuild": "rimraf lib",
-    "build": "tsc && webpack --mode production",
     "lint": "tslint src/**/*.ts",
-    "tsc": "./node_modules/.bin/tsc",
-    "webpack": "./node_modules/.bin/webpack-cli",
-    "nyc": "./node_modules/.bin/nyc",
-    "tslint": "./node_modules/.bin/tslint",
-    "rimraf": "./node_modules/.bin/rimraf"
+    "prebuild": "rimraf lib",
+    "test": "./node_modules/.bin/jest",
+    "build": "npm run lint && tsc && webpack-cli"
+  },
+  "jest": {
+    "testRegex": ".*test.ts",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    }
   },
   "repository": {
     "type": "git",
@@ -44,16 +50,21 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/elysianinc/iching#readme",
   "devDependencies": {
+    "@types/jest": "^23.3.1",
     "@types/node": "^10.9.4",
     "@types/seedrandom": "^2.4.27",
     "@types/sharp": "^0.17.10",
-    "@types/text-encoding": "0.0.33",
     "awesome-typescript-loader": "^5.2.0",
     "eslint": "^5.5.0",
+    "get-image-data": "^3.0.1",
+    "jest": "^23.5.0",
+    "rimraf": "^2.6.2",
     "seedrandom": "^2.4.4",
     "sharp": "^0.20.7",
     "source-map": "^0.7.3",
     "tapable": "^1.0.0",
+    "ts-jest": "^23.1.4",
+    "ts-lint": "^4.5.1",
     "ts-loader": "^4.5.0",
     "tslint": "^5.11.0",
     "typescript": "^3.0.3",
