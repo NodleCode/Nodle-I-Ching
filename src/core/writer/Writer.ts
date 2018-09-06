@@ -76,11 +76,11 @@ export class Writer {
      * @returns {ImageData} - Image data for the rendered IChing.
      */
     public render(code: EncodedIChing): ImageData {
-        const rows = code.rows;
-        const cols = code.cols;
-        const baseHeight = rows * Writer.SYMBOL_DIM + (rows - 1) * Writer.GAP_DIM
+        const codeHeight = code.height;
+        const codeWidth = code.width;
+        const baseHeight = codeHeight * Writer.SYMBOL_DIM + (codeHeight - 1) * Writer.GAP_DIM
             + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
-        const baseWidth = cols * Writer.SYMBOL_DIM + (cols - 1) * Writer.GAP_DIM
+        const baseWidth = codeWidth * Writer.SYMBOL_DIM + (codeWidth - 1) * Writer.GAP_DIM
             + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
 
         // Calculate scaling factor based on base dimensions and desired output image dimension.
@@ -113,9 +113,9 @@ export class Writer {
         );
 
         // Draw symbols.
-        for (let i = 0; i < rows; i++) {
-            for (let j = 0; j < cols; j++) {
-                this.drawSymbol(i, j, code.data[i * cols + j]);
+        for (let i = 0; i < codeHeight; i++) {
+            for (let j = 0; j < codeWidth; j++) {
+                this.drawSymbol(i, j, code.data[i * codeWidth + j]);
             }
         }
 
