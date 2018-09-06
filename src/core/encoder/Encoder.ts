@@ -12,18 +12,18 @@ export class Encoder {
      */
     public static VERSION: number = 0;
     /**
-     * ROWS_OF_SYMBOLS - Number of rows of symbols in an IChing code.
+     * Width, in symbols, of IChing code.
      */
-    public static ROWS_OF_SYMBOLS: number = 8;
+    public static WIDTH: number = 8;
     /**
-     * COLS_OF_SYMBOLS - Number of columns of symbols in an IChing code.
+     * Height, in symbols, of IChing code.
      */
-    public static COLS_OF_SYMBOLS: number = 8;
+    public static HEIGHT: number = 8;
     /**
      * MAPPING_TABLE - Table used to convert alpha-numeric characters from Unicode (table index)
      * to internal codes (table value) used in IChing.
      */
-    public static MAPPING_TABLE: Int8Array = new Int8Array([
+    public static MAPPING_TABLE: Int16Array = new Int16Array([
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -43,11 +43,11 @@ export class Encoder {
      */
     public static encode(content: string): EncodedIChing {
         const version: number = this.VERSION;
-        const rows: number = this.ROWS_OF_SYMBOLS;
-        const cols: number = this.COLS_OF_SYMBOLS;
+        const width: number = this.WIDTH;
+        const height: number = this.HEIGHT;
 
-        const data: number[] = [];
-        for (let i = 0; i < rows * cols; i++) {
+        const data: Uint16Array = new Uint16Array(width * height);
+        for (let i = 0; i < data.length; i++) {
             data[i] = i;
         }
 
@@ -58,6 +58,6 @@ export class Encoder {
             data[i + 2] = this.MAPPING_TABLE[content.charCodeAt(i)];
         }
 
-        return { version, rows, cols, data };
+        return { version, width, height, data };
     }
 }
