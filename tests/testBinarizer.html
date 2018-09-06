@@ -50,7 +50,7 @@ body {
             var imgData = ctx.getImageData(0, 0, img.width, img.height);
 
             var binarizer = new iching.AdaptiveBinarizer();
-            var matrix = binarizer.binarize(imgData.data, imgData.height, imgData.width);
+            var matrix = binarizer.binarize(imgData.data, imgData.width, imgData.height);
             var myData = new iching.ImageData(matrix);
             var ctxImageData = new ImageData(myData.data, myData.width, myData.height);
 

@@ -92,7 +92,7 @@ export class Writer {
         }
 
         // Creates a BitMatrix filled with 0s.
-        this.matrix = new BitMatrix(this.height, this.width);
+        this.matrix = new BitMatrix(this.width, this.height);
 
         // Calculate padding.
         this.padX = Math.floor((this.width - baseWidth * this.scale) / 2);

@@ -12,14 +12,14 @@ export class ImageData {
     public data: Uint8ClampedArray;
 
     public constructor(matrix: BitMatrix) {
-        this.height = matrix.rows;
-        this.width = matrix.cols;
+        this.width = matrix.width;
+        this.height = matrix.height;
         this.data = new Uint8ClampedArray(4 * this.height * this.width);
         let idx: number = 0;
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width; j++) {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
                 let color: number = 255;
-                if (matrix.get(j, i) === 1) {
+                if (matrix.get(x, y) === 1) {
                     color = 0;
                 }
                 this.data[idx] = color;

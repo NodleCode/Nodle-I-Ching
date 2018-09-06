@@ -14,9 +14,9 @@ export abstract class Binarizer {
 
     /**
      * block size for the local mean calculations required in the adaptive thresholding algorithm.
-     * Have to be Even Number
+     * Have to be an odd Number
      */
-    public static BLOCK_SIZE = 6;
+    public static BLOCK_SIZE = 7;
     /**
      * Constant substracted from the local mean value for each block.
      */
@@ -34,12 +34,12 @@ export abstract class Binarizer {
      * @param {number} rows - Number of rows of the original image
      * @returns {ByteMatrix} - ByteMatrix contains grayscale values converted using luma formula
      */
-    protected toGrayscale(data: Uint8ClampedArray, rows: number, cols: number): ByteMatrix {
-        const grayscaleMatrix = new ByteMatrix(rows, cols);
-        for (let y = 0; y < rows; ++y) {
-            for (let x = 0; x < cols; ++x) {
+    protected toGrayscale(data: Uint8ClampedArray, width: number, height: number): ByteMatrix {
+        const grayscaleMatrix = new ByteMatrix(width, height);
+        for (let y = 0; y < height; ++y) {
+            for (let x = 0; x < width; ++x) {
                 // 4 cells to hold RGBA values for each pixels
-                const idx = (y * cols + x) * 4;
+                const idx = (y * width + x) * 4;
                 const red = data[idx + 0];
                 const green = data[idx + 1];
                 const blue = data[idx + 2];

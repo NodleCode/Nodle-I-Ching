@@ -7,7 +7,7 @@
         <script>
             function loadImage() {
                 const encoded = iching.Encoder.encode("oroboro2018");
-                const writer = new iching.Writer(500);
+                const writer = new iching.Writer(2500);
                 const imgData = writer.render(encoded);
                 const canvas = document.createElement("canvas");
                 canvas.width = imgData.width;

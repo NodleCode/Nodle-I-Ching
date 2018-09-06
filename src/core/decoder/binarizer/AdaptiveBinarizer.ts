@@ -20,19 +20,19 @@ export class AdaptiveBinarizer extends Binarizer {
      * @returns {BitMatrix} - Matrix contains the binarized image, each pixel has 0 or 1 value.
      * @memberof AdaptiveBinarizer
      */
-    public binarize(data: Uint8ClampedArray, rows: number, cols: number): BitMatrix {
-        if (data.length !== cols * rows * 4) {
+    public binarize(data: Uint8ClampedArray, width: number, height: number): BitMatrix {
+        if (data.length !== width * height * 4) {
             throw new Error("incorrect data length!");
         }
         // Convert the photo to single channel.
-        const grayscaleMatrix = this.toGrayscale(data, rows, cols);
+        const grayscaleMatrix = this.toGrayscale(data, width, height);
         // Calculate the local mean for each pixels from surrounding pixels.
         const mean = this.localMean(grayscaleMatrix);
 
         // Threshold each pixel using the localmean value calculated from surrounding block.
-        const binarized = new BitMatrix(rows, cols);
-        for (let y = 0; y < rows; ++y) {
-            for (let x = 0; x < cols; ++x) {
+        const binarized = new BitMatrix(width, height);
+        for (let y = 0; y < height; ++y) {
+            for (let x = 0; x < width; ++x) {
                 const pixelVal = grayscaleMatrix.get(x, y);
                 const threshold = mean.get(x, y);
                 binarized.set(x, y, pixelVal < threshold ? 1 : 0);
@@ -50,15 +50,16 @@ export class AdaptiveBinarizer extends Binarizer {
      * @memberof AdaptiveBinarizer
      */
     private localMean(mat: ByteMatrix): ByteMatrix {
-        const mean = new ByteMatrix(mat.rows, mat.cols);
-        for (let y = 0; y < mat.rows; ++y) {
-            for (let x = 0; x < mat.cols; ++x) {
+        const mean = new ByteMatrix(mat.width, mat.height);
+        const midBlockSize = Math.floor(Binarizer.BLOCK_SIZE / 2);
+        for (let y = 0; y < mat.height; ++y) {
+            for (let x = 0; x < mat.width; ++x) {
                 // Boundaries for block y coordinates.
-                const yStart = Math.max(0, y - Binarizer.BLOCK_SIZE / 2);
-                const yEnd = Math.min(mat.rows, y + Binarizer.BLOCK_SIZE / 2);
+                const yStart = Math.max(0, y - midBlockSize);
+                const yEnd = Math.min(mat.height, y + midBlockSize + 1);
                 // Boundaries for block x coordinates.
-                const xStart = Math.max(0, x - Binarizer.BLOCK_SIZE / 2);
-                const xEnd = Math.min(mat.cols, x + Binarizer.BLOCK_SIZE / 2);
+                const xStart = Math.max(0, x - midBlockSize);
+                const xEnd = Math.min(mat.width, x + midBlockSize + 1);
 
                 let sum = 0;
                 // Initialise min, max with the highest, lowest possible pixel values respectively.
