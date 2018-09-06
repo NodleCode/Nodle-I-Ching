@@ -1,3 +1,4 @@
+import { BinaryGF, ReedSolomonEncoder } from "../../util/reedsolomon";
 import { EncodedIChing } from "../EncodedIChing";
 
 /**
@@ -46,18 +47,33 @@ export class Encoder {
         const width: number = this.WIDTH;
         const height: number = this.HEIGHT;
 
-        const data: Uint16Array = new Uint16Array(width * height);
-        for (let i = 0; i < data.length; i++) {
-            data[i] = i;
+        if (content.length > width * height - 2) {
+            throw new Error("Content is too long for IChing Version " + version + "!");
         }
 
+        const data: Uint16Array = new Uint16Array(content.length + 2);
         data[0] = version;
         data[1] = content.length;
-
         for (let i = 0; i < content.length; i++) {
-            data[i + 2] = this.MAPPING_TABLE[content.charCodeAt(i)];
+            const char = content.charCodeAt(i);
+            const mappedChar = this.MAPPING_TABLE[char];
+            if (mappedChar === -1) {
+                throw new Error(
+                    "Character '" + char + "' is not supported in IChing Version " + version + "!",
+                );
+            }
+            data[i + 2] = mappedChar;
         }
 
-        return { version, width, height, data };
+        const ecSymbols = width * height - 2 - data.length;
+        let encodedData: Uint16Array;
+        if (ecSymbols > 0) {
+            const rsEncoder = new ReedSolomonEncoder(BinaryGF.BINARY_GF_6);
+            encodedData = rsEncoder.encode(data, ecSymbols);
+        } else {
+            encodedData = data;
+        }
+
+        return { version, width, height, data: encodedData };
     }
 }
