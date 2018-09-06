@@ -1,13 +1,13 @@
 <html>
     <head>
-        <script src="../../lib/umd/index.min.js"></script>
+        <script src="../lib/umd/index.min.js"></script>
     </head>
     <body onload="loadImage()">
         <img id="myImg" width="500" height="500">
         <script>
             function loadImage() {
                 const encoded = iching.Encoder.encode("oroboro2018");
-                const writer = new iching.Writer(500);
+                const writer = new iching.Writer(2500);
                 const imgData = writer.render(encoded);
                 const canvas = document.createElement("canvas");
                 canvas.width = imgData.width;

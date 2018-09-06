@@ -6,25 +6,25 @@
  */
 export abstract class Matrix {
     /**
-     * Number of rows in the Matrix
-     */
-    public rows: number;
-    /**
      * Number of columns in the Matrix
      */
-    public cols: number;
+    public width: number;
+    /**
+     * Number of rows in the Matrix
+     */
+    public height: number;
     /**
      * Matrix Internal data array - values between (0 - 255)
      */
     protected data: Uint8ClampedArray;
 
-    constructor(rows: number, cols: number) {
-        this.rows = rows;
-        this.cols = cols;
-        this.data = new Uint8ClampedArray(rows * cols);
+    constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        this.data = new Uint8ClampedArray(width * height);
     }
 
     public get(x: number, y: number) {
-        return this.data[y * this.cols + x];
+        return this.data[y * this.width + x];
     }
 }

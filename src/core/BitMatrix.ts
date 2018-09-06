@@ -8,6 +8,6 @@ import { Matrix } from "./Matrix";
  */
 export class BitMatrix extends Matrix {
     public set(x: number, y: number, value: number) {
-        this.data[y * this.cols + x] = value === 0 ? 0 : 1;
+        this.data[y * this.width + x] = value === 0 ? 0 : 1;
     }
 }

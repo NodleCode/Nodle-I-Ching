@@ -8,6 +8,6 @@ import { Matrix } from "./Matrix";
  */
 export class ByteMatrix extends Matrix {
     public set(x: number, y: number, value: number) {
-        this.data[y * this.cols + x] = value;
+        this.data[y * this.width + x] = value;
     }
 }

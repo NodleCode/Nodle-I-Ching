@@ -17,9 +17,9 @@
         "preserveConstEnums": true
     },
     "include": [
-        "src/**/*.ts"
+      "./src/**/*.ts"
     ],
     "exclude": [
-        "src/test"
+      "./src/**/*.test.ts"  
     ]
 }
