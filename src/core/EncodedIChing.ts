@@ -20,5 +20,5 @@ export interface EncodedIChing {
     /**
      * Encoded data of size rows * cols.
      */
-    data: number[];
+    data: Uint8ClampedArray;
 }

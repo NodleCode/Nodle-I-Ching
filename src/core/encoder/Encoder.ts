@@ -1,4 +1,7 @@
+import { BinaryGF, ReedSolomonEncoder } from "../../util/reedsolomon";
 import { EncodedIChing } from "../EncodedIChing";
+
+// TODO: constant error correction levels.
 
 /**
  * Encoder class encapsulating IChing content encoding methods.
@@ -12,13 +15,13 @@ export class Encoder {
      */
     public static VERSION: number = 0;
     /**
-     * ROWS_OF_SYMBOLS - Number of rows of symbols in an IChing code.
+     * Number of rows of IChing code.
      */
-    public static ROWS_OF_SYMBOLS: number = 8;
+    public static ROWS: number = 8;
     /**
-     * COLS_OF_SYMBOLS - Number of columns of symbols in an IChing code.
+     * Number of columns of IChing code.
      */
-    public static COLS_OF_SYMBOLS: number = 8;
+    public static COLS: number = 8;
     /**
      * MAPPING_TABLE - Table used to convert alpha-numeric characters from Unicode (table index)
      * to internal codes (table value) used in IChing.
@@ -43,21 +46,36 @@ export class Encoder {
      */
     public static encode(content: string): EncodedIChing {
         const version: number = this.VERSION;
-        const rows: number = this.ROWS_OF_SYMBOLS;
-        const cols: number = this.COLS_OF_SYMBOLS;
+        const rows: number = this.ROWS;
+        const cols: number = this.COLS;
+        const offset: number = 2;
 
-        const data: number[] = [];
-        for (let i = 0; i < rows * cols; i++) {
-            data[i] = i;
+        if (content.length > rows * cols - offset) {
+            throw new Error("Content is too long for IChing Version " + version + "!");
         }
 
+        const data: Uint8ClampedArray = new Uint8ClampedArray(content.length + offset);
         data[0] = version;
         data[1] = content.length;
-
         for (let i = 0; i < content.length; i++) {
-            data[i + 2] = this.MAPPING_TABLE[content.charCodeAt(i)];
+            const char = content.charAt(i);
+            const charCode = content.charCodeAt(i);
+            const mappedChar = this.MAPPING_TABLE[charCode];
+            if (mappedChar === -1) {
+                throw new Error(
+                    "Character '" + char + "' is not supported in IChing Version " + version + "!",
+                );
+            }
+            data[i + offset] = mappedChar;
         }
 
-        return { version, rows, cols, data };
+        // Calculate the number of error correction symbols.
+        const ecSymbols = rows * cols - offset - data.length;
+        let encodedData: Uint8ClampedArray;
+        // Compute and append error correction symbols.
+        const rsEncoder = new ReedSolomonEncoder(BinaryGF.BINARY_GF_6);
+        encodedData = rsEncoder.encode(data, ecSymbols);
+
+        return { version, rows, cols, data: encodedData };
     }
 }
