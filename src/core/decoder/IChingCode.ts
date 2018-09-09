@@ -1,25 +1,25 @@
-import { Point } from "../Point";
+import { PatternsLocation } from "./PatternsLocation";
 
 /**
- * Interface representing the decoded IChing code and information about the image.
- *
  * @export
  * @interface IChingCode
+ * @description Interface representing the decoded IChing code and information about the image.
  */
 export interface IChingCode {
     /**
-     * IChing code version number
+     * IChing code version number.
      */
     version: number;
     /**
-     *
+     * Decoded data in the form of string.
      */
     data: string;
-    binary: number[];
-    finders: {
-        topRight: Point;
-        topLeft: Point;
-        bottomRight: Point;
-        bottomLeft: Point;
-    };
+    /**
+     * Decoded data in the form of binary string.
+     */
+    binary: string;
+    /**
+     * Location of finder and alignment patterns in the image.
+     */
+    finders: PatternsLocation;
 }

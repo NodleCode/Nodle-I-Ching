@@ -1,7 +1,7 @@
 import { BitMatrix } from "../BitMatrix";
 import { EncodedIChing } from "../EncodedIChing";
+import { Point } from "../geometry";
 import { ImageData } from "../ImageData";
-import { Point } from "../Point";
 
 /**
  * Writer class encapsulating IChing rendering methods.

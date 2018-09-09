@@ -25,7 +25,7 @@ export class AdaptiveBinarizer extends Binarizer {
             throw new Error("incorrect data length!");
         }
         // Convert the photo to single channel.
-        const grayscaleMatrix = this.toGrayscale(data, width, height);
+        const grayscaleMatrix = Binarizer.toGrayscale(data, width, height);
         // Calculate the local mean for each pixels from surrounding pixels.
         const mean = this.localMean(grayscaleMatrix);
 

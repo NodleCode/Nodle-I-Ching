@@ -34,7 +34,7 @@ export abstract class Binarizer {
      * @param {number} rows - Number of rows of the original image
      * @returns {ByteMatrix} - ByteMatrix contains grayscale values converted using luma formula
      */
-    protected toGrayscale(data: Uint8ClampedArray, width: number, height: number): ByteMatrix {
+    public static toGrayscale(data: Uint8ClampedArray, width: number, height: number): ByteMatrix {
         const grayscaleMatrix = new ByteMatrix(width, height);
         for (let y = 0; y < height; ++y) {
             for (let x = 0; x < width; ++x) {
