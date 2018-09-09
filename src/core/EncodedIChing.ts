@@ -10,15 +10,15 @@ export interface EncodedIChing {
      */
     version: number;
     /**
-     * Width, in symbols, of IChing code.
+     * Number of rows.
      */
-    width: number;
+    rows: number;
     /**
-     * Height, in symbols, of IChing code.
+     * Number of columns.
      */
-    height: number;
+    cols: number;
     /**
      * Encoded data of size rows * cols.
      */
-    data: Uint16Array;
+    data: Uint8ClampedArray;
 }

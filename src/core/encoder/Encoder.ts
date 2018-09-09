@@ -1,6 +1,8 @@
 import { BinaryGF, ReedSolomonEncoder } from "../../util/reedsolomon";
 import { EncodedIChing } from "../EncodedIChing";
 
+// TODO: constant error correction levels.
+
 /**
  * Encoder class encapsulating IChing content encoding methods.
  *
@@ -13,18 +15,18 @@ export class Encoder {
      */
     public static VERSION: number = 0;
     /**
-     * Width, in symbols, of IChing code.
+     * Number of rows of IChing code.
      */
-    public static WIDTH: number = 8;
+    public static ROWS: number = 8;
     /**
-     * Height, in symbols, of IChing code.
+     * Number of columns of IChing code.
      */
-    public static HEIGHT: number = 8;
+    public static COLS: number = 8;
     /**
      * MAPPING_TABLE - Table used to convert alpha-numeric characters from Unicode (table index)
      * to internal codes (table value) used in IChing.
      */
-    public static MAPPING_TABLE: Int16Array = new Int16Array([
+    public static MAPPING_TABLE: Int8Array = new Int8Array([
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -44,36 +46,36 @@ export class Encoder {
      */
     public static encode(content: string): EncodedIChing {
         const version: number = this.VERSION;
-        const width: number = this.WIDTH;
-        const height: number = this.HEIGHT;
+        const rows: number = this.ROWS;
+        const cols: number = this.COLS;
+        const offset: number = 2;
 
-        if (content.length > width * height - 2) {
+        if (content.length > rows * cols - offset) {
             throw new Error("Content is too long for IChing Version " + version + "!");
         }
 
-        const data: Uint16Array = new Uint16Array(content.length + 2);
+        const data: Uint8ClampedArray = new Uint8ClampedArray(content.length + offset);
         data[0] = version;
         data[1] = content.length;
         for (let i = 0; i < content.length; i++) {
-            const char = content.charCodeAt(i);
-            const mappedChar = this.MAPPING_TABLE[char];
+            const char = content.charAt(i);
+            const charCode = content.charCodeAt(i);
+            const mappedChar = this.MAPPING_TABLE[charCode];
             if (mappedChar === -1) {
                 throw new Error(
                     "Character '" + char + "' is not supported in IChing Version " + version + "!",
                 );
             }
-            data[i + 2] = mappedChar;
+            data[i + offset] = mappedChar;
         }
 
-        const ecSymbols = width * height - 2 - data.length;
-        let encodedData: Uint16Array;
-        if (ecSymbols > 0) {
-            const rsEncoder = new ReedSolomonEncoder(BinaryGF.BINARY_GF_6);
-            encodedData = rsEncoder.encode(data, ecSymbols);
-        } else {
-            encodedData = data;
-        }
+        // Calculate the number of error correction symbols.
+        const ecSymbols = rows * cols - offset - data.length;
+        let encodedData: Uint8ClampedArray;
+        // Compute and append error correction symbols.
+        const rsEncoder = new ReedSolomonEncoder(BinaryGF.BINARY_GF_6);
+        encodedData = rsEncoder.encode(data, ecSymbols);
 
-        return { version, width, height, data: encodedData };
+        return { version, rows, cols, data: encodedData };
     }
 }

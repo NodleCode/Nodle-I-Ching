@@ -8,21 +8,23 @@ import { BinaryGF } from "./BinaryGF";
  */
 export class BinaryGFPoly {
     private field: BinaryGF;
-    private coefficients: Uint16Array;
+    private coefficients: Uint8ClampedArray;
 
     /**
      * Creates a polynomial whose coefficients are elements of the given BinaryGF.
      *
      * @param {BinaryGF} field - BinaryGF the coefficients belong to.
-     * @param {Uint16Array} coefficients - polynomial coefficients.
+     * @param {Uint8ClampedArray} coefficients - polynomial coefficients.
      * @throws Will throw an error if the given polynomial is empty.
      */
-    public constructor(field: BinaryGF, coefficients: Uint16Array) {
+    public constructor(field: BinaryGF, coefficients: Uint8ClampedArray) {
         if (coefficients.length === 0) {
             throw new Error("Polynomial is empty!");
         }
 
         this.field = field;
+        // Get leading term: highest degree element with non-zero coefficient,
+        // or constant term if all others are zeroes.
         let leading = 0;
         while (leading < coefficients.length - 1 && coefficients[leading] === 0) {
             leading++;
@@ -30,7 +32,7 @@ export class BinaryGFPoly {
         this.coefficients = coefficients.slice(leading);
     }
 
-    public getCoefficients(): Uint16Array {
+    public getCoefficients(): Uint8ClampedArray {
         return this.coefficients;
     }
 
@@ -52,11 +54,11 @@ export class BinaryGFPoly {
     }
 
     /**
-     * Adds a BinaryGFPoly of the same field to 'this',
+     * Adds a BinaryGFPoly of the same field to the instance's polynomial,
      * and returns the result as a new BinaryGFPoly.
      *
      * @param {BinaryGFPoly} other - BinaryGFPoly to be added.
-     * @returns {BinaryGFPoly} 'this' + other.
+     * @returns {BinaryGFPoly} sum of the two polynomials.
      * @throws Will throw an error if the two polynomials are of different Galois fields.
      */
     public add(other: BinaryGFPoly): BinaryGFPoly {
@@ -65,7 +67,7 @@ export class BinaryGFPoly {
         }
 
         const resLength = Math.max(this.coefficients.length, other.coefficients.length);
-        const resCoefficients = new Uint16Array(resLength);
+        const resCoefficients = new Uint8ClampedArray(resLength);
         for (let i = 0; i < this.coefficients.length; i++) {
             resCoefficients[i + resLength - this.coefficients.length] = this.field.add(
                 resCoefficients[i + resLength - this.coefficients.length], this.coefficients[i],
@@ -81,11 +83,11 @@ export class BinaryGFPoly {
     }
 
     /**
-     * Multiplies 'this' by a BinaryGFPoly of the same field,
+     * Multiplies the instance's polynomial by a BinaryGFPoly of the same field,
      * and returns the result as a new BinaryGFPoly.
      *
      * @param {BinaryGFPoly} other - BinaryGFPoly to be multiplied.
-     * @returns {BinaryGFPoly} 'this' * other.
+     * @returns {BinaryGFPoly} product of the two polynomials.
      * @throws Will throw an error if the two polynomials are of different Galois fields.
      */
     public multiplyPoly(other: BinaryGFPoly): BinaryGFPoly {
@@ -94,7 +96,7 @@ export class BinaryGFPoly {
         }
 
         const resLength = this.coefficients.length + other.coefficients.length - 1;
-        const resCoefficients = new Uint16Array(resLength);
+        const resCoefficients = new Uint8ClampedArray(resLength);
         for (let i = 0; i < this.coefficients.length; i++) {
             for (let j = 0; j < other.coefficients.length; j++) {
                 const a = this.coefficients[i];
@@ -109,13 +111,14 @@ export class BinaryGFPoly {
     }
 
     /**
-     * Multiplies 'this' by a scalar value, and returns the result as a new BinaryGFPoly.
+     * Multiplies the instance's polynomial by a scalar value,
+     * and returns the result as a new BinaryGFPoly.
      *
      * @param {number} scalar - scalar to be multiplied.
-     * @returns {BinaryGFPoly} 'this * scalar.
+     * @returns {BinaryGFPoly} product of the instance's polynomial by scalar.
      */
     public multiplyScalar(x: number): BinaryGFPoly {
-        const resCoefficients = new Uint16Array(this.coefficients.length);
+        const resCoefficients = new Uint8ClampedArray(this.coefficients.length);
         for (let i = 0; i < this.coefficients.length; i++) {
             resCoefficients[i] = this.field.multiply(this.coefficients[i], x);
         }
@@ -124,9 +127,9 @@ export class BinaryGFPoly {
     }
 
     /**
-     * Divides 'this' by a BinaryGFPoly of the same field,
-     * and returns the result as an array of two BinaryGFPoly elements,
-     * quotient and remainder.Uses extended synthetic division.
+     * Divides the instance's polynomial by a BinaryGFPoly of the same field,
+     * and returns the result as an array of two BinaryGFPoly elements: quotient and remainder.
+     * Uses extended synthetic division.
      *
      * @see [Wikipedia's page]{@link https://en.wikipedia.org/wiki/Synthetic_division}
      * for more info.
@@ -143,7 +146,7 @@ export class BinaryGFPoly {
             throw new Error("Division by zero!");
         }
 
-        const res = new Uint16Array(this.coefficients);
+        const res = new Uint8ClampedArray(this.coefficients);
         const normalizer = other.coefficients[0];
         for (let i = 0; i < this.coefficients.length - other.coefficients.length - 1; i++) {
             res[i] = this.field.divide(res[i], normalizer);
