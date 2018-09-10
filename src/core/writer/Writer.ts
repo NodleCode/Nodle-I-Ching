@@ -121,7 +121,7 @@ export class Writer {
             }
         }
 
-        return new ImageData(this.matrix);
+        return this.matrix.toImage();
     }
 
     // TODO: Change filling algorithm.

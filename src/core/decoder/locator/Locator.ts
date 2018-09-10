@@ -3,7 +3,7 @@ import { cross, nearlySame, Point, sqDistance, vec } from "../../geometry";
 import { PatternsLocation } from "../PatternsLocation";
 import { AlignmentLocator } from "./AlignmentLocator";
 import { FinderLocator } from "./FinderLocator";
-import { LocationScore } from "./LocationScore";
+import { LocationError } from "./LocationError";
 
 export class Locator {
     /**
@@ -24,12 +24,12 @@ export class Locator {
     public locate(matrix: BitMatrix): PatternsLocation {
         this.matrix = matrix;
         /**
-         * compare function to sort location according to score in decending order.
+         * compare function to sort location according to error in accending order.
          */
-        const compareScoreGreater = (a: LocationScore, b: LocationScore): number => {
-            if (a.score < b.score) {
+        const compareErrorGreater = (a: LocationError, b: LocationError): number => {
+            if (a.error < b.error) {
                 return -1;
-            } else if (a.score > b.score) {
+            } else if (a.error > b.error) {
                 return 1;
             }
             return 0;
@@ -38,8 +38,8 @@ export class Locator {
         // Locate Finder Patterns.
         const finderLocator = new FinderLocator();
         const finders = finderLocator.locate(this.matrix);
-        // Sort the array of found patterns to pick the three with the larget score.
-        finders.sort(compareScoreGreater);
+        // Sort the array of found patterns to pick the three with the smallest error.
+        finders.sort(compareErrorGreater);
         // Store the most optimal distinct points in optimalFinders array
         const optimalFinders: Point[] = [];
         for (let i = 0; i < finders.length && optimalFinders.length < 3; ++i) {
@@ -51,8 +51,10 @@ export class Locator {
                     break;
                 }
             }
-            // If it's a new pattern then add it to optimalFinders
-            optimalFinders.push(finders[i].location);
+            if (distinctPoint) {
+                // If it's a new pattern then add it to optimalFinders
+                optimalFinders.push(finders[i].location);
+            }
         }
 
         if (optimalFinders.length < 3) {
@@ -83,8 +85,8 @@ export class Locator {
         const alignments = alignmentLocator.locate(this.matrix, startPoint, endPoint);
 
         if (alignments.length > 0) {
-            // Sort the array of found patterns to pick the one with the larget score.
-            alignments.sort(compareScoreGreater);
+            // Sort the array of found patterns to pick the one with the larget error.
+            alignments.sort(compareErrorGreater);
             this.locations.bottomRight = alignments[0].location;
         }
 
@@ -116,7 +118,7 @@ export class Locator {
         // We use cross product to check if that's correct
         // If not then we swap the two points in order for variable `a` to hold bottomLeft
         // and variable `b` to hold topRight
-        if (cross(vec(a, b), vec(a, c)) < 0) {
+        if (cross(vec(a, b), vec(a, c)) > 0) {
             [a, b] = [b, a];
         }
 

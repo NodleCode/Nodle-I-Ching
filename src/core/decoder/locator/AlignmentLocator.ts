@@ -6,7 +6,7 @@
  */
 import { BitMatrix } from "../../BitMatrix";
 import { Point } from "../../geometry";
-import { LocationScore } from "./LocationScore";
+import { LocationError } from "./LocationError";
 /**
  * @export
  * @class AlignmentLocator
@@ -25,10 +25,10 @@ export class AlignmentLocator {
      * @param {BitMatrix} matrix - Matrix representing binarized image.
      * @param {Point} startPoint - The starting point of the alignemnt pattern search region.
      * @param {Point} endPoint - The ending point of the alignemnt pattern search region.
-     * @returns {LocationScore[]} - Array of all possible locations of the pattern.
+     * @returns {LocationError[]} - Array of all possible locations of the pattern.
      * @memberof AlignmentLocator
      */
-    public locate(matrix: BitMatrix, startPoint: Point, endPoint: Point): LocationScore[] {
+    public locate(matrix: BitMatrix, startPoint: Point, endPoint: Point): LocationError[] {
         // TODO add the alignment locator logic.
         return [];
     }
