@@ -1,6 +1,6 @@
-import { BitMatrix } from "./core/BitMatrix";
-import { Binarizer } from "./core/decoder/binarizer/Binarizer";
-import { ImageData } from "./core/ImageData";
+import { BitMatrix } from "../core/BitMatrix";
+import { Binarizer } from "../core/decoder/binarizer/Binarizer";
+import { ImageData } from "../core/ImageData";
 
 /**
  * Converts single channel image directly into bitmatrix.

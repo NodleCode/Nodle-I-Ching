@@ -1,6 +1,6 @@
 import * as fs from "fs-extra";
 import * as upng from "upng-js";
-import { ImageData } from "./core/ImageData";
+import { ImageData } from "../core/ImageData";
 
 /**
  * Loads local image to ImageData interface

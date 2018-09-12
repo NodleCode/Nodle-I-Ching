@@ -1,22 +1,7 @@
 import { BitMatrix } from "../../BitMatrix";
-import { nearlySame, Point } from "../../geometry";
+import { Point } from "../../geometry";
 import { sumArray } from "../../utils";
 import { LocationError } from "./LocationError";
-
-/**
- * Represents pattern ratio error and size average for each probable pattern location.
- * @interface PatternMeasures
- */
-interface PatternMeasures {
-    /**
-     * The corrected center of the pattern.
-     */
-    location: Point;
-    /**
-     * The pattern state array when intersected from certain angle.
-     */
-    state: Int32Array;
-}
 
 /**
  * @export
@@ -45,7 +30,7 @@ export class FinderLocator {
         const locations = [];
         // Initialize state array with 5 positions to keep track of number of pixels in
         // each state of the patterns
-        const state = new Int32Array(5);
+        const state = new Uint16Array(5);
         let stateIdx = 0;
 
         for (let y = 0; y < matrix.height; ++y) {
@@ -81,18 +66,21 @@ export class FinderLocator {
                 // In all cases increament number of pixels in the current state.
                 ++state[stateIdx];
             }
-        }
 
-        // Handle the case that the image right side cuts a finder pattern.
-        // This case could happen if a user is trying to fit the code to the screen exactly.
-        if (stateIdx === 4 && this.isValidPattern(state)) {
-            // If valid pattern, calculates its error and push it to results
-            const initialCenter: Point = {
-                x: matrix.width - Math.floor(state[stateIdx - 2] / 2) -
-                    state[stateIdx - 1] - state[stateIdx],
-                y: matrix.height - 1,
-            };
-            locations.push(this.calculateLocationError(initialCenter, state[2] * 2));
+            // Handle the case that the image right side cuts a finder pattern.
+            // This case could happen if a user is trying to fit the code to the screen exactly.
+            if (stateIdx === 4 && this.isValidPattern(state)) {
+                // If valid pattern, calculates its error and push it to results
+                const initialCenter: Point = {
+                    x: matrix.width - Math.floor(state[stateIdx - 2] / 2) -
+                        state[stateIdx - 1] - state[stateIdx],
+                    y,
+                };
+                locations.push(this.calculateLocationError(initialCenter, state[2] * 2));
+            } else {
+                stateIdx = 0;
+                state[0] = state[1] = state[2] = state[3] = state[4] = 0;
+            }
         }
 
         return locations;
@@ -102,12 +90,12 @@ export class FinderLocator {
      * Checks if the ratios of calculated states indeed form a valid pattern.
      *
      * @private
-     * @param {Int32Array} state - Array represents calculated states for
+     * @param {Uint16Array} state - Array represents calculated states for
      * the probable pattern.
      * @returns {boolean} - either it's a valid pattern or not.
      * @memberof FinderLocator
      */
-    private isValidPattern(state: Int32Array): boolean {
+    private isValidPattern(state: Uint16Array): boolean {
         // Since the finder pattern ratios is 1:1:3:1:1, it consist of 7 units,
         // a unit for each state except for the middle state consists of 3 units,
         // so we first calculates how much pixels each unit consists of.
@@ -152,10 +140,10 @@ export class FinderLocator {
      */
     private calculateLocationError(patternCenter: Point, maxCount: number): LocationError {
         // Calculate pattern state array.
-        const vertical = this.verticalPatternMeasures(patternCenter, maxCount);
-        const horizontal = this.horizontalPatternMeasures(patternCenter, maxCount);
-        const mainDiagonal = this.mainDiagonalPatternMeasures(patternCenter, maxCount);
-        const skewDiagonal = this.skewDiagonalPatternMeasures(patternCenter, maxCount);
+        const vertical = this.patternMeasures(patternCenter, 0, 1, maxCount);
+        const horizontal = this.patternMeasures(patternCenter, 1, 0, maxCount);
+        const mainDiagonal = this.patternMeasures(patternCenter, 1, 1, maxCount);
+        const skewDiagonal = this.patternMeasures(patternCenter, -1, 1, maxCount);
 
         // Calculate pattern average size and average unit size in order to
         // be used as the mean in the RMS equation.
@@ -170,6 +158,7 @@ export class FinderLocator {
         // standard ratio error is equal to RMS of each cross ratioError, but we won't take the
         // root since we are going to need the squared value later.
         // Each cross ratioError is squared already so we won't square any of them again.
+        // 20 is the number of error factors, 4 lines each one of them has 5 pattern states.
         const standardRatioError = (
             this.calculateStateError(vertical.state, averageUnit) +
             this.calculateStateError(horizontal.state, averageUnit) +
@@ -199,13 +188,13 @@ export class FinderLocator {
      * using the RMS equation (x - mean)^2 / N
      *
      * @private
-     * @param {Int32Array} state - State array representing how many pixels represent
+     * @param {Uint16Array} state - State array representing how many pixels represent
      * each pattern state.
      * @param {number} averageUnit - Average pattern state unit size.
      * @returns {number} - Normalized sum(Xi - mean)^2.
      * @memberof FinderLocator
      */
-    private calculateStateError(state: Int32Array, averageUnit: number): number {
+    private calculateStateError(state: Uint16Array, averageUnit: number): number {
         // TODO: Test another normalization methods
         // @see https://en.wikipedia.org/wiki/Normalization_(statistics)
         return (
@@ -218,135 +207,36 @@ export class FinderLocator {
     }
 
     /**
-     * Calculates the pattern state array when intersected using a vertical line
+     * Calculates the pattern state array when intersected using a line with dx,dy direction
      * and correct the pattern center if needed.
      *
      * @private
      * @param {Point} patternCenter - Initial Pattern center coordinates.
+     * @param {number} dx - the x mo
+     * @param {number} dy
      * @param {number} maxCount - The maximum possible number of pixels a pattern state could have.
-     * @returns {PatternMeasures}
+     * @returns
      * @memberof FinderLocator
      */
-    private verticalPatternMeasures(patternCenter: Point, maxCount: number): PatternMeasures {
-        const state = new Int32Array(5);
-        const x = patternCenter.x;
-        // Count pixels from the center and going down.
-        for (let y = patternCenter.y, stateIdx = 2; y < this.matrix.height; ++y) {
-            if ((stateIdx & 1) === this.matrix.get(x, y)) {
-                // if encountered white cell at even state, or black cell at odd state, then
-                // state has changed, and we advance to the next state.
-                ++stateIdx;
-                if (stateIdx === 5) {
-                    // If we reached the final state then break.
-                    break;
-                }
-            }
-            // In all cases increament number of pixels in the current state and
-            // get out if the state count became larger than the maximum possible.
-            if (++state[stateIdx] > maxCount) {
-                break;
-            }
+    private patternMeasures(
+        patternCenter: Point,
+        dx: number,
+        dy: number,
+        maxCount: number,
+    ) {
+        if (dx === 0 && dy === 0) {
+            throw new Error("x-axis and y-axis displacement should be either 1 or -1, \
+            and they shouldn't be both zeros!");
         }
-        const sumDown = state[2];
 
-        // exact same logic as above but counting up to cover the full pattern.
-        for (let y = patternCenter.y - 1, stateIdx = 2; y >= 0; --y) {
-            if ((stateIdx & 1) === this.matrix.get(x, y)) {
-                --stateIdx;
-                if (stateIdx === -1) {
-                    break;
-                }
-            }
-            // In all cases increament number of pixels in the current state and
-            // get out if the state count became larger than the maximum possible.
-            if (++state[stateIdx] > maxCount) {
-                break;
-            }
-        }
-        const sumUp = state[2] - sumDown;
-
-        // if the sum down pixels are more than the sum up then increament the y to be in
-        // the middle and vice versa.
-        const correctedCenter = {
-            x: patternCenter.x,
-            y: patternCenter.y + Math.floor((sumDown - sumUp) / 2),
-        };
-        return { location: correctedCenter, state };
-    }
-
-    /**
-     * Calculates the pattern state array when intersected using a horizontal line
-     * and correct the pattern center if needed.
-     *
-     * @private
-     * @param {Point} patternCenter - Initial Pattern center coordinates.
-     * @param {number} maxCount - The maximum possible number of pixels a pattern state could have.
-     * @returns {PatternMeasures}
-     * @memberof FinderLocator
-     */
-    private horizontalPatternMeasures(patternCenter: Point, maxCount: number): PatternMeasures {
-        const state = new Int32Array(5);
-        const y = patternCenter.y;
-        // Count pixels from the center and going right.
-        for (let x = patternCenter.x, stateIdx = 2; x < this.matrix.width; ++x) {
-            if ((stateIdx & 1) === this.matrix.get(x, y)) {
-                // if encountered white cell at even state, or black cell at odd state, then
-                // state has changed, and we advance to the next state.
-                ++stateIdx;
-                if (stateIdx === 5) {
-                    // If we reached the final state then break.
-                    break;
-                }
-            }
-            // In all cases increament number of pixels in the current state and
-            // get out if the state count became larger than the maximum possible.
-            if (++state[stateIdx] > maxCount) {
-                break;
-            }
-        }
-        const sumRight = state[2];
-
-        // exact same logic as above but counting left to cover the full pattern.
-        for (let x = patternCenter.x - 1, stateIdx = 2; x >= 0; --x) {
-            if ((stateIdx & 1) === this.matrix.get(x, y)) {
-                --stateIdx;
-                if (stateIdx === -1) {
-                    break;
-                }
-            }
-            // In all cases increament number of pixels in the current state and
-            // get out if the state count became larger than the maximum possible.
-            if (++state[stateIdx] > maxCount) {
-                break;
-            }
-        }
-        const sumLeft = state[2] - sumRight;
-
-        // if the sum right pixels are more than the sum left then increament the x to be in
-        // the middle and vice versa.
-        const correctedCenter = {
-            x: patternCenter.x + Math.floor((sumRight - sumLeft) / 2),
-            y: patternCenter.y,
-        };
-        return { location: correctedCenter, state };
-    }
-
-    /**
-     * Calculates the pattern state array when intersected using a main diagonal line.
-     *
-     * @private
-     * @param {Point} patternCenter - Pattern center coordinates.
-     * @param {number} maxCount - The maximum possible number of pixels a pattern state could have.
-     * @returns {PatternMeasures}
-     * @memberof FinderLocator
-     */
-    private mainDiagonalPatternMeasures(patternCenter: Point, maxCount: number): PatternMeasures {
-        const state = new Int32Array(5);
-        // Count pixels from the center and going down.
+        const state = new Uint16Array(5);
         let x = patternCenter.x;
         let y = patternCenter.y;
+        let xEnd = dx === -1 ? -1 : this.matrix.width;
+        let yEnd = dy === -1 ? -1 : this.matrix.height;
         let stateIdx = 2;
-        while (x < this.matrix.width && y < this.matrix.height) {
+        // Count pixels from the center and going forward.
+        while (x !== xEnd && y !== yEnd) {
             if ((stateIdx & 1) === this.matrix.get(x, y)) {
                 // if encountered white cell at even state, or black cell at odd state, then
                 // state has changed, and we advance to the next state.
@@ -361,83 +251,37 @@ export class FinderLocator {
             if (++state[stateIdx] > maxCount) {
                 break;
             }
-            ++x, ++y;
+            x += dx;
+            y += dy;
         }
+        const sumForward = state[2];
 
-        // exact same logic as above but counting up to cover the full pattern.
-        x = patternCenter.x - 1;
-        y = patternCenter.y - 1;
+        // exact same logic as above but counting backward to cover the full pattern.
+        x = patternCenter.x - dx;
+        y = patternCenter.y - dy;
+        xEnd = dx === 1 ? -1 : this.matrix.width;
+        yEnd = dy === 1 ? -1 : this.matrix.height;
         stateIdx = 2;
-        while (x >= 0 && y >= 0) {
+        while (x !== xEnd && y !== yEnd) {
             if ((stateIdx & 1) === this.matrix.get(x, y)) {
                 --stateIdx;
                 if (stateIdx === -1) {
                     break;
                 }
             }
-            // In all cases increament number of pixels in the current state and
-            // get out if the state count became larger than the maximum possible.
             if (++state[stateIdx] > maxCount) {
                 break;
             }
-            --x, --y;
+            x -= dx;
+            y -= dy;
         }
+        const sumBackward = state[2] - sumForward;
 
-        return { location: patternCenter, state };
-    }
-
-    /**
-     * Calculates the pattern state array when intersected using a skew diagonal line.
-     *
-     * @private
-     * @param {Point} patternCenter - Pattern center coordinates.
-     * @param {number} maxCount - The maximum possible number of pixels a pattern state could have.
-     * @returns {PatternMeasures}
-     * @memberof FinderLocator
-     */
-    private skewDiagonalPatternMeasures(patternCenter: Point, maxCount: number): PatternMeasures {
-        const state = new Int32Array(5);
-        // Count pixels from the center and going down.
-        let x = patternCenter.x;
-        let y = patternCenter.y;
-        let stateIdx = 2;
-        while (x < this.matrix.width && y >= 0) {
-            if ((stateIdx & 1) === this.matrix.get(x, y)) {
-                // if encountered white cell at even state, or black cell at odd state, then
-                // state has changed, and we advance to the next state.
-                ++stateIdx;
-                if (stateIdx === 5) {
-                    // If we reached the final state then break.
-                    break;
-                }
-            }
-            // In all cases increament number of pixels in the current state and
-            // get out if the state count became larger than the maximum possible.
-            if (++state[stateIdx] > maxCount) {
-                break;
-            }
-            ++x, --y;
-        }
-
-        // exact same logic as above but counting up to cover the full pattern.
-        x = patternCenter.x - 1;
-        y = patternCenter.y + 1;
-        stateIdx = 2;
-        while (x >= 0 && y < this.matrix.height) {
-            if ((stateIdx & 1) === this.matrix.get(x, y)) {
-                --stateIdx;
-                if (stateIdx === -1) {
-                    break;
-                }
-            }
-            // In all cases increament number of pixels in the current state and
-            // get out if the state count became larger than the maximum possible.
-            if (++state[stateIdx] > maxCount) {
-                break;
-            }
-            --x, ++y;
-        }
-
-        return { location: patternCenter, state };
+        // adjust the pattern center according to number of pixels on both sides of the old center.
+        const correctedCenter = {
+            x: patternCenter.x + Math.floor((sumForward - sumBackward) / 2) * dx,
+            y: patternCenter.y + Math.floor((sumForward - sumBackward) / 2) * dy,
+        };
+        return { location: correctedCenter, state };
     }
 }

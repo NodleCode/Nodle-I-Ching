@@ -1,8 +1,8 @@
-import { Locator } from "../";
-import { loadPng } from "../../../../fileHelpers";
-import { singleChannelToBitMatrix } from "../../../../testHelpers";
-import { nearlySame } from "../../../geometry";
-import { PatternsLocation } from "../../PatternsLocation";
+import { Locator } from "../../../core/decoder/locator";
+import { PatternsLocation } from "../../../core/decoder/PatternsLocation";
+import { nearlySame } from "../../../core/geometry";
+import { loadPng } from "../../fileHelpers";
+import { singleChannelToBitMatrix } from "../../testHelpers";
 
 const MAX_VARIANCE = 3;
 
@@ -31,7 +31,7 @@ describe("locate", () => {
             y: expected.topRight.y - expected.topLeft.y + expected.bottomLeft.y,
         };
 
-        const img = await loadPng("./test_data/binarized/perfect_no_alignment.png");
+        const img = await loadPng("./src/tests/test_data/binarized/perfect_no_alignment.png");
         const matrix = singleChannelToBitMatrix(img);
         const locator = new Locator();
         const real = locator.locate(matrix);
@@ -53,7 +53,7 @@ describe("locate", () => {
             y: expected.topRight.y - expected.topLeft.y + expected.bottomLeft.y,
         };
 
-        const img = await loadPng("./test_data/binarized/noise_cleared.png");
+        const img = await loadPng("./src/tests/test_data/binarized/noise_cleared.png");
         const matrix = singleChannelToBitMatrix(img);
         const locator = new Locator();
         const real = locator.locate(matrix);
@@ -75,7 +75,7 @@ describe("locate", () => {
             y: expected.topRight.y - expected.topLeft.y + expected.bottomLeft.y,
         };
 
-        const img = await loadPng("./test_data/binarized/noisy.png");
+        const img = await loadPng("./src/tests/test_data/binarized/noisy.png");
         const matrix = singleChannelToBitMatrix(img);
         const locator = new Locator();
         const real = locator.locate(matrix);
@@ -97,7 +97,7 @@ describe("locate", () => {
             y: expected.topRight.y - expected.topLeft.y + expected.bottomLeft.y,
         };
 
-        const img = await loadPng("./test_data/binarized/bin1.png");
+        const img = await loadPng("./src/tests/test_data/binarized/bin1.png");
         const matrix = singleChannelToBitMatrix(img);
         const locator = new Locator();
         const real = locator.locate(matrix);
@@ -119,7 +119,7 @@ describe("locate", () => {
             y: expected.topRight.y - expected.topLeft.y + expected.bottomLeft.y,
         };
 
-        const img = await loadPng("./test_data/binarized/bin2.png");
+        const img = await loadPng("./src/tests/test_data/binarized/bin2.png");
         const matrix = singleChannelToBitMatrix(img);
         const locator = new Locator();
         const real = locator.locate(matrix);
@@ -141,7 +141,7 @@ describe("locate", () => {
             y: expected.topRight.y - expected.topLeft.y + expected.bottomLeft.y,
         };
 
-        const img = await loadPng("./test_data/binarized/bin3.png");
+        const img = await loadPng("./src/tests/test_data/binarized/bin3.png");
         const matrix = singleChannelToBitMatrix(img);
         const locator = new Locator();
         const real = locator.locate(matrix);

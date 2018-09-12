@@ -9,12 +9,12 @@ export class Locator {
     /**
      * Minimum distance between finder patterns.
      */
-    public static MIN_PATTERN_DIST = 10;
+    public static MIN_PATTERN_DIST = 50;
 
     /**
      * The ratio of alignment pattern size to finder pattern size.
      */
-    public static FINDER_TO_ALIGNMENT_RATIO = 5 / 7;
+    public static ALIGNMENT_TO_FINDER_RATIO = 5 / 7;
 
     private matrix: BitMatrix;
     private locations: PatternsLocation;
@@ -32,20 +32,13 @@ export class Locator {
         /**
          * compare function to sort location according to error in accending order.
          */
-        const compareErrorGreater = (a: LocationError, b: LocationError): number => {
-            if (a.error < b.error) {
-                return -1;
-            } else if (a.error > b.error) {
-                return 1;
-            }
-            return 0;
-        };
+        const compareError = (a: LocationError, b: LocationError): number => (a.error - b.error);
 
         // Locate Finder Patterns.
         const finderLocator = new FinderLocator();
         const finders = finderLocator.locate(this.matrix);
         // Sort the array of found patterns to pick the three with the smallest error.
-        finders.sort(compareErrorGreater);
+        finders.sort(compareError);
         // Store the most optimal distinct points in optimalFinders array
         const optimalFinders: LocationError[] = [];
         for (let i = 0; i < finders.length && optimalFinders.length < 3; ++i) {
@@ -97,18 +90,33 @@ export class Locator {
             y: this.locations.topRight.y - this.locations.topLeft.y + this.locations.bottomLeft.y,
         };
         this.locations.alignmentSize =
-            this.locations.finderAverageSize * Locator.FINDER_TO_ALIGNMENT_RATIO;
+            this.locations.finderAverageSize * Locator.ALIGNMENT_TO_FINDER_RATIO;
+
+        // Average distance between patterns
+        const averageXDistance = Math.floor((
+            Math.abs(this.locations.bottomRight.x - this.locations.bottomLeft.x) +
+            Math.abs(this.locations.topRight.x - this.locations.topLeft.x)
+        ) / 2);
+        const averageYDistance = Math.floor((
+            Math.abs(this.locations.topRight.y - this.locations.bottomRight.y) +
+            Math.abs(this.locations.topLeft.y - this.locations.bottomLeft.y)
+        ) / 2);
 
         // Calculate the search region for the alignment pattern locator
-        const xRange = Math.floor(this.locations.bottomLeft.x + this.locations.bottomRight.x) / 2;
-        const yRange = Math.floor(this.locations.topRight.y + this.locations.bottomRight.y) / 2;
+        // Search start point
         const startPoint: Point = {
-            x: this.locations.bottomLeft.x + xRange,
-            y: this.locations.topRight.y + yRange,
+            x: Math.max(0, Math.floor(this.locations.bottomRight.x - averageXDistance / 2)),
+            y: Math.max(0, Math.floor(this.locations.bottomRight.y - averageYDistance / 2)),
         };
+
+        // Search end point
         const endPoint: Point = {
-            x: startPoint.x + xRange,
-            y: startPoint.y + yRange,
+            x: Math.min(
+                this.matrix.width, Math.floor(this.locations.bottomRight.x + averageXDistance / 2),
+            ),
+            y: Math.min(
+                this.matrix.height, Math.floor(this.locations.bottomRight.y + averageYDistance / 2),
+            ),
         };
 
         // Locate Alignment patterns.
@@ -117,7 +125,7 @@ export class Locator {
 
         if (alignments.length > 0) {
             // Sort the array of found patterns to pick the one with the larget error.
-            alignments.sort(compareErrorGreater);
+            alignments.sort(compareError);
             this.locations.bottomRight = alignments[0].location;
         }
 

@@ -5,4 +5,4 @@ export { Writer } from "./core/writer";
 export { AdaptiveBinarizer } from "./core/decoder/binarizer";
 export { Locator } from "./core/decoder/locator/Locator";
 // testing exports
-export { singleChannelToBitMatrix } from "./testHelpers";
+export { singleChannelToBitMatrix } from "./tests/testHelpers";
