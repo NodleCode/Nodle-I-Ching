@@ -7,7 +7,7 @@ body {
     font-family: sans-serif;
 }
 </style>
-<script src="../lib/umd/index.min.js"></script>
+<script src="../../../lib/umd/index.min.js"></script>
 <script type='text/javascript'>
 
     function loadImage() {
@@ -51,7 +51,7 @@ body {
 
             var binarizer = new iching.AdaptiveBinarizer();
             var matrix = binarizer.binarize(imgData.data, imgData.width, imgData.height);
-            var myData = new iching.ImageData(matrix);
+            var myData = matrix.toImage();
             var ctxImageData = new ImageData(myData.data, myData.width, myData.height);
 
             ctx.putImageData(ctxImageData, 0, 0);

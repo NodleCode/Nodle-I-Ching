@@ -18,9 +18,9 @@
         "downlevelIteration": true
     },
     "include": [
-      "./src/**/*.ts"
+        "./src/**/*.ts"
     ],
     "exclude": [
-      "./src/**/*.test.ts"  
+        "./src/**/*.test.ts"
     ]
 }

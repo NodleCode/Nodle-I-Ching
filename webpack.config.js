@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const uglify = require('uglifyjs-webpack-plugin');
-const { removeEmpty } = require('webpack-config-utils');
 const { resolve } = require('path');
 
 /**
@@ -34,7 +33,7 @@ module.exports = {
         }
     },
 
-    plugins: removeEmpty([
+    plugins: [
 
         // Enable scope hoisting
         new webpack.optimize.ModuleConcatenationPlugin(),
@@ -49,7 +48,7 @@ module.exports = {
                 }
             }
         })
-    ]),
+    ],
 
     module: {
         rules: [{
