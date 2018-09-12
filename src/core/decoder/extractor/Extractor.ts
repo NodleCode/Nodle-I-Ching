@@ -1,7 +1,7 @@
 import { BitMatrix } from "../../BitMatrix";
 import { EncodedIChing } from "../../EncodedIChing";
 import { Encoder } from "../../encoder";
-import { Point } from "../../Point";
+import { Point } from "../../geometry";
 import { Writer } from "../../writer";
 
 /**
@@ -12,17 +12,47 @@ import { Writer } from "../../writer";
  * @class Extractor
  */
 export class Extractor {
-    // Thresholds used for different checks in the class. Only used internally.
-    private static VERTICAL_BORDER_BLACK_THRESHOLD = 0.4;
-    private static LINE_VALID_BLACK_THRESHOLD = 0.5;
-    private static LINE_ONE_BLACK_THRESHOLD = 0.9;
-    private static GAP_DIM_THRESHOLD = 0.7;
-    private static UNIT_DIM_THRESHOLD = 0.7;
+    /**
+     * Maximum relative error tolerated in the ratios of the finder patterns.
+     */
+    public static FINDER_ERROR_THRESHOLD = 0.1;
+    /**
+     * Percentage of black pixels that should be present in the left or right border of the box
+     * around the symbol area for it to be considered inside the symbol.
+     */
+    public static VERTICAL_BORDER_BLACK_THRESHOLD = 0.4;
+    /**
+     * Percentage of black pixels that should be present in a horizontal line for it to be
+     * considered part of a valid bit in a symbol.
+     */
+    public static LINE_VALID_BLACK_THRESHOLD = 0.5;
+    /**
+     * Percentage of black pixels that should be present in a horizontal line for it to be
+     * considered part of a one-bit.
+     */
+    public static LINE_ONE_BLACK_THRESHOLD = 0.9;
+    /**
+     * Percentage of the size of the gap between symbols that should be exceeded for a gap
+     * to be considered valid.
+     */
+    public static GAP_DIM_THRESHOLD = 0.7;
+    /**
+     * Percentage the size of a unit that should be exceeded for a unit to be considered valid.
+     */
+    public static UNIT_DIM_THRESHOLD = 0.7;
 
-    // Constants representing different line states. Only used internally.
-    private static LINE_STATE_INVALID = -1;
-    private static LINE_STATE_WHITE = 0;
-    private static LINE_STATE_BLACK = 1;
+    /**
+     * Hotrizontal line that is not part of any bits.
+     */
+    public static LINE_STATE_INVALID = -1;
+    /**
+     * Horizontal line that is part of a zero-bit.
+     */
+    public static LINE_STATE_ZERO = 0;
+    /**
+     * Horizontal line that is part of a one-bit.
+     */
+    public static LINE_STATE_ONE = 1;
 
     /**
      * Main class method. Extracts encoded data from the given perspective corrected binary image.
@@ -145,24 +175,57 @@ export class Extractor {
      * @returns {number} estimated scale.
      */
     private estimateScale(matrix: BitMatrix): number {
-        let radiusSum = 0;
+        let sum = 0;
+        let count = 0;
+        let state;
 
         // Top-left finder, horizontal.
-        radiusSum += this.scanFinderRadius(matrix, { x: 0, y: 0 }, 1, 0);
+        state = this.scanFinderRadius(matrix, { x: 0, y: 0 }, 1, 0);
+        if (this.isValidFinderRadius(state)) {
+            sum += state[0] + state[1] + state[2];
+            count++;
+        }
+
         // Top-left finder, vertical.
-        radiusSum += this.scanFinderRadius(matrix, { x: 0, y: 0 }, 0, 1);
+        state = this.scanFinderRadius(matrix, { x: 0, y: 0 }, 0, 1);
+        if (this.isValidFinderRadius(state)) {
+            sum += state[0] + state[1] + state[2];
+            count++;
+        }
 
         // Bottom-left finder, horizontal.
-        radiusSum += this.scanFinderRadius(matrix, { x: 0, y: matrix.height - 1 }, 1, 0);
+        state = this.scanFinderRadius(matrix, { x: 0, y: matrix.height - 1 }, 1, 0);
+        if (this.isValidFinderRadius(state)) {
+            sum += state[0] + state[1] + state[2];
+            count++;
+        }
+
         // Bottom-left finder, vertical.
-        radiusSum += this.scanFinderRadius(matrix, { x: 0, y: matrix.height - 1 }, 0, -1);
+        state = this.scanFinderRadius(matrix, { x: 0, y: matrix.height - 1 }, 0, -1);
+        if (this.isValidFinderRadius(state)) {
+            sum += state[0] + state[1] + state[2];
+            count++;
+        }
 
         // Top-right finder, horizontal.
-        radiusSum += this.scanFinderRadius(matrix, { x: matrix.width - 1, y: 0 }, -1, 0);
-        // Top-right finder, vertical.
-        radiusSum += this.scanFinderRadius(matrix, { x: matrix.width - 1, y: 0 }, 0, 1);
+        state = this.scanFinderRadius(matrix, { x: matrix.width - 1, y: 0 }, -1, 0);
+        if (this.isValidFinderRadius(state)) {
+            sum += state[0] + state[1] + state[2];
+            count++;
+        }
 
-        const averageRadius = radiusSum / 6;
+        // Top-right finder, vertical.
+        state = this.scanFinderRadius(matrix, { x: matrix.width - 1, y: 0 }, 0, 1);
+        if (this.isValidFinderRadius(state)) {
+            sum += state[0] + state[1] + state[2];
+            count++;
+        }
+
+        if (count === 0) {
+            throw new Error("No valid finder patterns found!");
+        }
+
+        const averageRadius = sum / count;
         const estimatedScale = averageRadius / Writer.FINDER_OUTER_RADIUS;
 
         return estimatedScale;
@@ -176,27 +239,64 @@ export class Extractor {
      * @param {Point} centre
      * @param {number} dx
      * @param {number} dy
-     * @returns {number} radius
+     * @returns {number[]} [black, white, black] count of pixels.
      */
-    private scanFinderRadius(matrix: BitMatrix, centre: Point, dx: number, dy: number): number {
+    private scanFinderRadius(matrix: BitMatrix, centre: Point, dx: number, dy: number): number[] {
         if (!(Math.abs(dx) === 1 && dy === 0) && !(dx === 0 && Math.abs(dy) === 1)) {
             throw new Error("Scan direction is neither horizontal nor vertical!");
         }
 
         let state = 0;
-        let radius = 0;
+        const count = [0, 0, 0];
         let x = centre.x;
         let y = centre.y;
-        while (state < 3) {
-            radius++;
+
+        // From the centre of the pattern, we should pass by 3 states:
+        // { 0: black, 1: white, 2: black }.
+        while (
+            state < 3 &&
+            x >= 0 && x < matrix.width &&
+            y >= 0 && y < matrix.height
+        ) {
+            count[state]++;
             x += dx;
             y += dy;
+            // If white in even state, or black in odd state, increment state.
             if ((state & 1) === matrix.get(x, y)) {
                 state++;
             }
         }
 
-        return radius;
+        return count;
+    }
+
+    /**
+     * Checks if the provided pixel count represent the proper ratios expected in a finder pattern.
+     * Finder patterns have a black:white:black:white:black ratio of 1:1:3:1:1, so the radius should
+     * have a black:white:black ratio of 1.5:1:1.
+     *
+     * @private
+     * @param {number[]} count
+     * @returns {boolean}
+     */
+    private isValidFinderRadius(count: number[]): boolean {
+        if (count.length !== 3) {
+            return false;
+        }
+
+        const baseDimensions = [
+            Writer.FINDER_INNER_RADIUS,
+            Writer.FINDER_MIDDLE_RADIUS - Writer.FINDER_INNER_RADIUS,
+            Writer.FINDER_OUTER_RADIUS - Writer.FINDER_MIDDLE_RADIUS,
+        ];
+
+        const scales = [0, 0, 0];
+        for (let i = 0; i < count.length; i++) {
+            scales[i] = count[i] / baseDimensions[i];
+        }
+        scales.sort((a: number, b: number) => a - b);
+
+        return ((scales[2] - scales[0]) / scales[2] < Extractor.FINDER_ERROR_THRESHOLD);
     }
 
     /**
@@ -295,10 +395,10 @@ export class Extractor {
 
         // Check if line represents a zero-bit.
         if (black / lineWidth < Extractor.LINE_ONE_BLACK_THRESHOLD) {
-            return Extractor.LINE_STATE_WHITE;
+            return Extractor.LINE_STATE_ZERO;
         }
 
         // Line represents a one-bit.
-        return Extractor.LINE_STATE_BLACK;
+        return Extractor.LINE_STATE_ONE;
     }
 }
