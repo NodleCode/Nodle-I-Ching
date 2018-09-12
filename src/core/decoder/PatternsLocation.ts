@@ -15,11 +15,19 @@ export interface PatternsLocation {
      */
     topLeft: Point;
     /**
-     * Bottom-right finder pattern position.
-     */
-    bottomRight: Point;
-    /**
      * Bottom-left finder pattern position.
      */
     bottomLeft: Point;
+    /**
+     * Bottom-right alignment pattern position.
+     */
+    bottomRight: Point;
+    /**
+     * The average size of the three finder patterns.
+     */
+    finderAverageSize: number;
+    /**
+     * The size of the bottom-right alignment pattern.
+     */
+    alignmentSize: number;
 }

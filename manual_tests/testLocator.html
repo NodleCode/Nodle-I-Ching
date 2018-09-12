@@ -1,74 +1,70 @@
 <html>
 <head>
-<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 <title>Test Locator</title>
-<style type='text/css'>
-body {
-    font-family: sans-serif;
+<style>
+div.footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	margin: 0 auto;
+	background: #0072BB;
+	color:#fff;
 }
 </style>
+</head>
+
+<body>
+
+<p>Open image: <input type="file" id="inputImage"/></p>
+
+<canvas id="canvas" style="margin:12px;"></canvas>
+
+<div class="footer" id="results">Move mouse over image to show mouse location and pixel value and alpha</div>
+
 <script src="../lib/umd/index.min.js"></script>
-<script type='text/javascript'>
+<script>
+var URL = window.URL;
+var cvs = document.getElementById('canvas');
+var ctx = cvs.getContext('2d');
+var res = document.getElementById('results');
 
-    function loadImage() {
-        var input, file, fr, img;
+cvs.addEventListener('mousemove', mousePos, false);
 
-        if (typeof window.FileReader !== 'function') {
-            write("The file API isn't supported on this browser yet.");
-            return;
-        }
+window.onload = function() {
+	var inputImage = document.getElementById('inputImage');
+	inputImage.addEventListener('change', handleImageFiles, false);
+}
 
-        input = document.getElementById('imgfile');
-        if (!input) {
-            write("Um, couldn't find the imgfile element.");
-        }
-        else if (!input.files) {
-            write("This browser doesn't seem to support the `files` property of file inputs.");
-        }
-        else if (!input.files[0]) {
-            write("Please select a file before clicking 'Load'");
-        }
-        else {
-            file = input.files[0];
-            fr = new FileReader();
-            fr.onload = createImage;
-            fr.readAsDataURL(file);
-        }
+function mousePos(evt) {
+	var rect = cvs.getBoundingClientRect();
+	var x = parseInt(evt.clientX - rect.left);
+	var y = parseInt(evt.clientY - rect.top);
+	var p = ctx.getImageData(x, y, 1, 1).data;
+	results.innerHTML = '<table style="width:100%;table-layout:fixed"><td>X: ' 
+		+ x + '</td><td>Y: ' + y + '</td><td>Red: ' 
+		+ p[0] + '</td><td>Green: ' + p[1] + '</td><td>Blue: ' 
+		+ p[2] + '</td><td>Alpha: ' + p[3]+"</td></table>";
+	return {x, y};
+}
 
-        function createImage() {
-            img = new Image();
-            img.onload = imageLoaded;
-            img.src = fr.result;
-        }
+function handleImageFiles(e) {	
+	var url = URL.createObjectURL(e.target.files[0]);
+	var img = new Image();
+	img.onload = function() {
+		cvs.width = img.width;
+		cvs.height = img.height;
+        ctx.drawImage(img, 0, 0);
 
-        function imageLoaded() {
-            var canvas = document.getElementById("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img,0,0);
-            var imgData = ctx.getImageData(0, 0, img.width, img.height);
-
-            var matrix = iching.singleChannelToBitMatrix(imgData.data, imgData.width, imgData.height);
-            var locator = new iching.Locator();
-            var locations = locator.locate(matrix);
-            console.log(locations);
-            alert(canvas.toDataURL("image/png"));
-        }
-
-        function write(msg) {
-            var p = document.createElement('p');
-            p.innerHTML = msg;
-            document.body.appendChild(p);
-        }
-    }
+        // Test Logic goes here
+        var imgData = ctx.getImageData(0, 0, img.width, img.height);
+        var matrix = iching.singleChannelToBitMatrix(imgData);
+        var locator = new iching.Locator();
+        var locations = locator.locate(matrix);
+        console.log(locations);
+	}
+    img.src = url;
+}
 
 </script>
-</head>
-<body>
-<form action='#' onsubmit="return false;">
-    <input type='file' id='imgfile' />
-    <input type='button' id='btnLoad' value='Load' onclick='loadImage();' />
-</form>
-    <canvas id="canvas"></canvas>
 </body>
+</html>      

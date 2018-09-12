@@ -12,6 +12,10 @@ export interface LocationError {
      */
     location: Point;
     /**
+     * the Size of the pattern.
+     */
+    size: number;
+    /**
      * The pattern error, consists of ratio and size errors
      */
     error: number;

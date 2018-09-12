@@ -11,6 +11,11 @@ export class Locator {
      */
     public static MIN_PATTERN_DIST = 10;
 
+    /**
+     * The ratio of alignment pattern size to finder pattern size.
+     */
+    public static FINDER_TO_ALIGNMENT_RATIO = 5 / 7;
+
     private matrix: BitMatrix;
     private locations: PatternsLocation;
 
@@ -23,6 +28,7 @@ export class Locator {
      */
     public locate(matrix: BitMatrix): PatternsLocation {
         this.matrix = matrix;
+        this.locations = {} as PatternsLocation;
         /**
          * compare function to sort location according to error in accending order.
          */
@@ -41,32 +47,57 @@ export class Locator {
         // Sort the array of found patterns to pick the three with the smallest error.
         finders.sort(compareErrorGreater);
         // Store the most optimal distinct points in optimalFinders array
-        const optimalFinders: Point[] = [];
+        const optimalFinders: LocationError[] = [];
         for (let i = 0; i < finders.length && optimalFinders.length < 3; ++i) {
             // Check if points are actually distinct
             let distinctPoint = true;
             for (const oldPattern of optimalFinders) {
-                if (nearlySame(oldPattern, finders[i].location, Locator.MIN_PATTERN_DIST)) {
+                if (nearlySame(
+                    oldPattern.location,
+                    finders[i].location,
+                    Locator.MIN_PATTERN_DIST,
+                )) {
                     distinctPoint = false;
                     break;
                 }
             }
             if (distinctPoint) {
-                // If it's a new pattern then add it to optimalFinders
-                optimalFinders.push(finders[i].location);
+                // If it's a new pattern then check that it's size isn't far away (500%) from the
+                // size of the pattern with the smallest errors.
+                if (optimalFinders.length > 0) {
+                    const min = Math.min(optimalFinders[0].size, finders[i].size);
+                    const max = Math.max(optimalFinders[0].size, finders[i].size);
+                    if (max > 5 * min) {
+                        continue;
+                    }
+
+                }
+                // If all is good then add it to optimalFinders
+                optimalFinders.push(finders[i]);
             }
         }
 
         if (optimalFinders.length < 3) {
             throw new Error("Couldn't Locate Finder Patterns!");
         }
-        this.assignFinders(optimalFinders[0], optimalFinders[1], optimalFinders[2]);
+        this.assignFinders(
+            optimalFinders[0].location,
+            optimalFinders[1].location,
+            optimalFinders[2].location,
+        );
+        this.locations.finderAverageSize = (
+            optimalFinders[0].size +
+            optimalFinders[1].size +
+            optimalFinders[2].size
+        ) / 3;
 
-        // Calculate the estimated location of the bottom-right alignment pattern
+        // Calculate the estimated location and size of the bottom-right alignment pattern
         this.locations.bottomRight = {
             x: this.locations.topRight.x - this.locations.topLeft.x + this.locations.bottomLeft.x,
             y: this.locations.topRight.y - this.locations.topLeft.y + this.locations.bottomLeft.y,
         };
+        this.locations.alignmentSize =
+            this.locations.finderAverageSize * Locator.FINDER_TO_ALIGNMENT_RATIO;
 
         // Calculate the search region for the alignment pattern locator
         const xRange = Math.floor(this.locations.bottomLeft.x + this.locations.bottomRight.x) / 2;
@@ -124,11 +155,8 @@ export class Locator {
 
         // assign finder patterns to the returned object and assign alignment pattern to
         // null in case we didn't find any.
-        this.locations = {
-            bottomLeft: a,
-            topRight: b,
-            topLeft: c,
-            bottomRight: null,
-        };
+        this.locations.bottomLeft = a;
+        this.locations.topRight = b;
+        this.locations.topLeft = c;
     }
 }
