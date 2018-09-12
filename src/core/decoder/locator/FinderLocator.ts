@@ -4,6 +4,21 @@ import { sumArray } from "../../utils";
 import { LocationError } from "./LocationError";
 
 /**
+ * Represents pattern ratio error and size average for each probable pattern location.
+ * @interface PatternMeasures
+ */
+interface PatternMeasures {
+    /**
+     * The corrected center of the pattern.
+     */
+    location: Point;
+    /**
+     * The pattern state array when intersected from certain angle.
+     */
+    state: Uint16Array;
+}
+
+/**
  * @export
  * @class FinderLocator
  * @description Locates all possible locations of Finder patterns and calculates the error
@@ -140,10 +155,10 @@ export class FinderLocator {
      */
     private calculateLocationError(patternCenter: Point, maxCount: number): LocationError {
         // Calculate pattern state array.
-        const vertical = this.patternMeasures(patternCenter, 0, 1, maxCount);
-        const horizontal = this.patternMeasures(patternCenter, 1, 0, maxCount);
-        const mainDiagonal = this.patternMeasures(patternCenter, 1, 1, maxCount);
-        const skewDiagonal = this.patternMeasures(patternCenter, -1, 1, maxCount);
+        const vertical = this.calculatePatternMeasures(patternCenter, 0, 1, maxCount);
+        const horizontal = this.calculatePatternMeasures(patternCenter, 1, 0, maxCount);
+        const mainDiagonal = this.calculatePatternMeasures(patternCenter, 1, 1, maxCount);
+        const skewDiagonal = this.calculatePatternMeasures(patternCenter, -1, 1, maxCount);
 
         // Calculate pattern average size and average unit size in order to
         // be used as the mean in the RMS equation.
@@ -212,18 +227,19 @@ export class FinderLocator {
      *
      * @private
      * @param {Point} patternCenter - Initial Pattern center coordinates.
-     * @param {number} dx - the x mo
-     * @param {number} dy
+     * @param {number} dx - X-axis displacement direction.
+     * @param {number} dy - Y-axis displacement direction.
      * @param {number} maxCount - The maximum possible number of pixels a pattern state could have.
-     * @returns
+     * @returns {PatternMeasures} - Pattern state resutling from the line cross check and
+     * corrected pattern center.
      * @memberof FinderLocator
      */
-    private patternMeasures(
+    private calculatePatternMeasures(
         patternCenter: Point,
         dx: number,
         dy: number,
         maxCount: number,
-    ) {
+    ): PatternMeasures {
         if (dx === 0 && dy === 0) {
             throw new Error("x-axis and y-axis displacement should be either 1 or -1, \
             and they shouldn't be both zeros!");

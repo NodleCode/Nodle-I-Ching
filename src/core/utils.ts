@@ -2,9 +2,9 @@
  * Calculates array sum
  *
  * @export
- * @param {UInt16Array} arr - Input array.
+ * @param {any} arr - Input array.
  * @returns - The sum of the array.
  */
-export function sumArray(arr: Uint16Array): number {
-    return arr.reduce((sum, x) => sum + x);
+export function sumArray(arr: any): number {
+    return (arr as any).reduce((sum: number, x: number) => sum + x);
 }
