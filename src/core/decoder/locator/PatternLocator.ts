@@ -20,17 +20,17 @@ interface PatternMeasures {
 
 /**
  * @export
- * @class FinderLocator
- * @description Locates all possible locations of Finder patterns and calculates the error
- * for each location.
+ * @class PatternLocator
+ * @description Locates all possible locations of patterns having a certain ratio
+ * and calculates the error for each location.
  */
-export class FinderLocator {
+export class PatternLocator {
     /**
-     * Main class method - locates possible locations of finder patterns
+     * Main class method - locates possible locations of patterns with certain ratio.
      *
      * @param {BitMatrix} matrix - Matrix representing binarized image.
      * @returns {LocationError[]} - Array of all possible locations of the patterns.
-     * @memberof FinderLocator
+     * @memberof PatternLocator
      */
 
     /**
@@ -39,66 +39,103 @@ export class FinderLocator {
     public static SQRT2 = 1.41421356237;
 
     private matrix: BitMatrix;
+    private ratios: Uint8Array;
+    private startX: number;
+    private startY: number;
+    private endX: number;
+    private endY: number;
 
-    public locate(matrix: BitMatrix): LocationError[] {
+    public locate(
+        matrix: BitMatrix,
+        ratios: Uint8Array,
+        startPoint: Point = { x: 0, y: 0 },
+        endPoint: Point = { x: matrix.width, y: matrix.height },
+    ): LocationError[] {
         this.matrix = matrix;
+        this.ratios = ratios;
+        this.startX = startPoint.x;
+        this.startY = startPoint.y;
+        this.endX = endPoint.x;
+        this.endY = endPoint.y;
+
         const locations = [];
-        // Initialize state array with 5 positions to keep track of number of pixels in
+        // Initialize state array to keep track of number of pixels in
         // each state of the patterns
-        const state = new Uint16Array(5);
+        const state = new Uint16Array(ratios.length);
         let stateIdx = 0;
 
-        for (let y = 0; y < matrix.height; ++y) {
-            for (let x = 0; x < matrix.width; ++x) {
+        for (let y = this.startY; y < this.endY; ++y) {
+            for (let x = this.startX; x < this.endX; ++x) {
                 if ((stateIdx & 1) === matrix.get(x, y)) {
                     // if encountered white cell at even state, or black cell at odd state, then
                     // state has changed, and we advance to the next state.
                     ++stateIdx;
-                    if (stateIdx === 5) {
+                    if (stateIdx === ratios.length) {
                         // If we reached the final state change, then check if it's a valid pattern
                         if (this.isValidPattern(state)) {
                             // If valid pattern, calculates its error and push it to results
-                            const initialCenter: Point = {
-                                x: x - Math.floor(state[stateIdx - 3] / 2) -
-                                    state[stateIdx - 2] - state[stateIdx - 1],
-                                y,
-                            };
+                            const initialCenter: Point = this.centerFromEnd({ x: x - 1, y }, state);
+
                             // while we are running tests on the pattern to calculate its error, we
                             // will be also correcting the center.
-                            locations.push(
-                                this.calculateLocationError(initialCenter, state[2] * 2),
-                            );
+                            // set maxCount to the largest possible state which is the middle one.
+                            locations.push(this.calculateLocationError(
+                                initialCenter, state[ratios.length >> 1] * 2,
+                            ));
                         }
-                        // we still can make use of the last three states as
-                        // the first three in another pattern.
-                        state[0] = state[2];
-                        state[1] = state[3];
-                        state[2] = state[4];
-                        state[3] = state[4] = 0;
-                        stateIdx = 3;
+                        // we still can make use of the last states as new ones in another
+                        // pattern except for the first two states.
+                        for (let i = 2; i < state.length; ++i) {
+                            state[i - 2] = state[i];
+                        }
+                        // make the two remaining states zeros
+                        state[ratios.length - 1] = state[ratios.length - 2] = 0;
+                        stateIdx = ratios.length - 2;
                     }
                 }
                 // In all cases increament number of pixels in the current state.
                 ++state[stateIdx];
             }
 
-            // Handle the case that the image right side cuts a finder pattern.
+            // Handle the case that the image right side cuts a pattern.
             // This case could happen if a user is trying to fit the code to the screen exactly.
-            if (stateIdx === 4 && this.isValidPattern(state)) {
-                // If valid pattern, calculates its error and push it to results
-                const initialCenter: Point = {
-                    x: matrix.width - Math.floor(state[stateIdx - 2] / 2) -
-                        state[stateIdx - 1] - state[stateIdx],
-                    y,
-                };
-                locations.push(this.calculateLocationError(initialCenter, state[2] * 2));
+            if (stateIdx === ratios.length - 1 && this.isValidPattern(state)) {
+                const initialCenter: Point = this.centerFromEnd({ x: this.endX - 1, y }, state);
+                locations.push(this.calculateLocationError(
+                    initialCenter, state[ratios.length >> 1] * 2,
+                ));
             } else {
+                // empty all pattern states since no pattern should continue to the begining of
+                // a new line.
                 stateIdx = 0;
-                state[0] = state[1] = state[2] = state[3] = state[4] = 0;
+                for (let i = 0; i < ratios.length; ++i) {
+                    state[i] = 0;
+                }
             }
         }
 
         return locations;
+    }
+
+    /**
+     * Calculate pattern center pixel gives it's end pixel and the pattern state array.
+     *
+     * @private
+     * @param {Point} patternEnd - Pattern end pixel.
+     * @param {Uint16Array} state - Pattern state array.
+     * @returns {Point} - Pattern center pixel.
+     * @memberof PatternLocator
+     */
+    private centerFromEnd(patternEnd: Point, state: Uint16Array): Point {
+        let stateIdx = state.length >> 1;
+        let displacement = state[stateIdx] >> 1;
+        while (++stateIdx < state.length) {
+            displacement += state[stateIdx];
+        }
+        return {
+            x: patternEnd.x - displacement,
+            y: patternEnd.y,
+        };
     }
 
     /**
@@ -108,12 +145,9 @@ export class FinderLocator {
      * @param {Uint16Array} state - Array represents calculated states for
      * the probable pattern.
      * @returns {boolean} - either it's a valid pattern or not.
-     * @memberof FinderLocator
+     * @memberof PatternLocator
      */
     private isValidPattern(state: Uint16Array): boolean {
-        // Since the finder pattern ratios is 1:1:3:1:1, it consist of 7 units,
-        // a unit for each state except for the middle state consists of 3 units,
-        // so we first calculates how much pixels each unit consists of.
         let sum = 0;
         for (const count of state) {
             if (count === 0) {
@@ -122,22 +156,24 @@ export class FinderLocator {
             }
             sum += count;
         }
-
-        // valid state should consist from 7 pixels at least to fullfill 1:1:3:1:1 ratio.
-        if (sum < 7) {
+        const ratiosSum = sumArray(this.ratios);
+        // If the pattern doesn't contain number of pixels at least equal to the
+        // sum of the base ratios, then it's not a valid pattern for sure.
+        if (sum < ratiosSum) {
             return false;
         }
-        const unit = sum / 7;
+
+        const unit = sum / ratiosSum;
         // the maximum error that we can tolerate for each unit.
         const maxVariance = unit / 2;
         // then we check that each state contains the needed pixels.
-        return (
-            Math.abs(state[0] - unit) < maxVariance &&
-            Math.abs(state[1] - unit) < maxVariance &&
-            Math.abs(state[2] - 3 * unit) < 3 * maxVariance &&
-            Math.abs(state[3] - unit) < maxVariance &&
-            Math.abs(state[4] - unit) < maxVariance
-        );
+        let validPattern = true;
+        for (let i = 0; i < this.ratios.length; ++i) {
+            if (Math.abs(state[i] - unit * this.ratios[i]) > this.ratios[i] * maxVariance) {
+                validPattern = false;
+            }
+        }
+        return validPattern;
     }
 
     /**
@@ -151,7 +187,7 @@ export class FinderLocator {
      * @param {number} maxCount - The maximum possible number of pixels a pattern state could have.
      * @returns {LocationError} - The corrected pattern center and the combined error of
      * that location.
-     * @memberof FinderLocator
+     * @memberof PatternLocator
      */
     private calculateLocationError(patternCenter: Point, maxCount: number): LocationError {
         // Calculate pattern state array.
@@ -165,27 +201,25 @@ export class FinderLocator {
         const averageSize = (
             sumArray(vertical.state) +
             sumArray(horizontal.state) +
-            sumArray(mainDiagonal.state) * FinderLocator.SQRT2 +
-            sumArray(skewDiagonal.state) * FinderLocator.SQRT2
+            sumArray(mainDiagonal.state) * PatternLocator.SQRT2 +
+            sumArray(skewDiagonal.state) * PatternLocator.SQRT2
         ) / 4;
-        const averageUnit = averageSize / 7;
+        const ratiosSum = sumArray(this.ratios);
+        const averageUnit = averageSize / ratiosSum;
 
         // standard ratio error is equal to RMS of each cross ratioError, but we won't take the
         // root since we are going to need the squared value later.
         // Each cross ratioError is squared already so we won't square any of them again.
-        // 20 is the number of error factors, 4 lines each one of them has 5 pattern states.
         const standardRatioError = (
             this.calculateStateError(vertical.state, averageUnit) +
             this.calculateStateError(horizontal.state, averageUnit) +
             this.calculateStateError(mainDiagonal.state, averageUnit) +
             this.calculateStateError(skewDiagonal.state, averageUnit)
-        ) / 20;
+        ) / (4 * this.ratios.length);
 
         // Also use the corrected center as the new pattern center.
         // No center corrections happens from the diagonals since the vertical and horizontal
         // correction is enough to adjust the center.
-        // TODO: try to add a diagonal correction then take the average of corrections
-        // the logic behind this is that diagonal correctional will account for both x & y together
         const correctedCenter = {
             x: horizontal.location.x,
             y: vertical.location.y,
@@ -207,18 +241,17 @@ export class FinderLocator {
      * each pattern state.
      * @param {number} averageUnit - Average pattern state unit size.
      * @returns {number} - Normalized sum(Xi - mean)^2.
-     * @memberof FinderLocator
+     * @memberof PatternLocator
      */
     private calculateStateError(state: Uint16Array, averageUnit: number): number {
         // TODO: Test another normalization methods
         // @see https://en.wikipedia.org/wiki/Normalization_(statistics)
-        return (
-            (state[0] / averageUnit - 1) * (state[0] / averageUnit - 1) +
-            (state[1] / averageUnit - 1) * (state[1] / averageUnit - 1) +
-            (state[2] / averageUnit / 3 - 1) * (state[2] / averageUnit / 3 - 1) +
-            (state[3] / averageUnit - 1) * (state[3] / averageUnit - 1) +
-            (state[4] / averageUnit - 1) * (state[4] / averageUnit - 1)
-        );
+        let error = 0;
+        for (let i = 0; i < this.ratios.length; ++i) {
+            const unitError = (state[i] / averageUnit / this.ratios[i]  - 1);
+            error += unitError * unitError;
+        }
+        return error;
     }
 
     /**
@@ -232,7 +265,7 @@ export class FinderLocator {
      * @param {number} maxCount - The maximum possible number of pixels a pattern state could have.
      * @returns {PatternMeasures} - Pattern state resutling from the line cross check and
      * corrected pattern center.
-     * @memberof FinderLocator
+     * @memberof PatternLocator
      */
     private calculatePatternMeasures(
         patternCenter: Point,
@@ -245,19 +278,20 @@ export class FinderLocator {
             and they shouldn't be both zeros!");
         }
 
-        const state = new Uint16Array(5);
+        const state = new Uint16Array(this.ratios.length);
         let x = patternCenter.x;
         let y = patternCenter.y;
         let xEnd = dx === -1 ? -1 : this.matrix.width;
         let yEnd = dy === -1 ? -1 : this.matrix.height;
-        let stateIdx = 2;
+        const midStateIdx = this.ratios.length >> 1;
+        let stateIdx = midStateIdx;
         // Count pixels from the center and going forward.
         while (x !== xEnd && y !== yEnd) {
             if ((stateIdx & 1) === this.matrix.get(x, y)) {
                 // if encountered white cell at even state, or black cell at odd state, then
                 // state has changed, and we advance to the next state.
                 ++stateIdx;
-                if (stateIdx === 5) {
+                if (stateIdx === this.ratios.length) {
                     // If we reached the final state then break.
                     break;
                 }
@@ -270,14 +304,14 @@ export class FinderLocator {
             x += dx;
             y += dy;
         }
-        const sumForward = state[2];
+        const sumForward = state[midStateIdx];
 
         // exact same logic as above but counting backward to cover the full pattern.
         x = patternCenter.x - dx;
         y = patternCenter.y - dy;
         xEnd = dx === 1 ? -1 : this.matrix.width;
         yEnd = dy === 1 ? -1 : this.matrix.height;
-        stateIdx = 2;
+        stateIdx = midStateIdx;
         while (x !== xEnd && y !== yEnd) {
             if ((stateIdx & 1) === this.matrix.get(x, y)) {
                 --stateIdx;
@@ -291,7 +325,7 @@ export class FinderLocator {
             x -= dx;
             y -= dy;
         }
-        const sumBackward = state[2] - sumForward;
+        const sumBackward = state[midStateIdx] - sumForward;
 
         // adjust the pattern center according to number of pixels on both sides of the old center.
         const correctedCenter = {

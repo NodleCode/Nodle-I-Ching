@@ -6,12 +6,14 @@ import { singleChannelToBitMatrix } from "../../testHelpers";
 
 const MAX_VARIANCE = 3;
 
-const nearlySamePatterns = (real: PatternsLocation, expected: PatternsLocation): boolean => {
+const nearlySamePatterns = (
+    real: PatternsLocation, expected: PatternsLocation, compareAlignment: boolean,
+): boolean => {
     return (
         nearlySame(real.bottomLeft, expected.bottomLeft, MAX_VARIANCE) &&
         nearlySame(real.topRight, expected.topRight, MAX_VARIANCE) &&
         nearlySame(real.topLeft, expected.topLeft, MAX_VARIANCE) &&
-        nearlySame(real.bottomRight, expected.bottomRight, MAX_VARIANCE)
+        (!compareAlignment || nearlySame(real.bottomRight, expected.bottomRight, MAX_VARIANCE))
     );
 };
 
@@ -36,7 +38,7 @@ describe("locate", () => {
         const locator = new Locator();
         const real = locator.locate(matrix);
 
-        expect(nearlySamePatterns(real, expected)).toBeTruthy();
+        expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
     it('locates batterns in "noise_cleared" image', async () => {
@@ -58,14 +60,14 @@ describe("locate", () => {
         const locator = new Locator();
         const real = locator.locate(matrix);
 
-        expect(nearlySamePatterns(real, expected)).toBeTruthy();
+        expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
     it('locates batterns in "noisy" image', async () => {
         const expected: PatternsLocation = {
-            bottomLeft: { x: 1932, y: 2410 },
+            bottomLeft: { x: 1934, y: 2408 },
             topRight: { x: 3264, y: 1075 },
-            topLeft: { x: 1940, y: 1054 },
+            topLeft: { x: 1939, y: 1054 },
             bottomRight: null,
             finderAverageSize: 0,
             alignmentSize: null,
@@ -80,7 +82,7 @@ describe("locate", () => {
         const locator = new Locator();
         const real = locator.locate(matrix);
 
-        expect(nearlySamePatterns(real, expected)).toBeTruthy();
+        expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
     it('locates batterns in "bin1" image', async () => {
@@ -102,12 +104,12 @@ describe("locate", () => {
         const locator = new Locator();
         const real = locator.locate(matrix);
 
-        expect(nearlySamePatterns(real, expected)).toBeTruthy();
+        expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
     it('locates batterns in "bin2" image', async () => {
         const expected: PatternsLocation = {
-            bottomLeft: { x: 2518, y: 1641 },
+            bottomLeft: { x: 2515, y: 1640 },
             topRight: { x: 819, y: 2529 },
             topLeft: { x: 2229, y: 2959 },
             bottomRight: null,
@@ -124,7 +126,7 @@ describe("locate", () => {
         const locator = new Locator();
         const real = locator.locate(matrix);
 
-        expect(nearlySamePatterns(real, expected)).toBeTruthy();
+        expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
     it('locates batterns in "bin3" image', async () => {
@@ -146,7 +148,25 @@ describe("locate", () => {
         const locator = new Locator();
         const real = locator.locate(matrix);
 
-        expect(nearlySamePatterns(real, expected)).toBeTruthy();
+        expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
+    });
+
+    it('locates batterns in "perfect_with_alignment" image', async () => {
+        const expected: PatternsLocation = {
+            bottomLeft: { x: 231, y: 1911 },
+            topRight: { x: 1911, y: 231 },
+            topLeft: { x: 231, y: 231 },
+            bottomRight: { x: 1911, y: 1911 },
+            finderAverageSize: null,
+            alignmentSize: null,
+        };
+
+        const img = await loadPng("./src/tests/test_data/binarized/perfect_with_alignment.png");
+        const matrix = singleChannelToBitMatrix(img);
+        const locator = new Locator();
+        const real = locator.locate(matrix);
+
+        expect(nearlySamePatterns(real, expected, true)).toBeTruthy();
     });
 
 });
