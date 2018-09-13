@@ -19,7 +19,7 @@ const nearlySamePatterns = (
 
 describe("locate", () => {
 
-    it('locates batterns in "perfect_no_alignment" image', async () => {
+    it('locates patterns in "perfect_no_alignment" image', async () => {
         const expected: PatternsLocation = {
             bottomLeft: { x: 129, y: 1071 },
             topRight: { x: 1071, y: 129 },
@@ -41,7 +41,7 @@ describe("locate", () => {
         expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
-    it('locates batterns in "noise_cleared" image', async () => {
+    it('locates patterns in "noise_cleared" image', async () => {
         const expected: PatternsLocation = {
             bottomLeft: { x: 1931, y: 2410 },
             topRight: { x: 3263, y: 1075 },
@@ -63,7 +63,7 @@ describe("locate", () => {
         expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
-    it('locates batterns in "noisy" image', async () => {
+    it('locates patterns in "noisy" image', async () => {
         const expected: PatternsLocation = {
             bottomLeft: { x: 1934, y: 2408 },
             topRight: { x: 3264, y: 1075 },
@@ -85,7 +85,7 @@ describe("locate", () => {
         expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
-    it('locates batterns in "bin1" image', async () => {
+    it('locates patterns in "bin1" image', async () => {
         const expected: PatternsLocation = {
             bottomLeft: { x: 1637, y: 2372 },
             topRight: { x: 1552, y: 1144 },
@@ -107,7 +107,7 @@ describe("locate", () => {
         expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
-    it('locates batterns in "bin2" image', async () => {
+    it('locates patterns in "bin2" image', async () => {
         const expected: PatternsLocation = {
             bottomLeft: { x: 2515, y: 1640 },
             topRight: { x: 819, y: 2529 },
@@ -129,7 +129,7 @@ describe("locate", () => {
         expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
-    it('locates batterns in "bin3" image', async () => {
+    it('locates patterns in "bin3" image', async () => {
         const expected: PatternsLocation = {
             bottomLeft: { x: 2699, y: 2229 },
             topRight: { x: 596, y: 1633 },
