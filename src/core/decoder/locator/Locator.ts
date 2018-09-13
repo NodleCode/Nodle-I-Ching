@@ -114,8 +114,8 @@ export class Locator {
 
         // Search end point
         const endPoint: Point = {
-            x: Math.min(matrix.width, this.locations.bottomRight.x + (PatternsXDistance >> 2)),
-            y: Math.min(matrix.height, this.locations.bottomRight.y + (PatternsYDistance >> 2)),
+            x: Math.min(matrix.width, this.locations.bottomRight.x + (PatternsXDistance >> 1)),
+            y: Math.min(matrix.height, this.locations.bottomRight.y + (PatternsYDistance >> 1)),
         };
 
         // Locate Alignment patterns.
