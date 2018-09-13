@@ -38,6 +38,7 @@ export class Extractor {
     public static GAP_DIM_THRESHOLD = 0.7;
     /**
      * Percentage the size of a unit that should be exceeded for a unit to be considered valid.
+     * A unit is equivalent to the height of a single bit in a symbol.
      */
     public static UNIT_DIM_THRESHOLD = 0.7;
 
@@ -93,8 +94,8 @@ export class Extractor {
             let estimateY1 = Math.round(scaledFinderRadius);
             let estimateY2 = Math.round(estimateY1 + scaledSymbolDim);
 
-            // Y-coordinate of scanned line.
-            let scanY = estimateY1;
+            // Y-coordinate of scanned line. Starts before estimate, for safety.
+            let scanY = Math.max(0, estimateY1 - scaledUnitDim);
 
             for (let row = 0; row < rows; row++) {
                 // Fix potential horizontal shift resulting from distortion.
@@ -116,11 +117,11 @@ export class Extractor {
                 // Symbol coordinates bookkeeping.
                 const symbolX1 = x1;
                 const symbolX2 = x2;
-                let symbolY1;
-                let symbolY2;
+                let symbolY1 = estimateY1;
+                let symbolY2 = estimateY2;
 
                 while (scanY < matrix.height && !endOfSymbol) {
-                    const newState = this.getLineState(matrix, x1, scanY, x2, scanY);
+                    const newState = this.getHorizontalState(matrix, x1, x2, scanY);
                     if (newState === oldState) { // Same state.
                         oldStateCount++;
                     } else { // Different state.
@@ -258,13 +259,13 @@ export class Extractor {
             x >= 0 && x < matrix.width &&
             y >= 0 && y < matrix.height
         ) {
-            count[state]++;
-            x += dx;
-            y += dy;
             // If white in even state, or black in odd state, increment state.
             if ((state & 1) === matrix.get(x, y)) {
                 state++;
             }
+            count[state]++;
+            x += dx;
+            y += dy;
         }
 
         return count;
@@ -280,7 +281,7 @@ export class Extractor {
      * @returns {boolean}
      */
     private isValidFinderRadius(count: number[]): boolean {
-        if (count.length !== 3) {
+        if (count.length !== 3 || count[0] === 0 || count[1] === 0 || count[2] === 0) {
             return false;
         }
 
@@ -296,7 +297,7 @@ export class Extractor {
         }
         scales.sort((a: number, b: number) => a - b);
 
-        return ((scales[2] - scales[0]) / scales[2] < Extractor.FINDER_ERROR_THRESHOLD);
+        return ((scales[2] - scales[0]) / scales[0] < Extractor.FINDER_ERROR_THRESHOLD);
     }
 
     /**
@@ -318,23 +319,31 @@ export class Extractor {
         const width = matrix.width;
 
         // Fix left border.
-        while (x1 >= 0 && x1 < width &&
-            this.countBlackInLine(matrix, x1, y1, x1, y2) / boxHeight > threshold) {
-                x1--;
+        while (
+            x1 > 0 &&
+            this.countBlackInLine(matrix, x1, y1, x1, y2) / boxHeight > threshold
+        ) {
+            x1--;
         }
-        while (x1 >= 0 && x1 < width &&
-            this.countBlackInLine(matrix, x1, y1, x1, y2) / boxHeight < threshold) {
-                x1++;
+        while (
+            x1 + 1 < width &&
+            this.countBlackInLine(matrix, x1, y1, x1, y2) / boxHeight < threshold
+        ) {
+            x1++;
         }
 
         // Fix right border.
-        while (x2 >= 0 && x2 < width &&
-            this.countBlackInLine(matrix, x2, y1, x2, y2) / boxHeight > threshold) {
-                x2++;
+        while (
+            x2 + 1 < width &&
+            this.countBlackInLine(matrix, x2, y1, x2, y2) / boxHeight > threshold
+        ) {
+            x2++;
         }
-        while (x2 >= 0 && x2 < width &&
-            this.countBlackInLine(matrix, x2, y1, x2, y2) / boxHeight < threshold) {
-                x2--;
+        while (
+            x2 > 0 &&
+            this.countBlackInLine(matrix, x2, y1, x2, y2) / boxHeight < threshold
+        ) {
+            x2--;
         }
 
         return [x1, x2];
@@ -378,15 +387,9 @@ export class Extractor {
      * @param {number} y2
      * @returns {number} one of the three LINE_STATE constants.
      */
-    private getLineState(
-        matrix: BitMatrix, x1: number, y1: number, x2: number, y2: number,
-    ): number {
-        if (y1 !== y2) {
-            throw new Error("Line must be horizontal!");
-        }
-
+    private getHorizontalState(matrix: BitMatrix, x1: number, x2: number, y: number): number {
         const lineWidth = x2 - x1 + 1;
-        const black = this.countBlackInLine(matrix, x1, y1, x2, y2);
+        const black = this.countBlackInLine(matrix, x1, y, x2, y);
 
         // Check if the line belongs to one of the black lines of an IChing symbol.
         if (black / lineWidth < Extractor.LINE_VALID_BLACK_THRESHOLD) {
