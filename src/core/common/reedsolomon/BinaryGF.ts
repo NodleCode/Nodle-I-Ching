@@ -1,3 +1,5 @@
+import { BinaryGFPoly } from "./BinaryGFPoly";
+
 /**
  * This class implements mathematical operations over binary Galois Fields using the provided
  * primitive polynomial.
@@ -24,6 +26,8 @@ export class BinaryGF {
     private primitive: number;
     private expTable: Uint8ClampedArray;
     private logTable: Uint8ClampedArray;
+    private zeroPoly: BinaryGFPoly;
+    private onePoly: BinaryGFPoly;
 
     /**
      * Creates a new GF(2^m).
@@ -54,6 +58,71 @@ export class BinaryGF {
                 x ^= this.primitive;
             }
         }
+
+        this.zeroPoly = new BinaryGFPoly(this, new Uint8ClampedArray([0]));
+        this.onePoly = new BinaryGFPoly(this, new Uint8ClampedArray([1]));
+    }
+
+    /**
+     * Returns the size of the instance's Galois Field.
+     *
+     * @returns {number}
+     */
+    public getSize(): number {
+        return this.size;
+    }
+
+    /**
+     * Raises 2 to the power of x in GF(2^m).
+     *
+     * @param {number} x - Exponent.
+     * @returns {number} 2 to the power of x in GF(2^m).
+     */
+    public exp(x: number): number {
+        return this.expTable[x];
+    }
+
+    public log(x: number): number {
+        if (x === 0) {
+            throw new Error("Log(0) is not defined in Galois Fields!");
+        }
+        return this.logTable[x];
+    }
+
+    /**
+     * Returns the polynomial 0.
+     *
+     * @returns {BinaryGFPoly}
+     */
+    public getZeroPoly(): BinaryGFPoly {
+        return this.zeroPoly;
+    }
+
+    /**
+     * Returns the polynomial 1.
+     *
+     * @returns {BinaryGFPoly}
+     */
+    public getOnePoly(): BinaryGFPoly {
+        return this.onePoly;
+    }
+
+    /**
+     * Creates the monomial coefficient * x^degree.
+     *
+     * @param {number} degree
+     * @param {number} coefficient
+     * @returns {BinaryGFPoly} coefficient * x^degree.
+     * @throws Will throw an error if degree is negative.
+     */
+    public buildMonomial(degree: number, coefficient: number): BinaryGFPoly {
+        if (degree < 0) {
+            throw new Error("Monomial degree must be non-negative!");
+        }
+
+        const coefficients = new Uint8ClampedArray(degree + 1);
+        coefficients[0] = coefficient;
+        return new BinaryGFPoly(this, coefficients);
     }
 
     /**
@@ -108,19 +177,5 @@ export class BinaryGF {
             throw new Error("Division by zero!");
         }
         return this.multiply(x, this.mulInverse(y));
-    }
-
-    /**
-     * Raises a number to the given exponent.
-     *
-     * @param {number} x - Base.
-     * @param {number} p - Exponent.
-     * @returns {number} x to the power of p in GF(2^m).
-     */
-    public power(x: number, p: number): number {
-        if (x === 0) {
-            return 0;
-        }
-        return this.expTable[(this.logTable[x] * p) % (this.size - 1)];
     }
 }

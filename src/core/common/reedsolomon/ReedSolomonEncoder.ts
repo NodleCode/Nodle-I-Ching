@@ -20,7 +20,7 @@ export class ReedSolomonEncoder {
      */
     public constructor(field: BinaryGF) {
         this.field = field;
-        this.generators = [new BinaryGFPoly(field, new Uint8ClampedArray([0x1]))];
+        this.generators = [field.getOnePoly()];
     }
 
     /**
@@ -69,7 +69,7 @@ export class ReedSolomonEncoder {
         for (let d = this.generators.length; d <= degree; d++) {
             this.generators.push(this.generators[d - 1].multiplyPoly(
                 new BinaryGFPoly(
-                    this.field, new Uint8ClampedArray([1, this.field.power(2, d - 1)]),
+                    this.field, new Uint8ClampedArray([1, this.field.exp(d - 1)]),
                 ),
             ));
         }
