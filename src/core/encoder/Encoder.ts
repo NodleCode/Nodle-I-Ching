@@ -1,4 +1,4 @@
-import { BinaryGF, ReedSolomonEncoder } from "../../util/reedsolomon";
+import { BinaryGF, ReedSolomonEncoder } from "../common/reedsolomon";
 import { EncodedIChing } from "../EncodedIChing";
 
 // TODO: constant error correction levels.
@@ -69,12 +69,14 @@ export class Encoder {
             data[i + offset] = mappedChar;
         }
 
-        // Calculate the number of error correction symbols.
-        const ecSymbols = rows * cols - offset - data.length;
-        let encodedData: Uint8ClampedArray;
+        // Calculate the number of error correction symbols. Must be even.
+        let ecSymbols = (rows * cols - offset - data.length);
+        if (ecSymbols & 1) {
+            ecSymbols ^= 1;
+        }
         // Compute and append error correction symbols.
         const rsEncoder = new ReedSolomonEncoder(BinaryGF.BINARY_GF_6);
-        encodedData = rsEncoder.encode(data, ecSymbols);
+        const encodedData = rsEncoder.encode(data, ecSymbols);
 
         return { version, rows, cols, data: encodedData };
     }
