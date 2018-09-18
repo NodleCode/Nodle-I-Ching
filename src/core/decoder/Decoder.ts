@@ -30,10 +30,8 @@ export class Decoder {
         const offset: number = Encoder.OFFSET;
 
         // Calculate the number of error correction symbols. Must be even.
-        let ecSymbols = received.length - offset - dataLength;
-        if (ecSymbols & 1) {
-            ecSymbols ^= 1;
-        }
+        const ecSymbols = (received.length - offset - dataLength) & (~1);
+
         // Correct potential errors.
         const rsDecoder = new ReedSolomonDecoder(BinaryGF.BINARY_GF_6);
         let corrected: Uint8ClampedArray;

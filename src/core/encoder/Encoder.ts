@@ -68,7 +68,7 @@ export class Encoder {
      * @throws Will throw an error if payload and error correction level combination is bigger than
      * the maximum IChing size.
      * @throws Will throw an error if the payload contains an invalid character.
-     * @throws Will throw an error if encoding fails.
+     * @throws Will throw an error if Reed-Solomon encoding fails.
      */
     public static encode(payload: string, ecLevel: number = this.EC_MEDIUM): EncodedIChing {
         if (payload.length === 0) {
@@ -82,7 +82,7 @@ export class Encoder {
         const minimumSize = this.OFFSET + payload.length + ecSymbols;
 
         if (minimumSize > this.MAX_SIZE) {
-            throw new Error("Content and error correction level combination is too big!");
+            throw new Error("Payload and error correction level combination is too big!");
         }
 
         // Calculate square size that fits content at error correction level.
@@ -92,11 +92,8 @@ export class Encoder {
         }
         const trueSize = sideLength * sideLength;
 
-        // Re-evaluate error correction symbols to fit square.
-        ecSymbols += trueSize - minimumSize;
-        if (ecSymbols & 1) {
-            ecSymbols ^= 1;
-        }
+        // Re-evaluate error correction symbols to fit square. Must be even.
+        ecSymbols += (trueSize - minimumSize) & (~1);
 
         const data: Uint8ClampedArray = new Uint8ClampedArray(trueSize - ecSymbols);
         data[0] = this.VERSION;
@@ -116,7 +113,7 @@ export class Encoder {
         try {
             encodedData = rsEncoder.encode(data, ecSymbols);
         } catch (e) {
-            throw new Error("Encoding failed: " + e.message);
+            throw new Error("Reed-Solomon encoding failed: '" + e.message + "'!");
         }
 
         return { version: data[0], rows: sideLength, cols: sideLength, data: encodedData };
