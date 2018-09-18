@@ -35,6 +35,7 @@ export class ReedSolomonEncoder {
         if (data.length === 0) {
             throw new Error("No data symbols!");
         }
+
         // No error correction symbols to be appended.
         if (ecSymbols === 0) {
             return new Uint8ClampedArray(data);
