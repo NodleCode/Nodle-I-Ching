@@ -32,8 +32,37 @@ export class BinaryGFPoly {
         this.coefficients = coefficients.slice(leading);
     }
 
+    /**
+     * Returns the degree of the instance's polynomial.
+     *
+     * @returns {number}
+     */
+    public getDegree(): number {
+        return this.coefficients.length - 1;
+    }
+
+    /**
+     * Returns the coefficients of the instance's polynomial, from highest degree to lowest.
+     *
+     * @returns {Uint8ClampedArray}
+     */
     public getCoefficients(): Uint8ClampedArray {
         return this.coefficients;
+    }
+
+    /**
+     * Returns the coefficient of x^degree in the intance's polynomial.
+     *
+     * @param {number} degree
+     * @returns {number}
+     * @throws Will throw an error if degree is outside the range of the polynomial's degree.
+     */
+    public getCoefficient(degree: number): number {
+        if (degree < 0 || degree >= this.coefficients.length) {
+            throw new Error("Degree must be between 0 and the polynomial's degree!");
+        }
+
+        return this.coefficients[this.coefficients.length - 1 - degree];
     }
 
     /**
@@ -148,11 +177,11 @@ export class BinaryGFPoly {
 
         const res = new Uint8ClampedArray(this.coefficients);
         const normalizer = other.coefficients[0];
-        for (let i = 0; i < this.coefficients.length - other.coefficients.length - 1; i++) {
+        for (let i = 0; i < this.coefficients.length - other.coefficients.length + 1; i++) {
             res[i] = this.field.divide(res[i], normalizer);
             const coef = res[i];
             if (coef !== 0) {
-                for (let j = 0; j < other.coefficients.length; j++) {
+                for (let j = 1; j < other.coefficients.length; j++) {
                     res[i + j] = this.field.add(
                         res[i + j],
                         this.field.multiply(coef, other.coefficients[j]),
