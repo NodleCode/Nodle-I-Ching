@@ -37,7 +37,7 @@ export class ReedSolomonEncoder {
         }
         // No error correction symbols to be appended.
         if (ecSymbols === 0) {
-            return data;
+            return new Uint8ClampedArray(data);
         }
 
         // Get generator polynomial of degree = ecSymbols.

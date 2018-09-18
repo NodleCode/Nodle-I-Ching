@@ -85,7 +85,7 @@ export class BinaryGF {
     /**
      * Returns the base 2 log of x in GF(2^m).
      *
-     * @param {number} x
+     * @param {number} x - interger.
      * @returns {number} base 2 log of x in GF(2^m).
      */
     public log(x: number): number {

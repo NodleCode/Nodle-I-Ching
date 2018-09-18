@@ -49,6 +49,10 @@ export class Encoder {
      * @returns {@link EncodedIChing}
      */
     public static encode(content: string): EncodedIChing {
+        if (content.length === 0) {
+            throw new Error("Invalid payload!");
+        }
+
         const version: number = this.VERSION;
         const rows: number = this.ROWS;
         const cols: number = this.COLS;

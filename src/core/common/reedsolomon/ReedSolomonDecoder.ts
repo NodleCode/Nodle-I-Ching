@@ -36,7 +36,7 @@ export class ReedSolomonDecoder {
         // Compute syndromes polynomial and return in case of no errors.
         const syndromes = this.computeSyndromes(receivedPoly, ecSymbols);
         if (syndromes.isZero()) {
-            return received;
+            return new Uint8ClampedArray(received);
         }
 
         // Compute error locator and error evaluator polynomials.
@@ -147,8 +147,9 @@ export class ReedSolomonDecoder {
 
     /**
      * Computes the error magnitudes from the error evaluator polynomial and the computed error
-     * locations.
+     * locations. This is an application of Forney's algorithm.
      *
+     * @see [this link]{@link https://en.wikipedia.org/wiki/Forney_algorithm} for further info.
      * @param {BinaryGFPoly} errorEvaluator
      * @param {Uint8ClampedArray} errorLocations
      * @returns {Uint8ClampedArray} error magnitudes.
