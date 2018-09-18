@@ -24,7 +24,7 @@ export class Decoder {
         // Payload length.
         const dataLength = received[1];
         // Metadata length.
-        const offset: number = 2;
+        const offset: number = Encoder.OFFSET;
 
         // Calculate the number of error correction symbols. Must be even.
         let ecSymbols = Encoder.ROWS * Encoder.COLS - offset - dataLength;
@@ -33,17 +33,29 @@ export class Decoder {
         }
         // Correct potential errors.
         const rsDecoder = new ReedSolomonDecoder(BinaryGF.BINARY_GF_6);
-        const corrected = rsDecoder.decode(received, ecSymbols);
+        let corrected: Uint8ClampedArray;
+        try {
+            corrected = rsDecoder.decode(received, ecSymbols);
+        } catch (e) {
+            throw new Error("Invalid IChing Code!");
+        }
+
+        // Check that error correction was valid and did not alter metadata symbols.
+        for (let i = 0; i < offset; i++) {
+            if (corrected[i] !== received[i]) {
+                throw new Error("Invalid IChing Code!");
+            }
+        }
 
         // Convert corrected data to string.
         const table = Encoder.MAPPING_TABLE;
         let payload: string = "";
         for (let i = 0; i < dataLength; i++) {
-            const charCode = table.findIndex(
-                (value: number, index: number, arr: Int8Array): boolean => {
-                    return value === corrected[i + offset];
-                },
-            );
+            const charCode = table.indexOf(corrected[offset + i]);
+            if (charCode === -1) {
+                throw new Error("Invalid IChing Code!");
+            }
+
             payload += String.fromCharCode(charCode);
         }
 

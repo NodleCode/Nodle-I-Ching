@@ -177,11 +177,11 @@ export class BinaryGFPoly {
 
         const res = new Uint8ClampedArray(this.coefficients);
         const normalizer = other.coefficients[0];
-        for (let i = 0; i < this.coefficients.length - other.coefficients.length - 1; i++) {
+        for (let i = 0; i < this.coefficients.length - other.coefficients.length + 1; i++) {
             res[i] = this.field.divide(res[i], normalizer);
             const coef = res[i];
             if (coef !== 0) {
-                for (let j = 0; j < other.coefficients.length; j++) {
+                for (let j = 1; j < other.coefficients.length; j++) {
                     res[i + j] = this.field.add(
                         res[i + j],
                         this.field.multiply(coef, other.coefficients[j]),

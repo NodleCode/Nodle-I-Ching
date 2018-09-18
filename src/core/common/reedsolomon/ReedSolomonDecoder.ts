@@ -22,7 +22,7 @@ export class ReedSolomonDecoder {
     }
 
     /**
-     *
+     * Corrects errors in the received data, up to ecSymbols / 2 errors.
      *
      * @param {Uint8ClampedArray} received - Data to be decoded/corrected.
      * @param {number} ecSymbols - number of error correction symbols.
@@ -126,13 +126,14 @@ export class ReedSolomonDecoder {
      */
     private computeErrorLocations(errorLocator: BinaryGFPoly): Uint8ClampedArray {
         const errorCount = errorLocator.getDegree();
-        const locations = new Uint8ClampedArray(errorCount);
+        const locations = [];
 
         // Exhaustive search for the roots.
         let e = 0;
-        for (let i = 1; i < this.field.getSize() && e < errorCount; i++) {
+        for (let i = 1; i < this.field.getSize(); i++) {
             if (errorLocator.evaluateAt(i) === 0) {
-                locations[e++] = this.field.mulInverse(i);
+                e++;
+                locations.push(this.field.mulInverse(i));
             }
         }
 
@@ -141,7 +142,7 @@ export class ReedSolomonDecoder {
             throw new Error("Error locator degree does not match number of roots!");
         }
 
-        return locations;
+        return new Uint8ClampedArray(locations);
     }
 
     /**

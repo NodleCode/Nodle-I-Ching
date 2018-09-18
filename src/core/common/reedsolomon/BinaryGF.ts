@@ -48,7 +48,7 @@ export class BinaryGF {
 
         // Build exponent and log tables.
         let x = 1;
-        for (let i = 0; i < this.size - 1; i++) {
+        for (let i = 0; i < this.size; i++) {
             this.expTable[i] = x;
             this.logTable[x] = i;
             // By convention, generator number alpha is equal to 2.
@@ -82,6 +82,12 @@ export class BinaryGF {
         return this.expTable[x];
     }
 
+    /**
+     * Returns the base 2 log of x in GF(2^m).
+     *
+     * @param {number} x
+     * @returns {number} base 2 log of x in GF(2^m).
+     */
     public log(x: number): number {
         if (x === 0) {
             throw new Error("Log(0) is not defined in Galois Fields!");
