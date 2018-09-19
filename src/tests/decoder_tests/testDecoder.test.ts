@@ -3,7 +3,13 @@ import { Decoder } from "../../core/decoder";
 import { Encoder } from "../../core/encoder";
 
 const msg = "helloworldtestx12";
-const encodedMsg = Encoder.encode(msg).data;
+const encodedMsg = new Uint8ClampedArray([
+    1, 17, 7, 4, 11,
+    11, 14, 22, 14, 17,
+    11, 3, 19, 4, 18,
+    19, 23, 27, 28, 7,
+    51, 62, 53, 59, 30,
+]);
 const offset = Encoder.OFFSET;
 const ecSymbols = (encodedMsg.length - msg.length - offset) & (~1);
 

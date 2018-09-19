@@ -23,19 +23,19 @@ export class Encoder {
      */
     public static OFFSET: number = 2;
     /**
-     * Error correction level none.
+     * Error correction level none: no error correction capabilities will be added.
      */
     public static EC_NONE: number = 0;
     /**
-     * Error correction level low.
+     * Error correction level low: up to 5% of symbols can be corrected.
      */
     public static EC_LOW: number = 0.05;
     /**
-     * Error correction level medium.
+     * Error correction level medium: up to 15% of symbols can be corrected.
      */
     public static EC_MEDIUM: number = 0.15;
     /**
-     * Error correction level high.
+     * Error correction level high: up to 25% of symbols can be corrected.
      */
     public static EC_HIGH: number = 0.25;
     /**
@@ -95,12 +95,18 @@ export class Encoder {
         // Re-evaluate error correction symbols to fit square. Must be even.
         ecSymbols += (trueSize - minimumSize) & (~1);
 
+        // Initialise data array.
         const data: Uint8ClampedArray = new Uint8ClampedArray(trueSize - ecSymbols);
+        // If size is odd, fill extra symbol.
+        if ((trueSize - minimumSize) & 1) {
+            data[trueSize - 1 - ecSymbols] = 0;
+        }
         data[0] = this.VERSION;
         data[1] = payload.length;
         for (let i = 0; i < payload.length; i++) {
             const charCode = payload.charCodeAt(i);
-            const mappedChar = this.MAPPING_TABLE[charCode];
+            const mappedChar = charCode < this.MAPPING_TABLE.length ?
+                this.MAPPING_TABLE[charCode] : -1;
             if (mappedChar === -1) {
                 throw new Error("Invalid character in payload!");
             }
