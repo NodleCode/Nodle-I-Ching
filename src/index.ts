@@ -7,6 +7,6 @@ export { Locator } from "./core/decoder/locator/Locator";
 export { ReedSolomonDecoder } from "./core/common/reedsolomon";
 export { ReedSolomonEncoder } from "./core/common/reedsolomon";
 export { Writer } from "./core/writer";
-
+export { CodeTransform } from "./core/decoder/transform";
 // testing exports
 export { singleChannelToBitMatrix } from "./tests/testHelpers";
