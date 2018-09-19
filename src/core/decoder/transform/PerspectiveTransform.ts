@@ -56,7 +56,7 @@ export class PerspectiveTransform {
     }
 
     /**
-     * Calculates the transformation matrix to transform unit square to any quadrilateral shape.
+     * Calculates the transformation matrix any quadrilateral shape to unit square.
      * @see https://en.wikipedia.org/wiki/Minor_(linear_algebra)#Inverse_of_a_matrix
      *
      * @private
@@ -78,7 +78,7 @@ export class PerspectiveTransform {
     }
 
     /**
-     * Calculates the transformation matrix any quadrilateral shape to unit square.
+     * Calculates the transformation matrix to transform unit square to any quadrilateral shape.
      *
      * @private
      * @param {number} xi - X cordinates for quadrilateral corner points.

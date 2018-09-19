@@ -37,6 +37,9 @@ export class TransformationMatrix {
      * @memberof TransformationMatrix
      */
     public dotRow(row: number, other: number[]): number {
+        if (other.length !== 3) {
+            throw new Error("The Other vector has to be of length 3!");
+        }
         return this.A[row][0] * other[0] + this.A[row][1] * other[1] + this.A[row][2] * other[2];
     }
 
@@ -49,6 +52,9 @@ export class TransformationMatrix {
      * @memberof TransformationMatrix
      */
     public dotColumn(col: number, other: number[]): number {
+        if (other.length !== 3) {
+            throw new Error("The Other vector has to be of length 3!");
+        }
         return this.A[0][col] * other[0] + this.A[1][col] * other[1] + this.A[2][col] * other[2];
     }
 
