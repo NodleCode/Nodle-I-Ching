@@ -1,8 +1,8 @@
 import { BitMatrix } from "../../BitMatrix";
 import { EncodedIChing } from "../../EncodedIChing";
-import { Encoder } from "../../encoder";
 import { Point } from "../../geometry";
 import { Writer } from "../../writer";
+import { PatternLocator } from "../locator/PatternLocator";
 
 /**
  * This class extracts raw data from a perspective corrected binary image,
@@ -79,8 +79,8 @@ export class Extractor {
         const rows = Math.round((imgHeight + scaledGapDim - scaledSymbolDim) /
             (scaledGapDim + scaledSymbolDim));
 
-        if (cols !== Encoder.COLS || rows !== Encoder.ROWS) {
-            throw new Error("IChing code does not match specs!");
+        if (cols !== rows) {
+            throw new Error("IChing code must be a square!");
         }
 
         const data = new Uint8ClampedArray(rows * cols);
@@ -95,7 +95,7 @@ export class Extractor {
             let estimateY2 = Math.round(estimateY1 + scaledSymbolDim);
 
             // Y-coordinate of scanned line. Starts before estimate, for safety.
-            let scanY = Math.max(0, estimateY1 - scaledUnitDim);
+            let scanY = Math.max(0, Math.round(estimateY1 - scaledUnitDim));
 
             for (let row = 0; row < rows; row++) {
                 // Fix potential horizontal shift resulting from distortion.
@@ -112,7 +112,7 @@ export class Extractor {
 
                 // Symbol data bookkeeping.
                 let bitsFound = 0;
-                let mask = 0;
+                let mask = (1 << Writer.BITS_PER_SYMBOL) - 1;
 
                 // Symbol coordinates bookkeeping.
                 const symbolX1 = x1;
@@ -128,7 +128,7 @@ export class Extractor {
                         // Check if old state is a valid bit.
                         if (oldState !== Extractor.LINE_STATE_INVALID &&
                         oldStateCount / scaledUnitDim > Extractor.UNIT_DIM_THRESHOLD) {
-                            mask |= oldState << bitsFound;
+                            mask &= ~((1 - oldState) << bitsFound);
                             bitsFound++;
 
                             // If first bit of the symbol, store the y-coordinate
@@ -143,10 +143,17 @@ export class Extractor {
                         oldStateStartY = scanY;
                     }
 
-                    // Check if end-of-symbol is reached.
+                    // Check if a gap is detected
                     if (oldState === Extractor.LINE_STATE_INVALID &&
                     oldStateCount / scaledGapDim > Extractor.GAP_DIM_THRESHOLD) {
-                        endOfSymbol = true;
+                        // If inside symbol, assume missing bit.
+                        if (oldStateStartY <= Math.round(estimateY2 - scaledUnitDim)) {
+                            bitsFound++;
+                            oldStateCount = 0;
+                        // Else, symbol ended.
+                        } else {
+                            endOfSymbol = true;
+                        }
                     }
 
                     scanY++;
@@ -194,6 +201,13 @@ export class Extractor {
             count++;
         }
 
+        // Top-left finder, diagonal.
+        state = this.scanFinderRadius(matrix, { x: 0, y: 0 }, 1, 1);
+        if (this.isValidFinderRadius(state)) {
+            sum += (state[0] + state[1] + state[2]) * PatternLocator.SQRT2;
+            count++;
+        }
+
         // Bottom-left finder, horizontal.
         state = this.scanFinderRadius(matrix, { x: 0, y: matrix.height - 1 }, 1, 0);
         if (this.isValidFinderRadius(state)) {
@@ -208,6 +222,13 @@ export class Extractor {
             count++;
         }
 
+        // Bottom-left finder, diagonal.
+        state = this.scanFinderRadius(matrix, { x: 0, y: matrix.height - 1 }, 1, -1);
+        if (this.isValidFinderRadius(state)) {
+            sum += (state[0] + state[1] + state[2]) * PatternLocator.SQRT2;
+            count++;
+        }
+
         // Top-right finder, horizontal.
         state = this.scanFinderRadius(matrix, { x: matrix.width - 1, y: 0 }, -1, 0);
         if (this.isValidFinderRadius(state)) {
@@ -219,6 +240,13 @@ export class Extractor {
         state = this.scanFinderRadius(matrix, { x: matrix.width - 1, y: 0 }, 0, 1);
         if (this.isValidFinderRadius(state)) {
             sum += state[0] + state[1] + state[2];
+            count++;
+        }
+
+        // Top-right finder, diagonal.
+        state = this.scanFinderRadius(matrix, { x: matrix.width - 1, y: 0 }, -1, 1);
+        if (this.isValidFinderRadius(state)) {
+            sum += (state[0] + state[1] + state[2]) * PatternLocator.SQRT2;
             count++;
         }
 
@@ -243,8 +271,8 @@ export class Extractor {
      * @returns {number[]} [black, white, black] count of pixels.
      */
     private scanFinderRadius(matrix: BitMatrix, centre: Point, dx: number, dy: number): number[] {
-        if (!(Math.abs(dx) === 1 && dy === 0) && !(dx === 0 && Math.abs(dy) === 1)) {
-            throw new Error("Scan direction is neither horizontal nor vertical!");
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || (dx === 0 && dy === 0)) {
+            throw new Error("Invalid scanning direction");
         }
 
         let state = 0;
@@ -255,7 +283,6 @@ export class Extractor {
         // From the centre of the pattern, we should pass by 3 states:
         // { 0: black, 1: white, 2: black }.
         while (
-            state < 3 &&
             x >= 0 && x < matrix.width &&
             y >= 0 && y < matrix.height
         ) {
@@ -263,6 +290,10 @@ export class Extractor {
             if ((state & 1) === matrix.get(x, y)) {
                 state++;
             }
+            if (state === 3) {
+                break;
+            }
+
             count[state]++;
             x += dx;
             y += dy;
