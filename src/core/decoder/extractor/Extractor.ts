@@ -20,7 +20,7 @@ export class Extractor {
      * Percentage of black pixels that should be present in the left or right border of the box
      * around the symbol area for it to be considered inside the symbol.
      */
-    public static VERTICAL_BORDER_BLACK_THRESHOLD = 0.4;
+    public static VERTICAL_BORDER_BLACK_THRESHOLD = 0.1;
     /**
      * Percentage of black pixels that should be present in a horizontal line for it to be
      * considered part of a valid bit in a symbol.
@@ -35,7 +35,7 @@ export class Extractor {
      * Percentage of the size of the gap between symbols that should be exceeded for a gap
      * to be considered valid.
      */
-    public static GAP_DIM_THRESHOLD = 0.7;
+    public static GAP_DIM_THRESHOLD = 0.67;
     /**
      * Percentage the size of a unit that should be exceeded for a unit to be considered valid.
      * A unit is equivalent to the height of a single bit in a symbol.
@@ -108,7 +108,7 @@ export class Extractor {
                 let endOfSymbol: boolean = false;
                 let oldState = Extractor.LINE_STATE_INVALID;
                 let oldStateCount = 1;
-                let oldStateStartY;
+                let oldStateStartY = scanY;
 
                 // Symbol data bookkeeping.
                 let bitsFound = 0;
@@ -149,7 +149,14 @@ export class Extractor {
                         // If inside symbol, assume missing bit.
                         if (oldStateStartY <= Math.round(estimateY2 - scaledUnitDim)) {
                             bitsFound++;
-                            oldStateCount = 0;
+                            // If first bit of the symbol, store the y-coordinate
+                            // of the top of the symbol.
+                            if (bitsFound === 1) {
+                                symbolY1 = Math.round(oldStateStartY + scaledUnitDim);
+                            }
+
+                            oldStateStartY = scanY + 1;
+                            oldStateCount = 1;
                         // Else, symbol ended.
                         } else {
                             endOfSymbol = true;
