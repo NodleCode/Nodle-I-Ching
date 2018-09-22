@@ -20,7 +20,7 @@ export class Extractor {
      * Percentage of black pixels that should be present in the left or right border of the box
      * around the symbol area for it to be considered inside the symbol.
      */
-    public static VERTICAL_BORDER_BLACK_THRESHOLD = 0.1;
+    public static VERTICAL_BORDER_BLACK_THRESHOLD = 0.25;
     /**
      * Percentage of black pixels that should be present in a horizontal line for it to be
      * considered part of a valid bit in a symbol.
@@ -170,6 +170,8 @@ export class Extractor {
 
                 // Y-coordinate of the bottom of the symbol.
                 symbolY2 = oldStateStartY;
+
+                console.log(row, col, symbolX1, symbolY1, symbolX2, symbolY2);
 
                 // Calculate estimated coordinates for the next symbol based on the current one.
                 estimateX1 = symbolX1;
@@ -355,6 +357,8 @@ export class Extractor {
         const threshold = Extractor.VERTICAL_BORDER_BLACK_THRESHOLD;
         const boxHeight = y2 - y1 + 1;
         const width = matrix.width;
+        const originalX1 = x1;
+        const originalX2 = x2;
 
         // Fix left border.
         while (
@@ -382,6 +386,12 @@ export class Extractor {
             this.countBlackInLine(matrix, x2, y1, x2, y2) / boxHeight < threshold
         ) {
             x2--;
+        }
+
+        // If symbol is missing too many bits or is empty, return the original estimate becuase
+        // the fix is not valid.
+        if (x2 <= x1) {
+            return [originalX1, originalX2];
         }
 
         return [x1, x2];

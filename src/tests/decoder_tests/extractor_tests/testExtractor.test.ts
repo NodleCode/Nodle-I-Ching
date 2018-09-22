@@ -42,7 +42,7 @@ describe("Extract", () => {
         expect(compare(real, expected)).toBeTruthy();
     });
 
-    it("Detects missing bits from symbols in a perfect image", async () => {
+    it("Detects missing bits and symbols in a perfect image", async () => {
         const expected: EncodedIChing = {
             version: 0,
             rows: 8,
