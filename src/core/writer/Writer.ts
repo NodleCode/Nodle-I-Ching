@@ -152,30 +152,29 @@ export class Writer {
     }
 
     /**
-     * Draws a circle with the given parameters, using the mid-point algorithm variant with
-     * integer-based arithmetic.
+     * Draws a filled circle with the given parameters, using Bresenham's circle drawing algorithm.
      *
-     * @see [Wikipedia's page]{@link https://en.wikipedia.org/wiki/Midpoint_circle_algorithm}
+     * @see [this page]{@link https://web.engr.oregonstate.edu/~sllu/bcircle.pdf}
      * for more info.
      */
     private fillCircle(c: Point, r: number, color: number): void {
         r = Math.round(r);
         c = { x: Math.round(c.x), y: Math.round(c.y) };
+
         let x = r;
         let y = 0;
-        let dx = 1;
+        let dx = 1 - r * 2;
         let dy = 1;
-        let err = dx - r * 2;
+        let err = 0;
         while (x >= y) {
             this.fillSymmetricOctant(c, x, y, color);
-            if (err <= 0) {
-                y++;
-                err += dy;
-                dy += 2;
-            } else {
+            y++;
+            err += dy;
+            dy += 2;
+            if (2 * err + dx > 0) {
                 x--;
+                err += dx;
                 dx += 2;
-                err += dx - r * 2;
             }
         }
     }
