@@ -75,7 +75,7 @@ export class BinaryGFPoly {
      */
     public evaluateAt(x: number): number {
         if (x === 0) {
-            return 0;
+            return this.getCoefficient(0);
         }
 
         let res = 0;
@@ -203,6 +203,9 @@ export class BinaryGFPoly {
             throw new Error("Division by zero!");
         }
 
+        // A / B:
+        // If A === 0: return [0, 0]
+        // If B === 1: return [A, 0]
         if (this.isZero() || other.isOne()) {
             return [this, this.field.getZeroPoly()];
         }
