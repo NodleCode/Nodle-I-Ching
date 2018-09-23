@@ -209,15 +209,45 @@ export class Writer {
         const bitHeight = Writer.UNIT_DIM * this.scale;
         const zeroOffset = Writer.BIT_ZERO_OFFSET * this.scale;
         const zeroWidth = Writer.BIT_ZERO_WIDTH * this.scale;
+        const edgeRadius = bitHeight / 2 - 1;
 
         for (let bit = 0, x = startX, y = startY; bit < Writer.BITS_PER_SYMBOL;
                 bit++, y += bitHeight * 2) {
             // Draw a filled rectangle representing the bit.
-            this.fillRect(x, y, bitWidth, bitHeight, 1);
+            this.fillRect(x + edgeRadius, y, bitWidth - 2 * edgeRadius, bitHeight, 1);
+
+            // Make left edge round.
+            this.fillCircle({ x: x + edgeRadius, y: y + edgeRadius }, edgeRadius, 1);
+            this.fillCircle({ x: x + edgeRadius, y: y + edgeRadius + 1 }, edgeRadius, 1);
+
+            // Make right edge round.
+            this.fillCircle({ x: x + bitWidth - edgeRadius, y: y + edgeRadius }, edgeRadius, 1);
+            this.fillCircle({ x: x + bitWidth - edgeRadius, y: y + edgeRadius + 1 }, edgeRadius, 1);
 
             // If bit is zero, clear middle area.
             if ((mask & (1 << bit)) === 0) {
-                this.fillRect(x + zeroOffset, y, zeroWidth, bitHeight, 0);
+                this.fillRect(x + zeroOffset - edgeRadius, y,
+                    zeroWidth + 2 * edgeRadius, bitHeight, 0);
+
+                // Make right edge of the left half round.
+                this.fillCircle(
+                    { x: x + zeroOffset - edgeRadius, y: y + edgeRadius },
+                    edgeRadius, 1,
+                );
+                this.fillCircle(
+                    { x: x + zeroOffset - edgeRadius, y: y + edgeRadius + 1 },
+                    edgeRadius, 1,
+                );
+
+                // Make left egde of the right half round.
+                this.fillCircle(
+                    { x: x + zeroOffset + zeroWidth + edgeRadius, y: y + edgeRadius },
+                    edgeRadius, 1,
+                );
+                this.fillCircle(
+                    { x: x + zeroOffset + zeroWidth + edgeRadius, y: y + edgeRadius + 1 },
+                    edgeRadius, 1,
+                );
             }
         }
     }
