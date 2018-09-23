@@ -120,7 +120,9 @@ export class Extractor {
                 let symbolY1 = estimateY1;
                 let symbolY2 = estimateY2;
 
-                while (scanY < matrix.height && !endOfSymbol) {
+                const searchYLimit = Math.min(matrix.height, Math.round(estimateY2 + scaledGapDim));
+
+                while (scanY < searchYLimit && !endOfSymbol) {
                     const newState = this.getHorizontalState(matrix, x1, x2, scanY);
                     if (newState === oldState) { // Same state.
                         oldStateCount++;
@@ -166,12 +168,16 @@ export class Extractor {
                     scanY++;
                 }
 
+                // if the loop was exited due to reaching the search limit, reset scanY for next
+                // symbol, and don't change end-of-symbol Y from estimate.
+                if (scanY === searchYLimit) {
+                    scanY -= Math.round(scaledUnitDim);
+                // else, adjust it.
+                } else {
+                    symbolY2 = oldStateStartY;
+                }
+
                 data[row * cols + col] = mask;
-
-                // Y-coordinate of the bottom of the symbol.
-                symbolY2 = oldStateStartY;
-
-                console.log(row, col, symbolX1, symbolY1, symbolX2, symbolY2);
 
                 // Calculate estimated coordinates for the next symbol based on the current one.
                 estimateX1 = symbolX1;
@@ -360,6 +366,10 @@ export class Extractor {
         const originalX1 = x1;
         const originalX2 = x2;
 
+        const maxDiff = Math.round((x2 - x1) / 2);
+        const leftLimit = Math.max(0, originalX1 - maxDiff);
+        const rightLimit = Math.min(matrix.width - 1, originalX2 + maxDiff);
+
         // Fix left border.
         while (
             x1 > 0 &&
@@ -390,7 +400,7 @@ export class Extractor {
 
         // If symbol is missing too many bits or is empty, return the original estimate becuase
         // the fix is not valid.
-        if (x2 <= x1) {
+        if (x2 <= x1 || x1 === leftLimit || x2 === rightLimit) {
             return [originalX1, originalX2];
         }
 
