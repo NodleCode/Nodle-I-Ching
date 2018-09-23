@@ -1,0 +1,1 @@
+export { Extractor } from "./Extractor";
