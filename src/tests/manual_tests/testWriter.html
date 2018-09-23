@@ -1,22 +1,67 @@
 <html>
     <head>
-        <script src="../../../lib/umd/index.min.js"></script>
+        <title> Test Writer </title>
+        <style>
+            div.footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                margin: 0 auto;
+                background: #0072BB;
+                color:#fff;
+            }
+        </style>
     </head>
-    <body onload="loadImage()">
-        <img id="myImg" width="500" height="500">
+    <body>
+        <p>Text to encode: <input type="text" id="inputText"/></p>
+        <p>Error correction level: <input type="text" id="inputEC"/></p>
+        <p>Resolution: <input type="text" id="inputRes"/></p>
+        <canvas id="canvas" style="margin:12px;"></canvas>
+        <div class="footer" id="results">Move mouse over image to show mouse location and pixel value and alpha</div>
+
+        <script src="../../../lib/umd/index.min.js"></script>
         <script>
-            function loadImage() {
-                const encoded = iching.Encoder.encode("oroboro2018");
-                const writer = new iching.Writer(2500);
+            var URL = window.URL;
+            var cvs = document.getElementById("canvas");
+            var ctx = cvs.getContext("2d");
+            var res = document.getElementById("results");
+
+            cvs.addEventListener("mousemove", mousePos, false);
+
+            window.onload = function() {
+                var inputText = document.getElementById("inputText");
+                var inputEC = document.getElementById("inputEC");
+                var inputRes = document.getElementById("inputRes");
+                inputText.addEventListener("input", writeImage);
+                inputEC.addEventListener("input", writeImage);
+                inputRes.addEventListener("input", writeImage);
+            }
+
+            function mousePos(evt) {
+                var rect = cvs.getBoundingClientRect();
+                var x = parseInt(evt.clientX - rect.left);
+                var y = parseInt(evt.clientY - rect.top);
+                var p = ctx.getImageData(x, y, 1, 1).data;
+                results.innerHTML = '<table style="width:100%;table-layout:fixed"><td>X: ' 
+                    + x + '</td><td>Y: ' + y + '</td><td>Red: ' 
+                    + p[0] + '</td><td>Green: ' + p[1] + '</td><td>Blue: ' 
+                    + p[2] + '</td><td>Alpha: ' + p[3]+"</td></table>";
+                return { x, y };
+            }
+
+            function writeImage() {
+                const text = document.getElementById("inputText").value;
+                const ECLevel = Number(document.getElementById("inputEC").value) || iching.Encoder.EC_MEDIUM;
+                const resolution = Number(document.getElementById("inputRes").value) || 1000;
+
+                const encoded = iching.Encoder.encode(text, ECLevel);
+                const writer = new iching.Writer(resolution);
                 const imgData = writer.render(encoded);
-                const canvas = document.createElement("canvas");
-                canvas.width = imgData.width;
-                canvas.height = imgData.height;
-                const ctx = canvas.getContext('2d');
+
+                cvs.width = imgData.width;
+                cvs.height = imgData.height;
                 const ctxImgData = new ImageData(imgData.data, imgData.width, imgData.height);
                 ctx.putImageData(ctxImgData, 0, 0);
-                const img = document.getElementById("myImg");
-                img.src = canvas.toDataURL();
             }
         </script>
     </body>
