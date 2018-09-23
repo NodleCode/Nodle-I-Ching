@@ -372,13 +372,13 @@ export class Extractor {
 
         // Fix left border.
         while (
-            x1 > 0 &&
+            x1 > leftLimit &&
             this.countBlackInLine(matrix, x1, y1, x1, y2) / boxHeight > threshold
         ) {
             x1--;
         }
         while (
-            x1 + 1 < width &&
+            x1 < rightLimit &&
             this.countBlackInLine(matrix, x1, y1, x1, y2) / boxHeight < threshold
         ) {
             x1++;
@@ -386,13 +386,13 @@ export class Extractor {
 
         // Fix right border.
         while (
-            x2 + 1 < width &&
+            x2 < rightLimit &&
             this.countBlackInLine(matrix, x2, y1, x2, y2) / boxHeight > threshold
         ) {
             x2++;
         }
         while (
-            x2 > 0 &&
+            x2 > leftLimit &&
             this.countBlackInLine(matrix, x2, y1, x2, y2) / boxHeight < threshold
         ) {
             x2--;
