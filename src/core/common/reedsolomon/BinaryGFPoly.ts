@@ -74,6 +74,10 @@ export class BinaryGFPoly {
      * @returns {number} The value of the polynomial at given x.
      */
     public evaluateAt(x: number): number {
+        if (x === 0) {
+            return 0;
+        }
+
         let res = 0;
         for (const co of this.coefficients) {
             res = this.field.add(co, this.field.multiply(res, x));
@@ -93,6 +97,13 @@ export class BinaryGFPoly {
     public add(other: BinaryGFPoly): BinaryGFPoly {
         if (this.field !== other.field) {
             throw new Error("BinaryGFPolys don't have same BinaryGF field");
+        }
+
+        if (this.isZero()) {
+            return other;
+        }
+        if (other.isZero()) {
+            return this;
         }
 
         const resLength = Math.max(this.coefficients.length, other.coefficients.length);
@@ -124,6 +135,16 @@ export class BinaryGFPoly {
             throw new Error("BinaryGFPolys don't have same BinaryGF field");
         }
 
+        if (this.isZero() || other.isZero()) {
+            return this.field.getZeroPoly();
+        }
+        if (this.isOne()) {
+            return other;
+        }
+        if (other.isOne()) {
+            return this;
+        }
+
         const resLength = this.coefficients.length + other.coefficients.length - 1;
         const resCoefficients = new Uint8ClampedArray(resLength);
         for (let i = 0; i < this.coefficients.length; i++) {
@@ -147,6 +168,13 @@ export class BinaryGFPoly {
      * @returns {BinaryGFPoly} product of the instance's polynomial by scalar.
      */
     public multiplyScalar(x: number): BinaryGFPoly {
+        if (x === 0) {
+            return this.field.getZeroPoly();
+        }
+        if (x === 1) {
+            return this;
+        }
+
         const resCoefficients = new Uint8ClampedArray(this.coefficients.length);
         for (let i = 0; i < this.coefficients.length; i++) {
             resCoefficients[i] = this.field.multiply(this.coefficients[i], x);
@@ -173,6 +201,10 @@ export class BinaryGFPoly {
         }
         if (other.isZero()) {
             throw new Error("Division by zero!");
+        }
+
+        if (this.isZero() || other.isOne()) {
+            return [this, this.field.getZeroPoly()];
         }
 
         const res = new Uint8ClampedArray(this.coefficients);
@@ -204,5 +236,14 @@ export class BinaryGFPoly {
      */
     public isZero(): boolean {
         return this.coefficients[0] === 0;
+    }
+
+    /**
+     * Checks if the instance's polynomial is one.
+     *
+     * @returns {boolean} True if the polynomial is one.
+     */
+    public isOne(): boolean {
+        return this.coefficients.length === 1 && this.coefficients[0] === 1;
     }
 }
