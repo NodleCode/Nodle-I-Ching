@@ -19,3 +19,8 @@ export async function loadPng(path: string): Promise<ImageData> {
         height: data.height,
     };
 }
+
+export async function savePng(path: string, data: ImageData): Promise<void> {
+    const buf = upng.encode([data.data.buffer] as any, data.width, data.height, 0);
+    await fs.writeFile(path, new Uint8Array(buf));
+}

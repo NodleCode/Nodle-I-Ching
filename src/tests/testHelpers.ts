@@ -20,3 +20,15 @@ export function singleChannelToBitMatrix(imgData: ImageData): BitMatrix {
     }
     return mat;
 }
+
+/**
+ * Returns a random integer in range [min, max].
+ *
+ * @export
+ * @param {number} min - range start, inclusive.
+ * @param {number} max - range end, inclusive.
+ * @returns {number} random number in range.
+ */
+export function getRandomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
