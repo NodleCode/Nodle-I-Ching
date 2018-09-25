@@ -64,7 +64,9 @@ export class PatternLocator {
         const state = new Uint16Array(ratios.length);
         let stateIdx = 0;
 
-        for (let y = this.startY; y < this.endY; ++y) {
+        // Scan each other line. This is safe to do and will not skip patterns, while improving
+        // performance significantly.
+        for (let y = this.startY; y < this.endY; y += 2) {
             for (let x = this.startX; x < this.endX; ++x) {
                 if ((stateIdx & 1) === matrix.get(x, y)) {
                     // if encountered white cell at even state, or black cell at odd state, then
@@ -73,15 +75,20 @@ export class PatternLocator {
                     if (stateIdx === ratios.length) {
                         // If we reached the final state change, then check if it's a valid pattern
                         if (this.isValidPattern(state)) {
-                            // If valid pattern, calculates its error and push it to results
                             const initialCenter: Point = this.centerFromEnd({ x: x - 1, y }, state);
+                            const maxCount = state[ratios.length >> 1] << 1;
 
-                            // while we are running tests on the pattern to calculate its error, we
-                            // will be also correcting the center.
-                            // set maxCount to the largest possible state which is the middle one.
-                            locations.push(this.calculateLocationError(
-                                initialCenter, state[ratios.length >> 1] * 2,
-                            ));
+                            // Check pattern in vertical direction.
+                            const vertical = this.calculatePatternMeasures(
+                                initialCenter, 0, 1, maxCount);
+                            const validPattern = this.isValidPattern(vertical.state);
+
+                            // If valid pattern, calculates its error and push it to results
+                            if (validPattern === true) {
+                                locations.push(this.calculateLocationError(
+                                    initialCenter, maxCount,
+                                ));
+                            }
                         }
                         // we still can make use of the last states as new ones in another
                         // pattern except for the first two states.

@@ -41,28 +41,6 @@ describe("locate", () => {
         expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
     });
 
-    it('locates patterns in "noise_cleared" image', async () => {
-        const expected: PatternsLocation = {
-            bottomLeft: { x: 1931, y: 2410 },
-            topRight: { x: 3263, y: 1075 },
-            topLeft: { x: 1939, y: 1054 },
-            bottomRight: null,
-            finderAverageSize: 0,
-            alignmentSize: null,
-        };
-        expected.bottomRight = {
-            x: expected.topRight.x - expected.topLeft.x + expected.bottomLeft.x,
-            y: expected.topRight.y - expected.topLeft.y + expected.bottomLeft.y,
-        };
-
-        const img = await loadPng("./src/tests/test_data/binarized/noise_cleared.png");
-        const matrix = singleChannelToBitMatrix(img);
-        const locator = new Locator();
-        const real = locator.locate(matrix);
-
-        expect(nearlySamePatterns(real, expected, false)).toBeTruthy();
-    });
-
     it('locates patterns in "noisy" image', async () => {
         const expected: PatternsLocation = {
             bottomLeft: { x: 1934, y: 2408 },
