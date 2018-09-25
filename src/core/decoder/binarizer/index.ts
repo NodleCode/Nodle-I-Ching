@@ -1,1 +1,1 @@
-export { AdaptiveBinarizer } from "./AdaptiveBinarizer";
+export { FastAdaptiveBinarizer } from "./FastAdaptiveBinarizer";

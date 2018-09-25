@@ -13,21 +13,6 @@ export abstract class Binarizer {
     };
 
     /**
-     * block size for the local mean calculations required in the adaptive thresholding algorithm.
-     * Have to be an odd Number
-     */
-    public static BLOCK_SIZE = 7;
-    /**
-     * Constant substracted from the local mean value for each block.
-     */
-    public static MEAN_CONST = 0;
-
-    /**
-     * Minimum possible variance for a block in order to be considered mix of different colors.
-     */
-    public static MIN_VARIANCE = 25;
-
-    /**
      * @description Transforms image data to grayscale ByteMatrix
      * @param {Uint8ClampedArray} data - Array containing RGBA image pixels, each pixel consists
      * of four consecutive cells representing red, green, blue, alpha values for the pixel.
@@ -51,7 +36,6 @@ export abstract class Binarizer {
                     blue * Binarizer.TO_GRAY.BLUE);
             }
         }
-
         return grayscaleMatrix;
     }
 }

@@ -16,9 +16,12 @@ export abstract class Matrix {
     /**
      * Matrix Internal data array - values between (0 - 255)
      */
-    protected data: Uint8ClampedArray;
+    public data: Uint8ClampedArray;
 
     constructor(width: number, height: number) {
+        if (!Number.isInteger(width) || !Number.isInteger(height)) {
+            throw new Error("Width and height should be integers!");
+        }
         this.width = width;
         this.height = height;
         this.data = new Uint8ClampedArray(width * height);
