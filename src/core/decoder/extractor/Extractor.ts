@@ -15,7 +15,7 @@ export class Extractor {
     /**
      * Maximum relative error tolerated in the ratios of the finder patterns.
      */
-    public static FINDER_ERROR_THRESHOLD = 0.1;
+    public static FINDER_ERROR_THRESHOLD = 0.2;
     /**
      * Percentage of black pixels that should be present in the left or right border of the box
      * around the symbol area for it to be considered inside the symbol.
@@ -30,7 +30,7 @@ export class Extractor {
      * Percentage of black pixels that should be present in a horizontal line for it to be
      * considered part of a one-bit.
      */
-    public static LINE_ONE_BLACK_THRESHOLD = 0.9;
+    public static LINE_ONE_BLACK_THRESHOLD = 0.8;
     /**
      * Percentage of the size of the gap between symbols that should be exceeded for a gap
      * to be considered valid.
@@ -40,7 +40,7 @@ export class Extractor {
      * Percentage the size of a unit that should be exceeded for a unit to be considered valid.
      * A unit is equivalent to the height of a single bit in a symbol.
      */
-    public static UNIT_DIM_THRESHOLD = 0.7;
+    public static UNIT_DIM_THRESHOLD = 0.5;
 
     /**
      * Hotrizontal line that is not part of any bits.
@@ -55,6 +55,9 @@ export class Extractor {
      */
     public static LINE_STATE_ONE = 1;
 
+    // Scale of image, relative to base dimensions.
+    private scale: number;
+
     /**
      * Main class method. Extracts encoded data from the given perspective corrected binary image.
      *
@@ -65,15 +68,14 @@ export class Extractor {
         const imgWidth = matrix.width;
         const imgHeight = matrix.height;
 
-        // TODO: implement a better estimation method, as the current one fails if the centre
-        // of the finder patterns is not perfectly aligned with the corners of the image.
-        const scale = this.estimateScale(matrix);
-        const scaledUnitDim = Writer.UNIT_DIM * scale;
-        const scaledSymbolDim = Writer.SYMBOL_DIM * scale;
-        const scaledGapDim = Writer.GAP_DIM * scale;
-        const scaledFinderRadius = Writer.FINDER_OUTER_RADIUS * scale;
+        // Initial scale estimation to get code dimensions.
+        this.scale = this.estimateScale(matrix);
+        let scaledUnitDim = Writer.UNIT_DIM * this.scale;
+        let scaledSymbolDim = Writer.SYMBOL_DIM * this.scale;
+        let scaledGapDim = Writer.GAP_DIM * this.scale;
+        let scaledFinderRadius = Writer.FINDER_OUTER_RADIUS * this.scale;
 
-        // Calculate width and height of code, in symbols. Should match specs.
+        // Estimate width and height of code, in symbols.
         const cols = Math.round((imgWidth + scaledGapDim - scaledSymbolDim) /
             (scaledGapDim + scaledSymbolDim));
         const rows = Math.round((imgHeight + scaledGapDim - scaledSymbolDim) /
@@ -82,6 +84,15 @@ export class Extractor {
         if (cols !== rows) {
             throw new Error("IChing code must be a square!");
         }
+
+        // More accurate scale estimation based on total image dimensions,
+        // and estimated code dimensions.
+        const baseDimension = (rows + 1) * Writer.SYMBOL_DIM + (rows - 1) * Writer.GAP_DIM;
+        this.scale = (matrix.width + matrix.height) / baseDimension / 2;
+        scaledUnitDim = Writer.UNIT_DIM * this.scale;
+        scaledSymbolDim = Writer.SYMBOL_DIM * this.scale;
+        scaledGapDim = Writer.GAP_DIM * this.scale;
+        scaledFinderRadius = Writer.FINDER_OUTER_RADIUS * this.scale;
 
         const data = new Uint8ClampedArray(rows * cols);
 
@@ -454,8 +465,13 @@ export class Extractor {
             return Extractor.LINE_STATE_INVALID;
         }
 
-        // Check if line represents a zero-bit.
-        if (black / lineWidth < Extractor.LINE_ONE_BLACK_THRESHOLD) {
+        // Check if line represents a zero-bit, by counting black pixels in the
+        // centre area of the line.
+        const zeroX1 = Math.floor(x1 + Writer.BIT_ZERO_OFFSET * this.scale);
+        const zeroX2 = Math.ceil(x2 - Writer.BIT_ZERO_OFFSET * this.scale);
+        const zeroWidth = zeroX2 - zeroX1 + 1;
+        const blackCentre = this.countBlackInLine(matrix, zeroX1, y, zeroX2, y);
+        if (blackCentre / zeroWidth < Extractor.LINE_ONE_BLACK_THRESHOLD) {
             return Extractor.LINE_STATE_ZERO;
         }
 

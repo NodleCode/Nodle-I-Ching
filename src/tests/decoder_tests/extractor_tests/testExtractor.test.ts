@@ -3,17 +3,19 @@ import { EncodedIChing } from "../../../core/EncodedIChing";
 import { loadPng } from "../../fileHelpers";
 import { singleChannelToBitMatrix } from "../../testHelpers";
 
-const compare = (real: EncodedIChing, expected: EncodedIChing): boolean => {
+const countErrors = (real: EncodedIChing, expected: EncodedIChing): number => {
     if (real.version !== expected.version || real.rows !== expected.rows ||
             real.cols !== expected.cols || real.data.length !== expected.data.length) {
-        return false;
+        return 64;
     }
+
+    let errorCount = 0;
     for (let i = 0; i < real.data.length; i++) {
         if (real.data[i] !== expected.data[i]) {
-            return false;
+            errorCount++;
         }
     }
-    return true;
+    return errorCount;
 };
 
 describe("Extract", () => {
@@ -34,12 +36,12 @@ describe("Extract", () => {
             ]),
         };
 
-        const img = await loadPng("./src/tests/test_data/binarized/perfect_post_correction.png");
+        const img = await loadPng("./src/tests/test_data/transformed/perfect_post_correction.png");
         const matrix = singleChannelToBitMatrix(img);
         const extractor = new Extractor();
         const real = extractor.extract(matrix);
 
-        expect(compare(real, expected)).toBeTruthy();
+        expect(countErrors(real, expected)).toBeLessThanOrEqual(0);
     });
 
     it("Detects missing bits and symbols in a perfect image", async () => {
@@ -60,12 +62,36 @@ describe("Extract", () => {
         };
 
         const img = await loadPng(
-            "./src/tests/test_data/binarized/perfect_post_correction_missing.png",
+            "./src/tests/test_data/transformed/perfect_post_correction_missing.png",
         );
         const matrix = singleChannelToBitMatrix(img);
         const extractor = new Extractor();
         const real = extractor.extract(matrix);
 
-        expect(compare(real, expected)).toBeTruthy();
+        expect(countErrors(real, expected)).toBeLessThanOrEqual(0);
+    });
+
+    it("Extracts data with at most one error from corrected, low resolution images", async () => {
+        const expected: EncodedIChing = {
+            version: 1,
+            rows: 5,
+            cols: 5,
+            data: new Uint8ClampedArray([
+                1, 11, 14, 17, 14,
+                1, 14, 17, 14, 28,
+                26, 27, 34, 20, 0,
+                32, 41, 12, 9, 3,
+                44, 26, 53, 33, 13,
+            ]),
+        };
+        const testCasesCount = 3;
+
+        for (let i = 0; i < testCasesCount; i++) {
+            const img = await loadPng("./src/tests/test_data/transformed/" + (i + 1) + ".png");
+            const matrix = singleChannelToBitMatrix(img);
+            const extractor = new Extractor();
+            const real = extractor.extract(matrix);
+            expect(countErrors(real, expected)).toBeLessThanOrEqual(1);
+        }
     });
 });
