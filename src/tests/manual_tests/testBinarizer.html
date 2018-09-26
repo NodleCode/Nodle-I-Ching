@@ -48,9 +48,11 @@ body {
             var ctx = canvas.getContext("2d");
             ctx.drawImage(img,0,0);
             var imgData = ctx.getImageData(0, 0, img.width, img.height);
-
-            var binarizer = new iching.AdaptiveBinarizer();
+            // var binarizer = new iching.DynamicBlockBinarizer();
+            var binarizer = new iching.FastAdaptiveBinarizer();
+            // var binarizer = iching;
             var matrix = binarizer.binarize(imgData.data, imgData.width, imgData.height);
+            // var matrix = binarizer.binarize(imgData.data, imgData.width, imgData.height, false).binarized;
             var myData = matrix.toImage();
             var ctxImageData = new ImageData(myData.data, myData.width, myData.height);
 
