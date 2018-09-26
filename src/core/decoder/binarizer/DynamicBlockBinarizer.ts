@@ -1,3 +1,7 @@
+/**
+ * This Binarization method is slower than the FastAdaptiveBinarizer,
+ * but more concrete, it could be used with high-end devices.
+ */
 import { Bit32Matrix } from "../../Bit32Matrix";
 import { BitMatrix } from "../../BitMatrix";
 import { ByteMatrix } from "../../ByteMatrix";
@@ -6,7 +10,7 @@ import { Binarizer } from "./Binarizer";
 /**
  * @export
  * @class DynamicBlockBinarizer
- * @description Binarizer class uses enhanced adaptive threshold method to binarize pixels
+ * @description Binarizer class uses adaptive threshold with dynamic blocksize to binarize pixels.
  * @extends {Binarizer}
  */
 export class DynamicBlockBinarizer extends Binarizer {

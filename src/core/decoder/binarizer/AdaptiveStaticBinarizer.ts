@@ -1,3 +1,7 @@
+/*
+ * This Binarizer is fast but doesn't produce very good results since the block sizes are
+ * fixed and predetermined, but it's left at the codebase for mere reference.
+ */
 import { BitMatrix } from "../../BitMatrix";
 import { ByteMatrix } from "../../ByteMatrix";
 import { sumArray } from "../../utils";
@@ -6,7 +10,7 @@ import { Binarizer } from "./Binarizer";
 /**
  * @export
  * @class AdaptiveStaticBinarizer
- * @description Binarizer class uses enhanced adaptive threshold method to binarize pixels
+ * @description Binarizer class uses adaptive threshold method with fixed blocks to binarize pixels
  * @extends {Binarizer}
  */
 export class AdaptiveStaticBinarizer extends Binarizer {

@@ -58,11 +58,16 @@
 
 				// Test Logic goes here
 				var imgData = ctx.getImageData(0, 0, img.width, img.height);
-				var matrix = iching.singleChannelToBitMatrix(imgData);
+
+				var binarizer = new iching.FastAdaptiveBinarizer();
+				var matrix = binarizer.binarize(imgData.data, imgData.width, imgData.height);
+				
 				var locator = new iching.Locator();
 				var locations = locator.locate(matrix);
+				
 				console.log(locations);
-                var transformer = new iching.CodeTransform();
+				
+				var transformer = new iching.CodeTransform();
                 var newMatrix = transformer.transform(matrix, locations);
                 var myData = newMatrix.toImage();
                 var ctxImageData = new ImageData(myData.data, myData.width, myData.height);

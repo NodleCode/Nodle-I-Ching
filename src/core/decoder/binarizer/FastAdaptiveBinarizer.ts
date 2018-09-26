@@ -1,3 +1,7 @@
+/**
+ * This is the main Binarization method at the library, it's both fast and accurate and suitable to
+ * wide ranges of end devices.
+ */
 import { BitMatrix } from "../../BitMatrix";
 import { ByteMatrix } from "../../ByteMatrix";
 import { Binarizer } from "./Binarizer";
@@ -5,7 +9,7 @@ import { Binarizer } from "./Binarizer";
 /**
  * @export
  * @class FastAdaptiveBinarizer
- * @description Binarizer class uses enhanced adaptive threshold method to binarize pixels
+ * @description Binarizer class uses fast enhanced adaptive threshold method to binarize pixels.
  * @extends {Binarizer}
  */
 export class FastAdaptiveBinarizer extends Binarizer {

@@ -14,7 +14,7 @@ export class Bit32Matrix {
      */
     public height: number;
     /**
-     * Matrix Internal data array - values between (0 - 255)
+     * Matrix Internal data array - values between (0 -> 2^32-1)
      */
     public data: Uint32Array;
 

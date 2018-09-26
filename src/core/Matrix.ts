@@ -16,7 +16,7 @@ export abstract class Matrix {
     /**
      * Matrix Internal data array - values between (0 - 255)
      */
-    public data: Uint8ClampedArray;
+    protected data: Uint8ClampedArray;
 
     constructor(width: number, height: number) {
         if (!Number.isInteger(width) || !Number.isInteger(height)) {

@@ -1,3 +1,7 @@
+/*
+ * This Binarizer is fast and produce good results, but the FastAdaptiveBinarizer proved to be
+ * faster and more accurate in practice.
+ */
 import { BitMatrix } from "../../BitMatrix";
 import { ByteMatrix } from "../../ByteMatrix";
 import { sumArray } from "../../utils";
