@@ -1,5 +1,6 @@
 import { BinaryGF, ReedSolomonDecoder } from "../common/reedsolomon";
-import { Encoder } from "../encoder";
+import { Encoder } from "../encoder/Encoder";
+import { DecodedIChing } from "./DecodedIChing";
 
 /**
  * Decoder class encapsulating IChing content decoding methods.
@@ -12,12 +13,14 @@ export class Decoder {
      * Creates a payload string from received IChing raw data. Assumes metadata symbols are always
      * correct.
      *
-     * @static
-     * @param {Uint8ClampedArray} received - raw data.
-     * @returns {string} decoded payload.
+     * @param {Uint8ClampedArray} received - Raw data.
+     * @returns { DecodedIChing } - Decoded payload and code metadata.
      */
-    public static decode(received: Uint8ClampedArray): string {
-        if (received[0] !== Encoder.VERSION) {
+    public decode(received: Uint8ClampedArray): DecodedIChing {
+        const version = received[0];
+        const size = Math.round(Math.sqrt(received.length));
+
+        if (version !== Encoder.VERSION || size * size !== received.length) {
             throw new Error("Invalid IChing code!");
         }
 
@@ -64,6 +67,11 @@ export class Decoder {
             payload += String.fromCharCode(charCode);
         }
 
-        return payload;
+        return {
+            version,
+            size,
+            data: payload,
+            patterns: null,
+        };
     }
 }

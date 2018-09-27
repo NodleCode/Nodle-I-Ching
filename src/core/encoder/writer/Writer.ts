@@ -1,6 +1,5 @@
 import { BitMatrix } from "../../BitMatrix";
 import { Point } from "../../geometry";
-import { ImageData } from "../../ImageData";
 import { EncodedIChing } from "../EncodedIChing";
 
 /**
@@ -60,9 +59,9 @@ export class Writer {
     /**
      * Creates an instance of Writer.
      *
-     * @param {number} [resolution=1250] - desired height and width of the rendered image.
+     * @param {number} - desired height and width of the rendered image.
      */
-    public constructor(resolution: number = 1250) {
+    public constructor(resolution: number) {
         this.resolution = resolution;
     }
 
@@ -114,7 +113,6 @@ export class Writer {
         code.imageData = this.matrix.toImage();
     }
 
-    // TODO: Change filling algorithm.
     private drawFinderPattern(centre: Point): void {
         const r1 = Writer.FINDER_INNER_RADIUS * this.scale;
         const r2 = Writer.FINDER_MIDDLE_RADIUS * this.scale;
