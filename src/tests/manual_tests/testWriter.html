@@ -52,11 +52,12 @@
             function writeImage() {
                 const text = document.getElementById("inputText").value;
                 const ECLevel = Number(document.getElementById("inputEC").value) || iching.Encoder.EC_MEDIUM;
-                const resolution = Number(document.getElementById("inputRes").value) || 1000;
+                const resolution = Number(document.getElementById("inputRes").value) || 1250;
 
                 const encoded = iching.Encoder.encode(text, ECLevel);
                 const writer = new iching.Writer(resolution);
-                const imgData = writer.render(encoded);
+                writer.render(encoded);
+                const imgData = encoded.imageData;
 
                 cvs.width = imgData.width;
                 cvs.height = imgData.height;

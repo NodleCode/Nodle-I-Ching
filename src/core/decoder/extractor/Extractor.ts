@@ -1,7 +1,7 @@
 import { BitMatrix } from "../../BitMatrix";
-import { EncodedIChing } from "../../EncodedIChing";
+import { EncodedIChing } from "../../encoder/EncodedIChing";
+import { Writer } from "../../encoder/writer";
 import { Point } from "../../geometry";
-import { Writer } from "../../writer";
 import { PatternLocator } from "../locator/PatternLocator";
 
 /**
@@ -60,6 +60,7 @@ export class Extractor {
 
     /**
      * Main class method. Extracts encoded data from the given perspective corrected binary image.
+     * Return an EncodedIChing object with version, size, and data fields set.
      *
      * @param {BitMatrix} matrix - binary image represented as bits.
      * @returns {EncodedIChing}
@@ -198,7 +199,7 @@ export class Extractor {
             }
         }
 
-        return { version: data[0], rows, cols, data };
+        return { version: data[0], size: rows, data } as EncodedIChing;
     }
 
     /**

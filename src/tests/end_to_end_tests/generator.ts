@@ -1,7 +1,7 @@
 import * as fs from "fs-extra";
-import { EncodedIChing } from "../../core/EncodedIChing";
 import { Encoder } from "../../core/encoder";
-import { Writer } from "../../core/writer";
+import { EncodedIChing } from "../../core/encoder/EncodedIChing";
+import { Writer } from "../../core/encoder/writer";
 import { savePng } from "../fileHelpers";
 import { getRandomInt } from "../testHelpers";
 
@@ -35,7 +35,8 @@ for (let test = 0; test < testDataCount; test++) {
         const code = Encoder.encode(payload, ecLevel);
         for (const resolution of resolutions) {
             const writer = new Writer(resolution);
-            const imgData = writer.render(code);
+            writer.render(code);
+            const imgData = code.imageData;
 
             const path = "./src/tests/end_to_end_tests/data/"
                 + payload + "-" + resolution + "-" + ecLevel + ".png";
