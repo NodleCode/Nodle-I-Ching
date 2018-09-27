@@ -3,7 +3,6 @@ import { Encoder } from "../../core/encoder";
 const longPayload = "this0payload1is2too3long4for5high6error7correction8level9";
 const invalidPayload = "spaces are not supported";
 const payload = "validpayload";
-const ReedSolomonError = "Reed-Solomon error!";
 
 describe("Encoder", () => {
     it("Throws an error when payload is empty", () => {
@@ -22,7 +21,6 @@ describe("Encoder", () => {
 
     it("Calculates the correct size of the IChing code", () => {
         const encodedPayload = Encoder.encode(payload, Encoder.EC_HIGH);
-        expect(encodedPayload.rows).toBe(5);
-        expect(encodedPayload.cols).toBe(5);
+        expect(encodedPayload.size).toBe(5);
     });
 });
