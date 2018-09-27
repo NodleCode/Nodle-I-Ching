@@ -19,6 +19,37 @@ IChing-JS library exports a method `iching.encode(payload, options?)`.
 #### Return Value
 If the encoding process succeeds, the method will return an object that implements the [`EncodedIChing`](./src/core/encoder/EncodedIChing.ts) interface.
 
+#### Example
+Example usage with options specified:
+```javascript
+const payload = "thisisanexample123";
+const options = { 'ECLevel': 0.5, 'Resolution': 2000 };
+const encoded = iching.encode(payload, options);
+```
+Or without options:
+```javascript
+const payload = "thisisanexample123";
+const encoded = iching.encode(payload);
+```
+Which is equivalent to:
+```javascript
+const payload = "thisisanexample123";
+const defaultOptions = { 'ECLevel': 0.15, 'Resolution': 1250 };
+const encoded = iching.encode(payload, defaultOptions);
+```
+Image can be displayed using HTML canvas:
+```javascript
+// 'cvs' and 'ctx' are an HTML canvas element, and its 2D rendering context, respectively.
+const imgData = encoded.imageData;
+cvs.width = imgData.width;
+cvs.height = imgData.height;
+const ctxImgData = new ImageData(imgData.data, imgData.width, imgData.height);
+ctx.putImageData(ctxImgData, 0, 0);
+
+// If 'img' is an HTML image element, its 'src' attribute can be set like follows:
+img.src = cvs.toDataURL();
+```
+
 ### Decoding
 
 IChing-JS library exports a method `iching.decode(imageData, width, height)`.
@@ -30,3 +61,13 @@ IChing-JS library exports a method `iching.decode(imageData, width, height)`.
 
 #### Return value
 If the decoding process succeeds, the method will return an object that implements the [`DecodedIChing`](./src/core/decoder/DecodedIChing.ts) interface.
+
+#### Example
+Example usage:
+```javascript
+// Let 'width' and 'height' be the width and height of the input image, respectively,
+// and 'imageData' be a Uint8ClampedArray of RGBA pixel values, and of length 4 * width * height.
+const decoded = iching.decode(imageData, width, height);
+console.log(version, size);
+console.log(data);
+```
