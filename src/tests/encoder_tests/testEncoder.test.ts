@@ -13,7 +13,9 @@ describe("Encoder", () => {
 
     it("Throws an error when ecLevel is invalid", () => {
         const encoder = new Encoder();
-        expect(() => encoder.encode("", invalidEcLevel)).toThrowError("Empty payload!");
+        expect(() => encoder.encode(payload, invalidEcLevel)).toThrowError(
+            "Error correction percentage must be a value between 0 - 1!",
+        );
     });
 
     it("Throws an error when payload and error correction level combination is too big", () => {
