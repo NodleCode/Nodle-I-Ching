@@ -1,7 +1,5 @@
 import { BinaryGF, ReedSolomonEncoder } from "../common/reedsolomon";
-import { EncodedIChing } from "../EncodedIChing";
-
-// TODO: constant error correction levels.
+import { EncodedIChing } from "./EncodedIChing";
 
 /**
  * Encoder class encapsulating IChing content encoding methods.
@@ -63,7 +61,8 @@ export class Encoder {
      * @static
      * @param {string} content
      * @param {number} ecLevel - percentage of symbols that can be corrected after encoding.
-     * @returns {@link EncodedIChing}
+     * @returns {@link EncodedIChing} An EncodedIChing object with the version, size,
+     * and data fields set.
      * @throws Will throw an error if the payload to be encoded is empty.
      * @throws Will throw an error if payload and error correction level combination is bigger than
      * the maximum IChing size.
@@ -122,6 +121,6 @@ export class Encoder {
             throw new Error("Reed-Solomon encoding failed: '" + e.message + "'!");
         }
 
-        return { version: data[0], rows: sideLength, cols: sideLength, data: encodedData };
+        return { version: data[0], size: sideLength, data: encodedData } as EncodedIChing;
     }
 }

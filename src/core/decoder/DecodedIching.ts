@@ -2,22 +2,22 @@ import { PatternsLocation } from "./PatternsLocation";
 
 /**
  * @export
- * @interface IChingCode
+ * @interface DecodedIChing
  * @description Interface representing the decoded IChing code and information about the image.
  */
-export interface IChingCode {
+export interface DecodedIChing {
     /**
      * IChing code version number.
      */
     version: number;
     /**
+     * Number of rows and columns in the IChing code.
+     */
+    size: number;
+    /**
      * Decoded data in the form of string.
      */
     data: string;
-    /**
-     * Decoded data in the form of binary string.
-     */
-    binary: string;
     /**
      * Location of finder and alignment patterns in the image.
      */

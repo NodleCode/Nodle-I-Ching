@@ -1,7 +1,7 @@
-import { BitMatrix } from "../BitMatrix";
+import { BitMatrix } from "../../BitMatrix";
+import { Point } from "../../geometry";
+import { ImageData } from "../../ImageData";
 import { EncodedIChing } from "../EncodedIChing";
-import { Point } from "../geometry";
-import { ImageData } from "../ImageData";
 
 /**
  * Writer class encapsulating IChing rendering methods.
@@ -54,74 +54,64 @@ export class Writer {
 
     private matrix: BitMatrix;
     private scale: number;
-    private width: number;
-    private height: number;
-    private padX: number;
-    private padY: number;
+    private resolution: number;
+    private pad: number;
 
     /**
      * Creates an instance of Writer.
      *
-     * @param {number} [resolution=2142] - desired height and width of the rendered image.
+     * @param {number} [resolution=1250] - desired height and width of the rendered image.
      */
-    public constructor(resolution: number = 2142) {
-        this.height = resolution;
-        this.width = resolution;
+    public constructor(resolution: number = 1250) {
+        this.resolution = resolution;
     }
 
     /**
      * Renders the provided encoded IChing.
+     * It takes an EncodedIChing object with the version, size, and data fields set,
+     * and sets the imageData field.
      *
      * @param {EncodedIChing} code - Object representing an encoded IChing.
-     * @returns {ImageData} - Image data for the rendered IChing.
+     * @returns {void}
      */
-    public render(code: EncodedIChing): ImageData {
-        const codeRows = code.rows;
-        const codeCols = code.cols;
-        // Unscaled image height.
-        const baseHeight = codeRows * Writer.SYMBOL_DIM + (codeRows - 1) * Writer.GAP_DIM
-            + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
-        // Unscaled image width.
-        const baseWidth = codeCols * Writer.SYMBOL_DIM + (codeCols - 1) * Writer.GAP_DIM
+    public render(code: EncodedIChing): void {
+        const codeSize = code.size;
+        // Minimum image dimension.
+        const baseDimension = codeSize * Writer.SYMBOL_DIM + (codeSize - 1) * Writer.GAP_DIM
             + (Writer.FINDER_OUTER_RADIUS * 2 + Writer.QUIET_ZONE) * 2;
 
         // Calculate scaling factor based on base dimensions and desired output image dimension.
-        this.scale = Math.min(
-            Math.floor(this.width / baseWidth), Math.floor(this.height / baseHeight),
-        );
+        this.scale = Math.floor(this.resolution / baseDimension);
         if (this.scale < 1) {
             throw new Error("Resolution is too small!");
         }
 
         // Creates a BitMatrix filled with 0s.
-        this.matrix = new BitMatrix(this.width, this.height);
+        this.matrix = new BitMatrix(this.resolution, this.resolution);
 
         // Calculate padding.
-        this.padX = Math.floor((this.width - baseWidth * this.scale) / 2);
-        this.padY = Math.floor((this.height - baseHeight * this.scale) / 2);
+        this.pad = Math.floor((this.resolution - baseDimension * this.scale) / 2);
 
         // Draw finder patterns.
-        const finderOffsetX = (Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS) * this.scale
-            + this.padX;
-        const finderOffsetY = (Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS) * this.scale
-            + this.padY;
-        this.drawFinderPattern({ x: finderOffsetX, y: finderOffsetY });
-        this.drawFinderPattern({ x: this.width - finderOffsetX, y: finderOffsetY });
-        this.drawFinderPattern({ x: finderOffsetX, y: this.height - finderOffsetY });
+        const finderOffset = (Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS) * this.scale
+            + this.pad;
+        this.drawFinderPattern({ x: finderOffset, y: finderOffset });
+        this.drawFinderPattern({ x: this.resolution - finderOffset, y: finderOffset });
+        this.drawFinderPattern({ x: finderOffset, y: this.resolution - finderOffset });
 
         // Draw alignment pattern.
         this.drawAlignmentPattern(
-            { x: this.width - finderOffsetX, y: this.height - finderOffsetY },
+            { x: this.resolution - finderOffset, y: this.resolution - finderOffset },
         );
 
         // Draw symbols.
-        for (let i = 0; i < codeRows; i++) {
-            for (let j = 0; j < codeCols; j++) {
-                this.drawSymbol(i, j, code.data[i * codeCols + j]);
+        for (let i = 0; i < codeSize; i++) {
+            for (let j = 0; j < codeSize; j++) {
+                this.drawSymbol(i, j, code.data[i * codeSize + j]);
             }
         }
 
-        return this.matrix.toImage();
+        code.imageData = this.matrix.toImage();
     }
 
     // TODO: Change filling algorithm.
@@ -202,9 +192,9 @@ export class Writer {
     private drawSymbol(row: number, col: number, mask: number): void {
         const gridOffset = Writer.QUIET_ZONE + Writer.FINDER_OUTER_RADIUS * 2;
         const startX = (col * (Writer.SYMBOL_DIM + Writer.GAP_DIM) + gridOffset) * this.scale
-            + this.padX;
+            + this.pad;
         const startY = (row * (Writer.SYMBOL_DIM + Writer.GAP_DIM) + gridOffset) * this.scale
-            + this.padY;
+            + this.pad;
         const bitWidth = Writer.SYMBOL_DIM * this.scale;
         const bitHeight = Writer.UNIT_DIM * this.scale;
         const zeroOffset = Writer.BIT_ZERO_OFFSET * this.scale;
