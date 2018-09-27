@@ -6,3 +6,4 @@ logs
 node_modules
 .vscode
 lib
+*artifacts

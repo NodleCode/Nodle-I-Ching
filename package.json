@@ -52,6 +52,7 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^23.3.1",
+    "@types/jpeg-js": "^0.3.0",
     "@types/node": "^10.9.4",
     "@types/seedrandom": "^2.4.27",
     "@types/sharp": "^0.17.10",
@@ -61,6 +62,7 @@
     "fs-extra": "^7.0.0",
     "get-image-data": "^3.0.1",
     "jest": "^23.5.0",
+    "jpeg-js": "^0.3.4",
     "rimraf": "^2.6.2",
     "seedrandom": "^2.4.4",
     "sharp": "^0.20.7",

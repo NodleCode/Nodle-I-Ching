@@ -58,29 +58,33 @@ export class Encoder {
     /**
      * Creates an IChing code from provided content.
      *
-     * @static
      * @param {string} content
-     * @param {number} ecLevel - percentage of symbols that can be corrected after encoding.
+     * @param {number} ecLevel - percentage of symbols that can be corrected after encoding, must
+     * be between 0 - 1.
      * @returns {@link EncodedIChing} An EncodedIChing object with the version, size,
      * and data fields set.
      * @throws Will throw an error if the payload to be encoded is empty.
      * @throws Will throw an error if payload and error correction level combination is bigger than
      * the maximum IChing size.
      * @throws Will throw an error if the payload contains an invalid character.
+     * @throws Will throw an error if ecLevel out of 0 - 1 boundary.
      * @throws Will throw an error if Reed-Solomon encoding fails.
      */
-    public static encode(payload: string, ecLevel: number = this.EC_MEDIUM): EncodedIChing {
+    public encode(payload: string, ecLevel: number): EncodedIChing {
         if (payload.length === 0) {
             throw new Error("Empty payload!");
         }
+        if (ecLevel < 0 || ecLevel > 1) {
+            throw new Error("Error correction percentage must be a value between 0 - 1!");
+        }
 
         // Error correction symbols required to match error correction level.
-        let ecSymbols = Math.ceil(payload.length * ecLevel) * this.SYMBOLS_PER_ERROR;
+        let ecSymbols = Math.ceil(payload.length * ecLevel) * Encoder.SYMBOLS_PER_ERROR;
 
         // Minimum number of symbols required to encode content at error correction level.
-        const minimumSize = this.OFFSET + payload.length + ecSymbols;
+        const minimumSize = Encoder.OFFSET + payload.length + ecSymbols;
 
-        if (minimumSize > this.MAX_SIZE) {
+        if (minimumSize > Encoder.MAX_SIZE) {
             throw new Error("Payload and error correction level combination is too big!");
         }
 
@@ -100,16 +104,16 @@ export class Encoder {
         if ((trueSize - minimumSize) & 1) {
             data[trueSize - 1 - ecSymbols] = 0;
         }
-        data[0] = this.VERSION;
+        data[0] = Encoder.VERSION;
         data[1] = payload.length;
         for (let i = 0; i < payload.length; i++) {
             const charCode = payload.charCodeAt(i);
-            const mappedChar = charCode < this.MAPPING_TABLE.length ?
-                this.MAPPING_TABLE[charCode] : -1;
+            const mappedChar = charCode < Encoder.MAPPING_TABLE.length ?
+            Encoder.MAPPING_TABLE[charCode] : -1;
             if (mappedChar === -1) {
                 throw new Error("Invalid character in payload!");
             }
-            data[i + this.OFFSET] = mappedChar;
+            data[i + Encoder.OFFSET] = mappedChar;
         }
 
         // Compute and append error correction symbols.
@@ -121,6 +125,6 @@ export class Encoder {
             throw new Error("Reed-Solomon encoding failed: '" + e.message + "'!");
         }
 
-        return { version: data[0], size: sideLength, data: encodedData } as EncodedIChing;
+        return { version: data[0], size: sideLength, data: encodedData, imageData: null };
     }
 }

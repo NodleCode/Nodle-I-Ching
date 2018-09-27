@@ -32,8 +32,8 @@ export class FastAdaptiveBinarizer extends Binarizer {
      * @param {Uint8ClampedArray} data - Array containing RGBA image pixels, each pixel consists
      * of four consecutive cells representing red, green, blue, alpha values for the pixel.
      * [r0, g0, b0, a0, r1, g1, b1, a1, ...]
-     * @param {number} rows - Number of rows (Height) of the image.
-     * @param {number} cols - Number of columns (Width) of the image.
+     * @param {number} width - Image width.
+     * @param {number} height - Image height.
      * @returns {BitMatrix} - Matrix contains the binarized image, each pixel has 0 or 1 value.
      * @memberof FastAdaptiveBinarizer
      */

@@ -1,6 +1,6 @@
 import { BinaryGF } from "../../core/common/reedsolomon";
-import { Decoder } from "../../core/decoder";
-import { Encoder } from "../../core/encoder";
+import { Decoder } from "../../core/decoder/Decoder";
+import { Encoder } from "../../core/encoder/Encoder";
 import { getRandomInt } from "../testHelpers";
 
 const msg = "helloworldtestx12";
@@ -24,8 +24,12 @@ describe("Decoder", () => {
                     encodedCopy[i + offset] = getRandomInt(0, BinaryGF.BINARY_GF_6.getSize() - 1);
                 } while (encodedCopy[i + offset] === old);
             }
-            const decodedMsg = Decoder.decode(encodedCopy);
-            expect(msg.toUpperCase()).toEqual(decodedMsg);
+            const decoder = new Decoder();
+            const decodedMsg = decoder.decode(encodedCopy);
+            expect(msg.toUpperCase()).toEqual(decodedMsg.data);
+            expect(decodedMsg.patterns).toBeNull();
+            expect(decodedMsg.version).toEqual(encodedMsg[0]);
+            expect(decodedMsg.size).toEqual(Math.round(Math.sqrt(encodedMsg.length)));
         }
     });
 
@@ -38,7 +42,8 @@ describe("Decoder", () => {
                     encodedCopy[i + offset] = getRandomInt(0, BinaryGF.BINARY_GF_6.getSize() - 1);
                 } while (encodedCopy[i + offset] === old);
             }
-            expect(() => Decoder.decode(encodedCopy)).toThrowError("Invalid IChing Code!");
+            const decoder = new Decoder();
+            expect(() => decoder.decode(encodedCopy)).toThrowError("Invalid IChing Code!");
         }
     });
 
@@ -48,7 +53,8 @@ describe("Decoder", () => {
             for (let i = 0; i < e; i++) {
                 encodedCopy[i + offset] = 0;
             }
-            expect(() => Decoder.decode(encodedCopy)).toThrowError("Invalid IChing Code!");
+            const decoder = new Decoder();
+            expect(() => decoder.decode(encodedCopy)).toThrowError("Invalid IChing Code!");
         }
     });
 });
