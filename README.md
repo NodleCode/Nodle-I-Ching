@@ -71,3 +71,6 @@ const decoded = iching.decode(imageData, width, height);
 console.log(version, size);
 console.log(data);
 ```
+
+## Documentation
+Detailed HTML docs can be found [here](./docs/index.html).
