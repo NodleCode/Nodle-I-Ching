@@ -104,10 +104,10 @@ export class Extractor {
             let estimateY1 = Math.round(scaledFinderRadius);
             let estimateY2 = Math.round(estimateY1 + scaledSymbolDim);
 
-            // Y-coordinate of scanned line. Starts before estimate, for safety.
-            let scanY = Math.max(0, Math.round(estimateY1 - scaledUnitDim));
-
             for (let row = 0; row < rows; row++) {
+                // Y-coordinate of scanned line. Starts before estimate, for safety.
+                let scanY = Math.max(0, Math.round(estimateY1 - scaledUnitDim));
+
                 // Fix potential horizontal shift resulting from distortion.
                 const horizontalShift = this.fixHorizontalShift(matrix,
                     estimateX1, estimateY1, estimateX2, estimateY2);
@@ -117,7 +117,7 @@ export class Extractor {
                 // Scanned line states bookkeeping.
                 let endOfSymbol: boolean = false;
                 let oldState = Extractor.LINE_STATE_INVALID;
-                let oldStateCount = 1;
+                let oldStateCount = 0;
                 let oldStateStartY = scanY;
 
                 // Symbol data bookkeeping.
@@ -130,18 +130,38 @@ export class Extractor {
                 let symbolY1 = estimateY1;
                 let symbolY2 = estimateY2;
 
+                // console.log("Estimate", row, col, symbolX1, symbolY1, symbolX2, symbolY2);
+
                 const searchYLimit = Math.min(matrix.height, Math.round(estimateY2 + scaledGapDim));
 
                 while (scanY < searchYLimit && !endOfSymbol) {
                     const newState = this.getHorizontalState(matrix, x1, x2, scanY);
+                    // if (col === 3 && scanY > 50 && scanY < 250) {
+                    //     const mid = Math.round(x1 + (x2 - x1 + 1) / 2);
+                    //     console.log("###", scanY, newState,
+                    //         this.countBlackInLine(matrix, x1, scanY, x2, scanY), x2 - x1 + 1,
+                    //         this.countBlackInLine(matrix, x1, scanY, mid, scanY), mid - x1 + 1,
+                    //         this.countBlackInLine(matrix, mid + 1, scanY, x2, scanY), x2 - mid,
+                    //     );
+                    // }
                     if (newState === oldState) { // Same state.
                         oldStateCount++;
                     } else { // Different state.
+                        // if (oldState !== Extractor.LINE_STATE_INVALID) {
+                        //     console.log(row, col, oldStateStartY,
+                        //         oldState, oldStateCount, scaledUnitDim);
+                        // }
                         // Check if old state is a valid bit.
                         if (oldState !== Extractor.LINE_STATE_INVALID &&
                         oldStateCount / scaledUnitDim > Extractor.UNIT_DIM_THRESHOLD) {
+                            // console.log(bitsFound, mask);
+                            if (bitsFound >= Writer.BITS_PER_SYMBOL) {
+                                bitsFound--;
+                                mask = (mask >> 1) | (1 << bitsFound);
+                            }
                             mask &= ~((1 - oldState) << bitsFound);
                             bitsFound++;
+                            // console.log(bitsFound, mask);
 
                             // If first bit of the symbol, store the y-coordinate
                             // of the top of the symbol.
@@ -168,7 +188,7 @@ export class Extractor {
                             }
 
                             oldStateStartY = scanY + 1;
-                            oldStateCount = 1;
+                            oldStateCount = 0;
                         // Else, symbol ended.
                         } else {
                             endOfSymbol = true;
@@ -179,13 +199,13 @@ export class Extractor {
                 }
 
                 // if the loop was exited due to reaching the search limit, reset scanY for next
-                // symbol, and don't change end-of-symbol Y from estimate.
+                // symbol.
                 if (scanY === searchYLimit) {
                     scanY -= Math.round(scaledUnitDim);
-                // else, adjust it.
-                } else {
-                    symbolY2 = oldStateStartY;
                 }
+                symbolY2 = oldStateStartY;
+
+                // console.log("Final", row, col, symbolX1, symbolY1, symbolX2, symbolY2);
 
                 data[row * cols + col] = mask;
 
@@ -193,7 +213,7 @@ export class Extractor {
                 estimateX1 = symbolX1;
                 estimateX2 = symbolX2;
                 estimateY1 = Math.round(symbolY2 + scaledGapDim);
-                estimateY2 = Math.round(estimateY1 + symbolY2 - symbolY1);
+                estimateY2 = Math.round(estimateY1 + scaledSymbolDim);
             }
         }
 
