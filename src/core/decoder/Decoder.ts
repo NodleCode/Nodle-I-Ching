@@ -36,14 +36,18 @@ export class Decoder {
         const ecSymbols = (received.length - offset - dataLength) & (~1);
 
         // Correct potential errors.
-        const rsDecoder = new ReedSolomonDecoder(BinaryGF.BINARY_GF_6);
         let corrected: Uint8ClampedArray;
-        // ReedSolomonDecoder will throw errors if the correction process fails, when either the
-        // error locations are computed incorrectly, or the number of errors is above the limit.
-        try {
-            corrected = rsDecoder.decode(received, ecSymbols);
-        } catch (e) {
-            throw new Error("Invalid IChing Code!");
+        if (ecSymbols !== 0) {
+            const rsDecoder = new ReedSolomonDecoder(BinaryGF.BINARY_GF_6);
+            // ReedSolomonDecoder will throw errors if the correction process fails, when either the
+            // error locations are computed incorrectly, or the number of errors is above the limit.
+            try {
+                corrected = rsDecoder.decode(received, ecSymbols);
+            } catch (e) {
+                throw new Error("Invalid IChing Code!");
+            }
+        } else {
+            corrected = received.slice();
         }
 
         // This check is useful when most symbols are altered to zeroes, which will result in a
