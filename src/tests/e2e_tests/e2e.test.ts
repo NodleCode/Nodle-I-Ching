@@ -1,7 +1,7 @@
 import { decode } from "../..";
 import { loadJpeg } from "../fileHelpers";
 
-const testsCount = 85;
+const testsCount = 82;
 const testPath = (testNumber: number) => `./src/tests/test_data/camera_images/${testNumber}.jpg`;
 
 describe("End to End testing scenarios", async () => {
