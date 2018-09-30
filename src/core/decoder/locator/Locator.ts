@@ -130,9 +130,9 @@ export class Locator {
             for (const pattern of alignments) {
                 const min = Math.min(pattern.size, this.locations.alignmentSize);
                 const max = Math.max(pattern.size, this.locations.alignmentSize);
-                // if the pattern size is not away different than the expected (500%),
+                // if the pattern size is not away different than the expected (200%),
                 // then consider it as the alignment pattern
-                if (max < 5 * min) {
+                if (max < 2 * min) {
                     this.locations.bottomRight = pattern.location;
                     this.locations.alignmentSize = pattern.size;
                     break;
