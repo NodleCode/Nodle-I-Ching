@@ -1,5 +1,5 @@
 import { BitMatrix } from "../../BitMatrix";
-import { cross, nearlySame, Point, sqDistance, vec } from "../../geometry";
+import { cross, distance, nearlySame, Point, sqDistance, vec } from "../../geometry";
 import { PatternsLocation } from "../PatternsLocation";
 import { LocationError } from "./LocationError";
 import { PatternLocator } from "./PatternLocator";
@@ -102,20 +102,21 @@ export class Locator {
             this.locations.finderAverageSize * Locator.ALIGNMENT_TO_FINDER_RATIO;
 
         // Average distance between patterns
-        const PatternsXDistance = Math.abs(this.locations.topRight.x - this.locations.topLeft.x);
-        const PatternsYDistance = Math.abs(this.locations.topLeft.y - this.locations.bottomLeft.y);
+        let patternsDistance = distance(this.locations.topLeft, this.locations.topRight);
+        patternsDistance += distance(this.locations.topLeft, this.locations.bottomLeft);
+        patternsDistance = Math.round(patternsDistance / 2);
 
         // Calculate the search region for the alignment pattern locator
         // Search start point
         const startPoint: Point = {
-            x: Math.max(0, this.locations.bottomRight.x - (PatternsXDistance >> 1)),
-            y: Math.max(0, this.locations.bottomRight.y - (PatternsYDistance >> 1)),
+            x: Math.max(0, this.locations.bottomRight.x - (patternsDistance)),
+            y: Math.max(0, this.locations.bottomRight.y - (patternsDistance)),
         };
 
         // Search end point
         const endPoint: Point = {
-            x: Math.min(matrix.width, this.locations.bottomRight.x + (PatternsXDistance >> 1)),
-            y: Math.min(matrix.height, this.locations.bottomRight.y + (PatternsYDistance >> 1)),
+            x: Math.min(matrix.width, this.locations.bottomRight.x + (patternsDistance)),
+            y: Math.min(matrix.height, this.locations.bottomRight.y + (patternsDistance)),
         };
 
         // Locate Alignment patterns.
@@ -129,9 +130,9 @@ export class Locator {
             for (const pattern of alignments) {
                 const min = Math.min(pattern.size, this.locations.alignmentSize);
                 const max = Math.max(pattern.size, this.locations.alignmentSize);
-                // if the pattern size is not away different than the expected (500%),
+                // if the pattern size is not away different than the expected (200%),
                 // then consider it as the alignment pattern
-                if (max < 5 * min) {
+                if (max < 2 * min) {
                     this.locations.bottomRight = pattern.location;
                     this.locations.alignmentSize = pattern.size;
                     break;

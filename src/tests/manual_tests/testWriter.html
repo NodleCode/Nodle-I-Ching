@@ -54,7 +54,8 @@
                 const ECLevel = Number(document.getElementById("inputEC").value) || iching.Encoder.EC_MEDIUM;
                 const resolution = Number(document.getElementById("inputRes").value) || 1250;
 
-                const encoded = iching.Encoder.encode(text, ECLevel);
+                const encoder = new iching.Encoder();
+                const encoded = encoder.encode(text, ECLevel);
                 const writer = new iching.Writer(resolution);
                 writer.render(encoded);
                 const imgData = encoded.imageData;

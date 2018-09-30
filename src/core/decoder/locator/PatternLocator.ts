@@ -76,7 +76,7 @@ export class PatternLocator {
                         // If we reached the final state change, then check if it's a valid pattern
                         if (this.isValidPattern(state)) {
                             const initialCenter: Point = this.centerFromEnd({ x: x - 1, y }, state);
-                            const maxCount = state[ratios.length >> 1] << 1;
+                            const maxCount = state[ratios.length >> 1] << 2;
 
                             // Check pattern in vertical direction.
                             const vertical = this.calculatePatternMeasures(
@@ -220,8 +220,8 @@ export class PatternLocator {
         const standardRatioError = (
             this.calculateStateError(vertical.state, averageUnit) +
             this.calculateStateError(horizontal.state, averageUnit) +
-            this.calculateStateError(mainDiagonal.state, averageUnit) +
-            this.calculateStateError(skewDiagonal.state, averageUnit)
+            this.calculateStateError(mainDiagonal.state, averageUnit / PatternLocator.SQRT2) +
+            this.calculateStateError(skewDiagonal.state, averageUnit / PatternLocator.SQRT2)
         ) / (4 * this.ratios.length);
 
         // Also use the corrected center as the new pattern center.
