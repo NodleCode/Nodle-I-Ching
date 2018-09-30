@@ -220,8 +220,8 @@ export class PatternLocator {
         const standardRatioError = (
             this.calculateStateError(vertical.state, averageUnit) +
             this.calculateStateError(horizontal.state, averageUnit) +
-            this.calculateStateError(mainDiagonal.state, averageUnit) +
-            this.calculateStateError(skewDiagonal.state, averageUnit)
+            this.calculateStateError(mainDiagonal.state, averageUnit / PatternLocator.SQRT2) +
+            this.calculateStateError(skewDiagonal.state, averageUnit / PatternLocator.SQRT2)
         ) / (4 * this.ratios.length);
 
         // Also use the corrected center as the new pattern center.
