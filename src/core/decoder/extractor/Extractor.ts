@@ -1,6 +1,7 @@
 import { BitMatrix } from "../../BitMatrix";
 import { Writer } from "../../encoder/writer";
 import { Point } from "../../geometry";
+import { sumArray } from "../../utils";
 import { PatternLocator } from "../locator/PatternLocator";
 
 /**
@@ -97,7 +98,7 @@ export class Extractor {
 
         // Column-by-column vertical scan.
         for (let col = 0; col < cols; col++) {
-            // Estimated coordinates for the first symbol in the column.
+            // Initial estimated coordinates for the first symbol in the column.
             let estimateX1 = Math.round(scaledFinderRadius +
                 col * (scaledSymbolDim + scaledGapDim));
             let estimateX2 = Math.round(estimateX1 + scaledSymbolDim);
@@ -111,8 +112,12 @@ export class Extractor {
                 // Fix potential horizontal shift resulting from distortion.
                 const horizontalShift = this.fixHorizontalShift(matrix,
                     estimateX1, estimateY1, estimateX2, estimateY2);
-                const x1 = horizontalShift[0];
-                const x2 = horizontalShift[1];
+
+                // Symbol coordinates bookkeeping.
+                const actualX1 = horizontalShift[0];
+                const actualX2 = horizontalShift[1];
+                let actualY1 = estimateY1;
+                let actualY2 = estimateY2;
 
                 // Scanned line states bookkeeping.
                 let endOfSymbol: boolean = false;
@@ -124,26 +129,12 @@ export class Extractor {
                 let bitsFound = 0;
                 let mask = (1 << Writer.BITS_PER_SYMBOL) - 1;
 
-                // Symbol coordinates bookkeeping.
-                const symbolX1 = x1;
-                const symbolX2 = x2;
-                let symbolY1 = estimateY1;
-                let symbolY2 = estimateY2;
-
-                // console.log("Estimate", row, col, symbolX1, symbolY1, symbolX2, symbolY2);
+                // console.log("Estimate", row, col, actualX1, actualY1, actualX2, actualY2);
 
                 const searchYLimit = Math.min(matrix.height, Math.round(estimateY2 + scaledGapDim));
 
                 while (scanY < searchYLimit && !endOfSymbol) {
-                    const newState = this.getHorizontalState(matrix, x1, x2, scanY);
-                    // if (col === 3 && scanY > 50 && scanY < 250) {
-                    //     const mid = Math.round(x1 + (x2 - x1 + 1) / 2);
-                    //     console.log("###", scanY, newState,
-                    //         this.countBlackInLine(matrix, x1, scanY, x2, scanY), x2 - x1 + 1,
-                    //         this.countBlackInLine(matrix, x1, scanY, mid, scanY), mid - x1 + 1,
-                    //         this.countBlackInLine(matrix, mid + 1, scanY, x2, scanY), x2 - mid,
-                    //     );
-                    // }
+                    const newState = this.getHorizontalState(matrix, actualX1, actualX2, scanY);
                     if (newState === oldState) { // Same state.
                         oldStateCount++;
                     } else { // Different state.
@@ -166,7 +157,7 @@ export class Extractor {
                             // If first bit of the symbol, store the y-coordinate
                             // of the top of the symbol.
                             if (bitsFound === 1) {
-                                symbolY1 = oldStateStartY;
+                                actualY1 = oldStateStartY;
                             }
                         }
 
@@ -184,7 +175,7 @@ export class Extractor {
                             // If first bit of the symbol, store the y-coordinate
                             // of the top of the symbol.
                             if (bitsFound === 1) {
-                                symbolY1 = Math.round(oldStateStartY + scaledUnitDim);
+                                actualY1 = Math.round(oldStateStartY + scaledUnitDim);
                             }
 
                             oldStateStartY = scanY + 1;
@@ -199,20 +190,22 @@ export class Extractor {
                 }
 
                 // if the loop was exited due to reaching the search limit, reset scanY for next
-                // symbol.
+                // symbol, and don't change actualY2 from estimate.
                 if (scanY === searchYLimit) {
                     scanY -= Math.round(scaledUnitDim);
+                // else, adjust it.
+                } else {
+                    actualY2 = oldStateStartY;
                 }
-                symbolY2 = oldStateStartY;
 
-                // console.log("Final", row, col, symbolX1, symbolY1, symbolX2, symbolY2);
+                // console.log("Final", row, col, actualX1, actualY1, actualX2, actualY2);
 
                 data[row * cols + col] = mask;
 
                 // Calculate estimated coordinates for the next symbol based on the current one.
-                estimateX1 = symbolX1;
-                estimateX2 = symbolX2;
-                estimateY1 = Math.round(symbolY2 + scaledGapDim);
+                estimateX1 = actualX1;
+                estimateX2 = actualX2;
+                estimateY1 = Math.round(actualY2 + scaledGapDim);
                 estimateY2 = Math.round(estimateY1 + scaledSymbolDim);
             }
         }
@@ -295,6 +288,8 @@ export class Extractor {
             count++;
         }
 
+        // console.log(count);
+
         if (count === 0) {
             throw new Error("No valid finder patterns found!");
         }
@@ -366,14 +361,21 @@ export class Extractor {
             Writer.FINDER_MIDDLE_RADIUS - Writer.FINDER_INNER_RADIUS,
             Writer.FINDER_OUTER_RADIUS - Writer.FINDER_MIDDLE_RADIUS,
         ];
+        const averageUnit = sumArray(count) / sumArray(baseDimensions);
+        // the maximum error that we can tolerate for each unit.
+        const maxVariance = averageUnit / 3;
 
-        const scales = [0, 0, 0];
-        for (let i = 0; i < count.length; i++) {
-            scales[i] = count[i] / baseDimensions[i];
+        // then we check that each state contains the needed pixels.
+        let validPattern = true;
+        for (let i = 0; i < baseDimensions.length; ++i) {
+            if (
+                Math.abs(count[i] - averageUnit * baseDimensions[i]) >
+                baseDimensions[i] * maxVariance
+            ) {
+                validPattern = false;
+            }
         }
-        scales.sort((a: number, b: number) => a - b);
-
-        return ((scales[2] - scales[0]) / scales[0] < Extractor.FINDER_ERROR_THRESHOLD);
+        return validPattern;
     }
 
     /**
