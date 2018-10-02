@@ -24,13 +24,14 @@ export class Decoder {
             throw new Error("Invalid IChing code!");
         }
 
-        // Payload length.
-        const dataLength = received[1];
-        if (dataLength === 0) {
-            throw new Error("Invalid IChing code!");
-        }
         // Metadata length.
         const offset: number = Encoder.OFFSET;
+
+        // Payload length.
+        const dataLength = received[1];
+        if (dataLength === 0 || dataLength + offset > received.length) {
+            throw new Error("Invalid IChing code!");
+        }
 
         // Calculate the number of error correction symbols. Must be even.
         const ecSymbols = (received.length - offset - dataLength) & (~1);

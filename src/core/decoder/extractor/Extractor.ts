@@ -1,4 +1,5 @@
 import { BitMatrix } from "../../BitMatrix";
+import { Encoder } from "../../encoder/Encoder";
 import { Writer } from "../../encoder/writer";
 import { Point } from "../../geometry";
 import { sumArray } from "../../utils";
@@ -129,8 +130,6 @@ export class Extractor {
                 let bitsFound = 0;
                 let mask = (1 << Writer.BITS_PER_SYMBOL) - 1;
 
-                // console.log("Estimate", row, col, actualX1, actualY1, actualX2, actualY2);
-
                 const searchYLimit = Math.min(matrix.height, Math.round(estimateY2 + scaledGapDim));
 
                 while (scanY < searchYLimit && !endOfSymbol) {
@@ -138,21 +137,15 @@ export class Extractor {
                     if (newState === oldState) { // Same state.
                         oldStateCount++;
                     } else { // Different state.
-                        // if (oldState !== Extractor.LINE_STATE_INVALID) {
-                        //     console.log(row, col, oldStateStartY,
-                        //         oldState, oldStateCount, scaledUnitDim);
-                        // }
                         // Check if old state is a valid bit.
                         if (oldState !== Extractor.LINE_STATE_INVALID &&
                         oldStateCount / scaledUnitDim > Extractor.UNIT_DIM_THRESHOLD) {
-                            // console.log(bitsFound, mask);
                             if (bitsFound >= Writer.BITS_PER_SYMBOL) {
                                 bitsFound--;
                                 mask = (mask >> 1) | (1 << bitsFound);
                             }
                             mask &= ~((1 - oldState) << bitsFound);
                             bitsFound++;
-                            // console.log(bitsFound, mask);
 
                             // If first bit of the symbol, store the y-coordinate
                             // of the top of the symbol.
@@ -198,7 +191,15 @@ export class Extractor {
                     actualY2 = oldStateStartY;
                 }
 
-                // console.log("Final", row, col, actualX1, actualY1, actualX2, actualY2);
+                // If version number is wrong, throw error and don't continue extraction.
+                if (row === 0 && col === 0 && mask !== Encoder.VERSION) {
+                    throw new Error("Invalid IChing code!");
+                }
+
+                // If payload length is invalid, throw error and don't continue extraction.
+                if (row === 0 && col === 1 && mask + Encoder.OFFSET > rows * cols) {
+                    throw new Error("Invalid IChing code!");
+                }
 
                 data[row * cols + col] = mask;
 
@@ -287,8 +288,6 @@ export class Extractor {
             sum += (state[0] + state[1] + state[2]) * PatternLocator.SQRT2;
             count++;
         }
-
-        // console.log(count);
 
         if (count === 0) {
             throw new Error("No valid finder patterns found!");
