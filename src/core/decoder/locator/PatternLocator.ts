@@ -46,7 +46,7 @@ export class PatternLocator {
      */
     public static SQRT2 = 1.41421356237;
     /**
-     * Precalculated square root of 2
+     * Precalculated square root of 5
      */
     public static SQRT5 = 2.2360679775;
 
