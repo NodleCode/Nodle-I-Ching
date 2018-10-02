@@ -142,8 +142,12 @@ export class Extractor {
                         oldStateCount / scaledUnitDim > Extractor.UNIT_DIM_THRESHOLD) {
                             if (bitsFound >= Writer.BITS_PER_SYMBOL) {
                                 bitsFound--;
+                                // If we discovered extra bit, consider the last bit found was
+                                // false positive and reset it to be replaced with this new bit.
                                 mask = (mask >> 1) | (1 << bitsFound);
                             }
+                            // Apply the new bit to the mask, basically turn of the bit if
+                            // it was a 0-bit, by anding with `1..1x1..1`, `x` is the new bit
                             mask &= ~((1 - oldState) << bitsFound);
                             bitsFound++;
 
