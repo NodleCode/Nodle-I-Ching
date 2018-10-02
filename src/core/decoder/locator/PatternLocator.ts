@@ -16,6 +16,14 @@ interface PatternMeasures {
      * The pattern state array when intersected from certain angle.
      */
     state: Uint16Array;
+    /**
+     * Error representing how much pattern center is shifted from the actual center.
+     */
+    centerError: number;
+    /**
+     * Pattern size.
+     */
+    patternSize: number;
 }
 
 /**
@@ -37,6 +45,15 @@ export class PatternLocator {
      * Precalculated square root of 2
      */
     public static SQRT2 = 1.41421356237;
+    /**
+     * Precalculated square root of 5
+     */
+    public static SQRT5 = 2.2360679775;
+
+    /**
+     * Factor to reduce effect of the pattern size error in the final error calculations.
+     */
+    public static SIZE_ERROR_FACTOR = 0.1;
 
     private matrix: BitMatrix;
     private ratios: Uint8Array;
@@ -44,10 +61,12 @@ export class PatternLocator {
     private startY: number;
     private endX: number;
     private endY: number;
+    private additionalChecks: boolean;
 
     public locate(
         matrix: BitMatrix,
         ratios: Uint8Array,
+        additionalChecks: boolean = false,
         startPoint: Point = { x: 0, y: 0 },
         endPoint: Point = { x: matrix.width, y: matrix.height },
     ): LocationError[] {
@@ -57,6 +76,7 @@ export class PatternLocator {
         this.startY = startPoint.y;
         this.endX = endPoint.x;
         this.endY = endPoint.y;
+        this.additionalChecks = additionalChecks;
 
         const locations = [];
         // Initialize state array to keep track of number of pixels in
@@ -198,45 +218,69 @@ export class PatternLocator {
      */
     private calculateLocationError(patternCenter: Point, maxCount: number): LocationError {
         // Calculate pattern state array.
-        const vertical = this.calculatePatternMeasures(patternCenter, 0, 1, maxCount);
-        const horizontal = this.calculatePatternMeasures(patternCenter, 1, 0, maxCount);
-        const mainDiagonal = this.calculatePatternMeasures(patternCenter, 1, 1, maxCount);
-        const skewDiagonal = this.calculatePatternMeasures(patternCenter, -1, 1, maxCount);
+        const dx = [0, 1, 1, -1, 2, -1];
+        const dy = [1, 0, 1, 1, 1, 2];
+        const factor = [
+            1, 1, PatternLocator.SQRT2, PatternLocator.SQRT2,
+            PatternLocator.SQRT5, PatternLocator.SQRT5,
+        ];
+        let checksCount = dx.length;
+        if (!this.additionalChecks) {
+            checksCount -= 2;
+        }
 
-        // Calculate pattern average size and average unit size in order to
-        // be used as the mean in the RMS equation.
-        const averageSize = (
-            sumArray(vertical.state) +
-            sumArray(horizontal.state) +
-            sumArray(mainDiagonal.state) * PatternLocator.SQRT2 +
-            sumArray(skewDiagonal.state) * PatternLocator.SQRT2
-        ) / 4;
         const ratiosSum = sumArray(this.ratios);
-        const averageUnit = averageSize / ratiosSum;
+        const measures: PatternMeasures[] = [];
+        let averageSize = 0;
+        let standardRatioError = 0;
+        let centerError = 0;
+        for (let i = 0; i < checksCount; ++i) {
+            measures.push(
+                this.calculatePatternMeasures(patternCenter, dx[i], dy[i], maxCount / factor[i]),
+            );
+            averageSize +=  measures[i].patternSize * factor[i];
+            // standard ratio error is equal to RMS of each cross ratioError, but we won't take the
+            // root since we are going to need the squared value later.
+            // Each cross ratioError is squared already so we won't square any of them again.
+            standardRatioError += this.calculateStateError(
+                measures[i].state, measures[i].patternSize / ratiosSum,
+            );
+            centerError += measures[i].centerError;
+        }
+        // Calculate pattern average size in order to be used as the mean in the RMS equation.
+        averageSize /= checksCount;
+        centerError /= checksCount;
+        standardRatioError /= checksCount * this.ratios.length;
 
-        // standard ratio error is equal to RMS of each cross ratioError, but we won't take the
-        // root since we are going to need the squared value later.
-        // Each cross ratioError is squared already so we won't square any of them again.
-        const standardRatioError = (
-            this.calculateStateError(vertical.state, averageUnit) +
-            this.calculateStateError(horizontal.state, averageUnit) +
-            this.calculateStateError(mainDiagonal.state, averageUnit / PatternLocator.SQRT2) +
-            this.calculateStateError(skewDiagonal.state, averageUnit / PatternLocator.SQRT2)
-        ) / (4 * this.ratios.length);
+        let sizeError = 0;
+        for (let i = 0; i < checksCount; ++i) {
+            sizeError += (1 - measures[i].patternSize / averageSize) *
+                (1 - measures[i].patternSize / averageSize);
+        }
+        sizeError /= checksCount;
+        // multiply sizeError by factor to minimize it's effect in the total error.
+        // it has to be minimized in order to give tolerance for multiple directions to
+        // have different sizes.
+        sizeError *= PatternLocator.SIZE_ERROR_FACTOR;
 
         // Also use the corrected center as the new pattern center.
         // No center corrections happens from the diagonals since the vertical and horizontal
         // correction is enough to adjust the center.
         const correctedCenter = {
-            x: horizontal.location.x,
-            y: vertical.location.y,
+            x: measures[1].location.x,
+            y: measures[0].location.y,
         };
 
         return {
             location: correctedCenter,
-            error: standardRatioError,
+            error: standardRatioError + centerError + sizeError,
             size: averageSize,
-        };
+            standardRatioError,
+            centerError,
+            sizeError,
+            measures,
+            patternCenter,
+        } as LocationError;
     }
 
     /**
@@ -249,10 +293,9 @@ export class PatternLocator {
      * @param {number} averageUnit - Average pattern state unit size.
      * @returns {number} - Normalized sum(Xi - mean)^2.
      * @memberof PatternLocator
+     * @see https://en.wikipedia.org/wiki/Normalization_(statistics)
      */
     private calculateStateError(state: Uint16Array, averageUnit: number): number {
-        // TODO: Test another normalization methods
-        // @see https://en.wikipedia.org/wiki/Normalization_(statistics)
         let error = 0;
         for (let i = 0; i < this.ratios.length; ++i) {
             const unitError = (state[i] / averageUnit / this.ratios[i]  - 1);
@@ -333,12 +376,14 @@ export class PatternLocator {
             y -= dy;
         }
         const sumBackward = state[midStateIdx] - sumForward;
+        let centerError = (1 - sumForward / sumBackward);
+        centerError *= centerError;
 
         // adjust the pattern center according to number of pixels on both sides of the old center.
         const correctedCenter = {
             x: patternCenter.x + Math.floor((sumForward - sumBackward) / 2) * dx,
             y: patternCenter.y + Math.floor((sumForward - sumBackward) / 2) * dy,
         };
-        return { location: correctedCenter, state };
+        return { location: correctedCenter, state, centerError, patternSize: sumArray(state) };
     }
 }

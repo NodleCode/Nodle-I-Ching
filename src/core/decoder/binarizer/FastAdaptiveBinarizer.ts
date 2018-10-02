@@ -17,15 +17,16 @@ export class FastAdaptiveBinarizer extends Binarizer {
     /**
      * Constant substracted from the local mean value for each block.
      */
-    public static MEAN_CONST = 11;
+
+    public static MEAN_CONST = 2;
     /**
      * Minimum possible variance for a block in order to be considered mix of different colors.
      */
-    public static MIN_VARIANCE = 25;
+    public static MIN_VARIANCE = 20;
     /**
      * Block size for the local mean calculations required in the adaptive thresholding algorithm.
      */
-    public static BLOCK_SIZE = 70;
+    public static BLOCK_SIZE = 80;
 
     /**
      * @description Main class method, converts RGBA image to binary image
@@ -67,11 +68,14 @@ export class FastAdaptiveBinarizer extends Binarizer {
                     // color equal to the left & top pixel average color since they are contained
                     // in the same block.
                     if (x > 0 && y > 0) {
-                        threshold = (
+                        const neighboursAvg = (
                             grayscaleMatrix.get(x - 1, y) +
                             grayscaleMatrix.get(x, y - 1) +
                             grayscaleMatrix.get(x - 1, y - 1)
                         ) / 3;
+                        if (Math.abs(threshold - color) < Math.abs(neighboursAvg - color)) {
+                            threshold = neighboursAvg;
+                        }
                     } else {
                         // if it's border then assume it's a white background, make average < min
                         threshold = color / 2 - constant;
