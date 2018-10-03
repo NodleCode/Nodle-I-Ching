@@ -78,8 +78,8 @@ Example usage:
 // Let 'width' and 'height' be the width and height of the input image, respectively,
 // and 'imageData' be a Uint8ClampedArray of RGBA pixel values, and of length 4 * width * height.
 const decoded = iching.decode(imageData, width, height);
-console.log(version, size);
-console.log(data);
+console.log(decoded.version, decoded.size);
+console.log(decoded.data);
 ```
 
 ## Documentation
