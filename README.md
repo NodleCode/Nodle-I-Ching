@@ -4,6 +4,16 @@ An IChing encoding and decoding library written in typescript for use in javascr
 
 ## Installation
 
+Clone the repository and run `npm install --no-save` followed by `npm run build`.
+
+### Node.js
+
+The Node.js files can be found in `./lib/esm5` after building.
+
+### Javascript
+
+This library can be used in javascript by including `./lib/umd/index.min.js` as script source.
+
 ## Usage
 
 ### Encoding
