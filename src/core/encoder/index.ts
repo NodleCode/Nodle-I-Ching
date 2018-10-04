@@ -14,10 +14,15 @@ export interface EncoderOptions {
      */
     ecLevel?: number;
     /**
-     * desired height and width of the rendered image.
+     * Desired height and width of the rendered image.
      * Default value is 1250.
      */
     resolution?: number;
+    /**
+     * Boolean determining whether the symbols' edges in the rendered image are straight or round.
+     * Default value is false.
+     */
+    roundEdges?: boolean;
 }
 
 /**
@@ -38,10 +43,14 @@ export function encode(payload: string, options?: EncoderOptions): EncodedIChing
         options.resolution = 1250;
     }
 
+    if (options.roundEdges === undefined || options.roundEdges === null) {
+        options.roundEdges = false;
+    }
+
     const encoder = new Encoder();
     const encodedData = encoder.encode(payload, options.ecLevel);
 
-    const writer = new Writer(options.resolution);
+    const writer = new Writer(options.resolution, options.roundEdges);
     writer.render(encodedData);
 
     return encodedData;
