@@ -54,6 +54,7 @@ export class Writer {
     private matrix: BitMatrix;
     private scale: number;
     private resolution: number;
+    private roundEdges: boolean;
     private pad: number;
 
     /**
@@ -61,8 +62,9 @@ export class Writer {
      *
      * @param {number} - desired height and width of the rendered image.
      */
-    public constructor(resolution: number) {
+    public constructor(resolution: number, roundEdges: boolean) {
         this.resolution = resolution;
+        this.roundEdges = roundEdges;
     }
 
     /**
@@ -204,38 +206,50 @@ export class Writer {
             // Draw a filled rectangle representing the bit.
             this.fillRect(x + edgeRadius, y, bitWidth - 2 * edgeRadius, bitHeight, 1);
 
-            // Make left edge round.
-            this.fillCircle({ x: x + edgeRadius, y: y + edgeRadius }, edgeRadius, 1);
-            this.fillCircle({ x: x + edgeRadius, y: y + edgeRadius + 1 }, edgeRadius, 1);
-
-            // Make right edge round.
-            this.fillCircle({ x: x + bitWidth - edgeRadius, y: y + edgeRadius }, edgeRadius, 1);
-            this.fillCircle({ x: x + bitWidth - edgeRadius, y: y + edgeRadius + 1 }, edgeRadius, 1);
+            if (this.roundEdges) {
+                // Rounded left edge.
+                this.fillCircle({ x: x + edgeRadius, y: y + edgeRadius }, edgeRadius, 1);
+                this.fillCircle({ x: x + edgeRadius, y: y + edgeRadius + 1 }, edgeRadius, 1);
+                // Rounded right edge.
+                this.fillCircle({ x: x + bitWidth - edgeRadius, y: y + edgeRadius }, edgeRadius, 1);
+                this.fillCircle(
+                    { x: x + bitWidth - edgeRadius, y: y + edgeRadius + 1 }, edgeRadius, 1,
+                );
+            } else {
+                // Straight edges.
+                this.fillRect(x, y, edgeRadius, bitHeight, 1);
+                this.fillRect(x + bitWidth - edgeRadius, y, edgeRadius, bitHeight, 1);
+            }
 
             // If bit is zero, clear middle area.
             if ((mask & (1 << bit)) === 0) {
                 this.fillRect(x + zeroOffset - edgeRadius, y,
                     zeroWidth + 2 * edgeRadius, bitHeight, 0);
 
-                // Make right edge of the left half round.
-                this.fillCircle(
-                    { x: x + zeroOffset - edgeRadius, y: y + edgeRadius },
-                    edgeRadius, 1,
-                );
-                this.fillCircle(
-                    { x: x + zeroOffset - edgeRadius, y: y + edgeRadius + 1 },
-                    edgeRadius, 1,
-                );
-
-                // Make left egde of the right half round.
-                this.fillCircle(
-                    { x: x + zeroOffset + zeroWidth + edgeRadius, y: y + edgeRadius },
-                    edgeRadius, 1,
-                );
-                this.fillCircle(
-                    { x: x + zeroOffset + zeroWidth + edgeRadius, y: y + edgeRadius + 1 },
-                    edgeRadius, 1,
-                );
+                if (this.roundEdges) {
+                    // Rounded right edge of the left half.
+                    this.fillCircle(
+                        { x: x + zeroOffset - edgeRadius, y: y + edgeRadius },
+                        edgeRadius, 1,
+                    );
+                    this.fillCircle(
+                        { x: x + zeroOffset - edgeRadius, y: y + edgeRadius + 1 },
+                        edgeRadius, 1,
+                    );
+                    // Rounded left egde of the right half.
+                    this.fillCircle(
+                        { x: x + zeroOffset + zeroWidth + edgeRadius, y: y + edgeRadius },
+                        edgeRadius, 1,
+                    );
+                    this.fillCircle(
+                        { x: x + zeroOffset + zeroWidth + edgeRadius, y: y + edgeRadius + 1 },
+                        edgeRadius, 1,
+                    );
+                } else {
+                    // Straight edges.
+                    this.fillRect(x + zeroOffset - edgeRadius, y, edgeRadius, bitHeight, 1);
+                    this.fillRect(x + zeroOffset + zeroWidth, y, edgeRadius, bitHeight, 1);
+                }
             }
         }
     }
