@@ -67,6 +67,11 @@
 				<h1 id="iching-js">IChing-JS</h1>
 				<p>An IChing encoding and decoding library written in typescript for use in javascript-based web apps.</p>
 				<h2 id="installation">Installation</h2>
+				<p>Clone the repository and run <code>npm install --no-save</code> followed by <code>npm run build</code>.</p>
+				<h3 id="node-js">Node.js</h3>
+				<p>The Node.js files can be found in <code>./lib/esm5</code> after building.</p>
+				<h3 id="javascript">Javascript</h3>
+				<p>This library can be used in javascript by including <code>./lib/umd/index.min.js</code> as script source.</p>
 				<h2 id="usage">Usage</h2>
 				<h3 id="encoding">Encoding</h3>
 				<p>IChing-JS library exports a method <code>iching.encode(payload, options?)</code>.</p>
@@ -74,8 +79,9 @@
 				<ul>
 					<li><code>payload</code> - A string of alphanumeric characters that is the desired payload of the IChing.</li>
 					<li><code>options</code> (optional) - Additional options:<ul>
-							<li><code>ECLevel</code> - Error correction level, a number between 0 and 1 representing the maximum percentage of errors that can be corrected, relative to the payload length. Defaults to <a href="./src/core/encoder/Encoder.ts#L34"><code>Encoder.EC_MEDIUM</code></a> (0.15).</li>
-							<li><code>Resolution</code> - A number representing the width and height of the square image produced by the method. Defaults to 1250.</li>
+							<li><code>ecLevel</code> - Error correction level, a number between 0 and 1 representing the maximum percentage of errors that can be corrected, relative to the payload length. Defaults to <a href="./src/core/encoder/Encoder.ts#L34"><code>Encoder.EC_MEDIUM</code></a> (0.15).</li>
+							<li><code>resolution</code> - A number representing the width and height of the square image produced by the method. Defaults to 1250.</li>
+							<li><code>roundEdges</code> - A boolean determining whether the symbols&#39; edges in the output image are straight or round. Defaults to false, which means straight edges.</li>
 						</ul>
 					</li>
 				</ul>
@@ -84,14 +90,14 @@
 				<h4 id="example">Example</h4>
 				<p>Example usage with options specified:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> payload = <span class="hljs-string">"thisisanexample123"</span>;
-<span class="hljs-keyword">const</span> options = { <span class="hljs-string">'ECLevel'</span>: <span class="hljs-number">0.5</span>, <span class="hljs-string">'Resolution'</span>: <span class="hljs-number">2000</span> };
+<span class="hljs-keyword">const</span> options = { <span class="hljs-attr">ecLevel</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">resolution</span>: <span class="hljs-number">2000</span>, <span class="hljs-attr">roundEdges</span>: <span class="hljs-literal">true</span> };
 <span class="hljs-keyword">const</span> encoded = iching.encode(payload, options);</code></pre>
 				<p>Or without options:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> payload = <span class="hljs-string">"thisisanexample123"</span>;
 <span class="hljs-keyword">const</span> encoded = iching.encode(payload);</code></pre>
 				<p>Which is equivalent to:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> payload = <span class="hljs-string">"thisisanexample123"</span>;
-<span class="hljs-keyword">const</span> defaultOptions = { <span class="hljs-string">'ECLevel'</span>: <span class="hljs-number">0.15</span>, <span class="hljs-string">'Resolution'</span>: <span class="hljs-number">1250</span> };
+<span class="hljs-keyword">const</span> defaultOptions = { <span class="hljs-attr">ecLevel</span>: <span class="hljs-number">0.15</span>, <span class="hljs-attr">resolution</span>: <span class="hljs-number">1250</span>, <span class="hljs-attr">roundEdges</span>: <span class="hljs-literal">false</span> };
 <span class="hljs-keyword">const</span> encoded = iching.encode(payload, defaultOptions);</code></pre>
 				<p>Image can be displayed using HTML canvas:</p>
 				<pre><code class="language-javascript"><span class="hljs-comment">// 'cvs' and 'ctx' are an HTML canvas element, and its 2D rendering context, respectively.</span>
@@ -118,8 +124,10 @@ img.src = cvs.toDataURL();</code></pre>
 				<pre><code class="language-javascript"><span class="hljs-comment">// Let 'width' and 'height' be the width and height of the input image, respectively,</span>
 <span class="hljs-comment">// and 'imageData' be a Uint8ClampedArray of RGBA pixel values, and of length 4 * width * height.</span>
 <span class="hljs-keyword">const</span> decoded = iching.decode(imageData, width, height);
-<span class="hljs-built_in">console</span>.log(version, size);
-<span class="hljs-built_in">console</span>.log(data);</code></pre>
+<span class="hljs-built_in">console</span>.log(decoded.version, decoded.size);
+<span class="hljs-built_in">console</span>.log(decoded.data);</code></pre>
+				<h2 id="documentation">Documentation</h2>
+				<p>Detailed HTML docs can be found <a href="./docs/index.html">here</a>.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -159,7 +167,7 @@ img.src = cvs.toDataURL();</code></pre>
 						<a href="modules/_core_common_reedsolomon_index_.html">"core/common/reedsolomon/index"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_core_decoder_decodediching_.html">"core/decoder/<wbr>Decoded<wbr>Iching"</a>
+						<a href="modules/_core_decoder_decodediching_.html">"core/decoder/<wbr>DecodedIChing"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_core_decoder_decoder_.html">"core/decoder/<wbr>Decoder"</a>
@@ -243,7 +251,7 @@ img.src = cvs.toDataURL();</code></pre>
 						<a href="modules/_index_.html">"index"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_tests_end_to_end_tests_generator_.html">"tests/end_<wbr>to_<wbr>end_<wbr>tests/generator"</a>
+						<a href="modules/_tests_e2e_tests_data_generator_.html">"tests/e2e_<wbr>tests/data_<wbr>generator"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_tests_filehelpers_.html">"tests/file<wbr>Helpers"</a>

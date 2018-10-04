@@ -112,7 +112,7 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#encode" class="tsd-kind-icon">encode</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_encoder_encoder_.encoder.html#encode" class="tsd-kind-icon">encode</a></li>
 							</ul>
 						</section>
 					</div>
@@ -259,17 +259,17 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="encode" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> encode</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">encode<span class="tsd-signature-symbol">(</span>payload<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, ecLevel<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_core_encoder_encodediching_.encodediching.html" class="tsd-signature-type">EncodedIChing</a></li>
+					<h3>encode</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">encode<span class="tsd-signature-symbol">(</span>payload<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, ecLevel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_core_encoder_encodediching_.encodediching.html" class="tsd-signature-type">EncodedIChing</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/Encoder.ts:72</li>
+									<li>Defined in core/encoder/Encoder.ts:73</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -277,8 +277,6 @@
 									<p>Creates an IChing code from provided content.</p>
 								</div>
 								<dl class="tsd-comment-tags">
-									<dt>static</dt>
-									<dd></dd>
 									<dt>throws</dt>
 									<dd><p>Will throw an error if the payload to be encoded is empty.</p>
 									</dd>
@@ -288,6 +286,9 @@
 									</dd>
 									<dt>throws</dt>
 									<dd><p>Will throw an error if the payload contains an invalid character.</p>
+									</dd>
+									<dt>throws</dt>
+									<dd><p>Will throw an error if ecLevel out of 0 - 1 boundary.</p>
 									</dd>
 									<dt>throws</dt>
 									<dd><p>Will throw an error if Reed-Solomon encoding fails.</p>
@@ -300,9 +301,10 @@
 									<h5>payload: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> ecLevel: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;this.EC_MEDIUM</span></h5>
+									<h5>ecLevel: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<p>percentage of symbols that can be corrected after encoding.</p>
+										<p>percentage of symbols that can be corrected after encoding, must
+										be between 0 - 1.</p>
 									</div>
 								</li>
 							</ul>
@@ -359,7 +361,7 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="_core_encoder_encoder_.encoder.html#version" class="tsd-kind-icon">VERSION</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_core_encoder_encoder_.encoder.html#encode" class="tsd-kind-icon">encode</a>
 							</li>
 						</ul>

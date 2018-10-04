@@ -107,6 +107,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#matrix" class="tsd-kind-icon">matrix</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#pad" class="tsd-kind-icon">pad</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#resolution" class="tsd-kind-icon">resolution</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#roundedges" class="tsd-kind-icon">round<wbr>Edges</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#scale" class="tsd-kind-icon">scale</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_writer_writer_.writer.html#bits_per_symbol" class="tsd-kind-icon">BITS_<wbr>PER_<wbr>SYMBOL</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_writer_writer_.writer.html#bit_zero_offset" class="tsd-kind-icon">BIT_<wbr>ZERO_<wbr>OFFSET</a></li>
@@ -142,7 +143,7 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Writer<span class="tsd-signature-symbol">(</span>resolution<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_core_encoder_writer_writer_.writer.html" class="tsd-signature-type">Writer</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Writer<span class="tsd-signature-symbol">(</span>resolution<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, roundEdges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_core_encoder_writer_writer_.writer.html" class="tsd-signature-type">Writer</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -159,7 +160,10 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> resolution: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;1250</span></h5>
+									<h5>resolution: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>roundEdges: <span class="tsd-signature-type">boolean</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_core_encoder_writer_writer_.writer.html" class="tsd-signature-type">Writer</a></h4>
@@ -175,7 +179,7 @@
 					<div class="tsd-signature tsd-kind-icon">matrix<span class="tsd-signature-symbol">:</span> <a href="_core_bitmatrix_.bitmatrix.html" class="tsd-signature-type">BitMatrix</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:55</li>
+							<li>Defined in core/encoder/writer/Writer.ts:54</li>
 						</ul>
 					</aside>
 				</section>
@@ -195,6 +199,16 @@
 					<div class="tsd-signature tsd-kind-icon">resolution<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
+							<li>Defined in core/encoder/writer/Writer.ts:56</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="roundedges" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> round<wbr>Edges</h3>
+					<div class="tsd-signature tsd-kind-icon">round<wbr>Edges<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
 							<li>Defined in core/encoder/writer/Writer.ts:57</li>
 						</ul>
 					</aside>
@@ -205,7 +219,7 @@
 					<div class="tsd-signature tsd-kind-icon">scale<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:56</li>
+							<li>Defined in core/encoder/writer/Writer.ts:55</li>
 						</ul>
 					</aside>
 				</section>
@@ -215,7 +229,7 @@
 					<div class="tsd-signature tsd-kind-icon">BITS_<wbr>PER_<wbr>SYMBOL<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;6</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:20</li>
+							<li>Defined in core/encoder/writer/Writer.ts:19</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -230,7 +244,7 @@
 					<div class="tsd-signature tsd-kind-icon">BIT_<wbr>ZERO_<wbr>OFFSET<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Writer.UNIT_DIM * 4.5</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:29</li>
+							<li>Defined in core/encoder/writer/Writer.ts:28</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -246,7 +260,7 @@
 					<div class="tsd-signature tsd-kind-icon">BIT_<wbr>ZERO_<wbr>WIDTH<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Writer.UNIT_DIM * 2</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:33</li>
+							<li>Defined in core/encoder/writer/Writer.ts:32</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -261,7 +275,7 @@
 					<div class="tsd-signature tsd-kind-icon">FINDER_<wbr>INNER_<wbr>RADIUS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Writer.FINDER_OUTER_RADIUS * 3 / 7</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:49</li>
+							<li>Defined in core/encoder/writer/Writer.ts:48</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -276,7 +290,7 @@
 					<div class="tsd-signature tsd-kind-icon">FINDER_<wbr>MIDDLE_<wbr>RADIUS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Writer.FINDER_OUTER_RADIUS * 5 / 7</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:45</li>
+							<li>Defined in core/encoder/writer/Writer.ts:44</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -291,7 +305,7 @@
 					<div class="tsd-signature tsd-kind-icon">FINDER_<wbr>OUTER_<wbr>RADIUS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Writer.SYMBOL_DIM * 0.5</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:41</li>
+							<li>Defined in core/encoder/writer/Writer.ts:40</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -306,7 +320,7 @@
 					<div class="tsd-signature tsd-kind-icon">GAP_<wbr>DIM<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Writer.UNIT_DIM * 3</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:37</li>
+							<li>Defined in core/encoder/writer/Writer.ts:36</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -321,7 +335,7 @@
 					<div class="tsd-signature tsd-kind-icon">QUIET_<wbr>ZONE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;Writer.SYMBOL_DIM</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:53</li>
+							<li>Defined in core/encoder/writer/Writer.ts:52</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -336,7 +350,7 @@
 					<div class="tsd-signature tsd-kind-icon">SYMBOL_<wbr>DIM<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;(Writer.BITS_PER_SYMBOL * 2 - 1) * Writer.UNIT_DIM</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:24</li>
+							<li>Defined in core/encoder/writer/Writer.ts:23</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -351,7 +365,7 @@
 					<div class="tsd-signature tsd-kind-icon">UNIT_<wbr>DIM<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;2</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:16</li>
+							<li>Defined in core/encoder/writer/Writer.ts:15</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -525,7 +539,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:246</li>
+									<li>Defined in core/encoder/writer/Writer.ts:258</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -598,7 +612,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:77</li>
+									<li>Defined in core/encoder/writer/Writer.ts:78</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -652,6 +666,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_core_encoder_writer_writer_.writer.html#resolution" class="tsd-kind-icon">resolution</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_core_encoder_writer_writer_.writer.html#roundedges" class="tsd-kind-icon">round<wbr>Edges</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_core_encoder_writer_writer_.writer.html#scale" class="tsd-kind-icon">scale</a>

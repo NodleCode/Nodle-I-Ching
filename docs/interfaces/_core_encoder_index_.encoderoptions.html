@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>TestData | iching-js</title>
+	<title>EncoderOptions | iching-js</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,24 +56,36 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="../modules/_tests_end_to_end_tests_generator_.html">&quot;tests/end_to_end_tests/generator&quot;</a>
+					<a href="../modules/_core_encoder_index_.html">&quot;core/encoder/index&quot;</a>
 				</li>
 				<li>
-					<a href="_tests_end_to_end_tests_generator_.testdata.html">TestData</a>
+					<a href="_core_encoder_index_.encoderoptions.html">EncoderOptions</a>
 				</li>
 			</ul>
-			<h1>Interface TestData</h1>
+			<h1>Interface EncoderOptions</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Encoder optional parameters.</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>interface</dt>
+						<dd><p>EncoderOptions</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">TestData</span>
+						<span class="target">EncoderOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -81,70 +93,66 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-not-exported">
+						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_tests_end_to_end_tests_generator_.testdata.html#code" class="tsd-kind-icon">code</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_tests_end_to_end_tests_generator_.testdata.html#eclevel" class="tsd-kind-icon">ec<wbr>Level</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_tests_end_to_end_tests_generator_.testdata.html#path" class="tsd-kind-icon">path</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_tests_end_to_end_tests_generator_.testdata.html#payload" class="tsd-kind-icon">payload</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported"><a href="_tests_end_to_end_tests_generator_.testdata.html#resolution" class="tsd-kind-icon">resolution</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_core_encoder_index_.encoderoptions.html#eclevel" class="tsd-kind-icon">ec<wbr>Level</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_core_encoder_index_.encoderoptions.html#resolution" class="tsd-kind-icon">resolution</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_core_encoder_index_.encoderoptions.html#roundedges" class="tsd-kind-icon">round<wbr>Edges</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="code" class="tsd-anchor"></a>
-					<h3>code</h3>
-					<div class="tsd-signature tsd-kind-icon">code<span class="tsd-signature-symbol">:</span> <a href="_core_encoder_encodediching_.encodediching.html" class="tsd-signature-type">EncodedIChing</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in tests/end_to_end_tests/generator.ts:19</li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="eclevel" class="tsd-anchor"></a>
-					<h3>ec<wbr>Level</h3>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> ec<wbr>Level</h3>
 					<div class="tsd-signature tsd-kind-icon">ec<wbr>Level<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in tests/end_to_end_tests/generator.ts:17</li>
+							<li>Defined in core/encoder/index.ts:15</li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Percentage of symbols that can be corrected after encoding, must be between 0 - 1.
+							Default value is 0.15.</p>
+						</div>
+					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="path" class="tsd-anchor"></a>
-					<h3>path</h3>
-					<div class="tsd-signature tsd-kind-icon">path<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in tests/end_to_end_tests/generator.ts:20</li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-					<a name="payload" class="tsd-anchor"></a>
-					<h3>payload</h3>
-					<div class="tsd-signature tsd-kind-icon">payload<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in tests/end_to_end_tests/generator.ts:16</li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="resolution" class="tsd-anchor"></a>
-					<h3>resolution</h3>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> resolution</h3>
 					<div class="tsd-signature tsd-kind-icon">resolution<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in tests/end_to_end_tests/generator.ts:18</li>
+							<li>Defined in core/encoder/index.ts:20</li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Desired height and width of the rendered image.
+							Default value is 1250.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="roundedges" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> round<wbr>Edges</h3>
+					<div class="tsd-signature tsd-kind-icon">round<wbr>Edges<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in core/encoder/index.ts:25</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Boolean determining whether the symbols&#39; edges in the rendered image are straight or round.
+							Default value is false.</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -155,7 +163,7 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class="current tsd-kind-external-module">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html">"tests/end_<wbr>to_<wbr>end_<wbr>tests/generator"</a>
+						<a href="../modules/_core_encoder_index_.html">"core/encoder/index"</a>
 					</li>
 				</ul>
 			</nav>
@@ -163,48 +171,24 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_tests_end_to_end_tests_generator_.testdata.html" class="tsd-kind-icon">Test<wbr>Data</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="_core_encoder_index_.encoderoptions.html" class="tsd-kind-icon">Encoder<wbr>Options</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_tests_end_to_end_tests_generator_.testdata.html#code" class="tsd-kind-icon">code</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_core_encoder_index_.encoderoptions.html#eclevel" class="tsd-kind-icon">ec<wbr>Level</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_tests_end_to_end_tests_generator_.testdata.html#eclevel" class="tsd-kind-icon">ec<wbr>Level</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_core_encoder_index_.encoderoptions.html#resolution" class="tsd-kind-icon">resolution</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_tests_end_to_end_tests_generator_.testdata.html#path" class="tsd-kind-icon">path</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_tests_end_to_end_tests_generator_.testdata.html#payload" class="tsd-kind-icon">payload</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
-								<a href="_tests_end_to_end_tests_generator_.testdata.html#resolution" class="tsd-kind-icon">resolution</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="_core_encoder_index_.encoderoptions.html#roundedges" class="tsd-kind-icon">round<wbr>Edges</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html#alphabet" class="tsd-kind-icon">alphabet</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html#eclevels" class="tsd-kind-icon">ec<wbr>Levels</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html#maxlength" class="tsd-kind-icon">max<wbr>Length</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html#minlength" class="tsd-kind-icon">min<wbr>Length</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html#resolutions" class="tsd-kind-icon">resolutions</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html#testdatacount" class="tsd-kind-icon">test<wbr>Data<wbr>Count</a>
-					</li>
-					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_tests_end_to_end_tests_generator_.html#jsonobject" class="tsd-kind-icon">json<wbr>Object</a>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="../modules/_core_encoder_index_.html#encode" class="tsd-kind-icon">encode</a>
 					</li>
 				</ul>
 			</nav>
