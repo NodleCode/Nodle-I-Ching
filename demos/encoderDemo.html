@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title> Test Writer </title>
+        <title> Encoder Demo </title>
         <style>
             div.footer {
                 position: fixed;
@@ -14,18 +14,22 @@
     </head>
     <body>
         <p>Text to encode: <input type="text" id="inputText"/></p>
-        <p>Error correction level: <input type="text" id="inputEC"/> (percentage of symbols in error that can be corrected, [0.0 - 1.0])</p>
-        <p>Resolution: <input type="text" id="inputRes"/></p>
+        <p>Error correction level: <input type="text" id="inputEC" value="0.15"/> (percentage of symbols in error that can be corrected, [0.0 - 1.0])</p>
+        <p>Resolution: <input type="text" id="inputRes" value="1250"/></p>
         <p>Round Edges: <input type="checkbox" id="inputRound"/></p>
-        <canvas id="canvas" style="margin:12px;"></canvas>
+        <p id="error" style="color:#FF0000;"></p>
+        <p id="time"></p>
+        <canvas id="canvas" style="margin:12px;" hidden></canvas>
         <div class="footer" id="results">Move mouse over image to show mouse location and pixel value and alpha</div>
 
-        <script src="../../../lib/umd/index.min.js"></script>
+        <script src="../lib/umd/index.min.js"></script>
         <script>
             var URL = window.URL;
             var cvs = document.getElementById("canvas");
             var ctx = cvs.getContext("2d");
             var res = document.getElementById("results");
+            var err = document.getElementById("error");
+            var time = document.getElementById("time");
 
             cvs.addEventListener("mousemove", mousePos, false);
 
@@ -53,22 +57,33 @@
             }
 
             function writeImage() {
+                const startTime = Date.now();
+
                 const text = document.getElementById("inputText").value;
                 const ecLevel = Number(document.getElementById("inputEC").value);
-                if (ecLevel === undefined || ecLevel === null) {
-                    ECLevel = 0.15;
-                }
-                const resolution = Number(document.getElementById("inputRes").value) || 1250;
+                const resolution = Number(document.getElementById("inputRes").value);
                 const roundEdges = document.getElementById("inputRound").checked;
-
                 const options = { ecLevel, resolution, roundEdges };
-                const encoded = iching.encode(text, options);
-                const imgData = encoded.imageData;
 
-                cvs.width = imgData.width;
-                cvs.height = imgData.height;
-                const ctxImgData = new ImageData(imgData.data, imgData.width, imgData.height);
-                ctx.putImageData(ctxImgData, 0, 0);
+                try {
+                    const encoded = iching.encode(text, options);
+                    const imgData = encoded.imageData;
+
+                    cvs.removeAttribute("hidden");
+                    err.setAttribute("hidden", "true");
+
+                    cvs.width = imgData.width;
+                    cvs.height = imgData.height;
+                    const ctxImgData = new ImageData(imgData.data, imgData.width, imgData.height);
+                    ctx.putImageData(ctxImgData, 0, 0);
+                } catch (e) {
+                    cvs.setAttribute("hidden", "true");
+                    err.removeAttribute("hidden");
+                    err.innerHTML = e.message;
+                }
+
+                const endTime = Date.now();
+                time.innerHTML = "Time taken: " + (endTime - startTime) + "ms";
             }
         </script>
     </body>
