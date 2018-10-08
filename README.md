@@ -26,6 +26,7 @@ IChing-JS library exports a method `iching.encode(payload, options?)`.
     - `ecLevel` - Error correction level, a number between 0 and 1 representing the maximum percentage of errors that can be corrected, relative to the payload length. Defaults to [`Encoder.EC_MEDIUM`](./src/core/encoder/Encoder.ts#L34) (0.15).
     - `resolution` - A number representing the width and height of the square image produced by the method. Defaults to 1250.
     - `roundEdges` - A boolean determining whether the symbols' edges in the output image are straight or round. Defaults to false, which means straight edges.
+    - `inverted` - A boolean determining whether the output image is inverted, i.e. white on black instead of black on white. Defaults to false.
 
 #### Return Value
 If the encoding process succeeds, the method will return an object that implements the [`EncodedIChing`](./src/core/encoder/EncodedIChing.ts) interface.
@@ -34,7 +35,7 @@ If the encoding process succeeds, the method will return an object that implemen
 Example usage with options specified:
 ```javascript
 const payload = "thisisanexample123";
-const options = { ecLevel: 0.5, resolution: 2000, roundEdges: true };
+const options = { ecLevel: 0.5, resolution: 2000, roundEdges: true, inverted: false };
 const encoded = iching.encode(payload, options);
 ```
 Or without options:
@@ -45,7 +46,7 @@ const encoded = iching.encode(payload);
 Which is equivalent to:
 ```javascript
 const payload = "thisisanexample123";
-const defaultOptions = { ecLevel: 0.15, resolution: 1250, roundEdges: false };
+const defaultOptions = { ecLevel: 0.15, resolution: 1250, roundEdges: false, inevrted: false };
 const encoded = iching.encode(payload, defaultOptions);
 ```
 Image can be displayed using HTML canvas:

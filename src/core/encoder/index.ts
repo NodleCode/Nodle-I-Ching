@@ -23,6 +23,11 @@ export interface EncoderOptions {
      * Default value is false.
      */
     roundEdges?: boolean;
+    /**
+     * Boolean determining whether the output image is inverted, i.e. white on black instead of
+     * black on white. Default value is false.
+     */
+    inverted?: boolean;
 }
 
 /**
@@ -47,10 +52,14 @@ export function encode(payload: string, options?: EncoderOptions): EncodedIChing
         options.roundEdges = false;
     }
 
+    if (options.inverted === undefined || options.inverted === null) {
+        options.inverted = false;
+    }
+
     const encoder = new Encoder();
     const encodedData = encoder.encode(payload, options.ecLevel);
 
-    const writer = new Writer(options.resolution, options.roundEdges);
+    const writer = new Writer(options.resolution, options.roundEdges, options.inverted);
     writer.render(encodedData);
 
     return encodedData;
