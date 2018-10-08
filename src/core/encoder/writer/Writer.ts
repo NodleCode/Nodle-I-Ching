@@ -55,6 +55,7 @@ export class Writer {
     private scale: number;
     private resolution: number;
     private roundEdges: boolean;
+    private inverted: boolean;
     private pad: number;
 
     /**
@@ -62,9 +63,10 @@ export class Writer {
      *
      * @param {number} - desired height and width of the rendered image.
      */
-    public constructor(resolution: number, roundEdges: boolean) {
+    public constructor(resolution: number, roundEdges: boolean, inverted: boolean) {
         this.resolution = resolution;
         this.roundEdges = roundEdges;
+        this.inverted = inverted;
     }
 
     /**
@@ -109,6 +111,15 @@ export class Writer {
         for (let i = 0; i < codeSize; i++) {
             for (let j = 0; j < codeSize; j++) {
                 this.drawSymbol(i, j, code.data[i * codeSize + j]);
+            }
+        }
+
+        // If inverted flag is set, invert colours.
+        if (this.inverted) {
+            for (let i = 0; i < this.resolution; i++) {
+                for (let j = 0; j < this.resolution; j++) {
+                    this.matrix.set(i, j, 1 - this.matrix.get(i, j));
+                }
             }
         }
 

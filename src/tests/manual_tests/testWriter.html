@@ -17,6 +17,7 @@
         <p>Error correction level: <input type="text" id="inputEC"/> (percentage of symbols in error that can be corrected, [0.0 - 1.0])</p>
         <p>Resolution: <input type="text" id="inputRes"/></p>
         <p>Round Edges: <input type="checkbox" id="inputRound"/></p>
+        <p>Inverted Image: <input type="checkbox" id="inputInverted"/></p>
         <canvas id="canvas" style="margin:12px;"></canvas>
         <div class="footer" id="results">Move mouse over image to show mouse location and pixel value and alpha</div>
 
@@ -34,10 +35,12 @@
                 var inputEC = document.getElementById("inputEC");
                 var inputRes = document.getElementById("inputRes");
                 var inputRound = document.getElementById("inputRound");
+                var inputInverted = document.getElementById("inputInverted");
                 inputText.addEventListener("input", writeImage);
                 inputEC.addEventListener("input", writeImage);
                 inputRes.addEventListener("input", writeImage);
                 inputRound.addEventListener("input", writeImage);
+                inputInverted.addEventListener("input", writeImage);
             }
 
             function mousePos(evt) {
@@ -60,8 +63,9 @@
                 }
                 const resolution = Number(document.getElementById("inputRes").value) || 1250;
                 const roundEdges = document.getElementById("inputRound").checked;
+                const inverted = document.getElementById("inputInverted").checked;
 
-                const options = { ecLevel, resolution, roundEdges };
+                const options = { ecLevel, resolution, roundEdges, inverted };
                 const encoded = iching.encode(text, options);
                 const imgData = encoded.imageData;
 

@@ -17,6 +17,7 @@
         <p>Error correction level: <input type="text" id="inputEC" value="0.15"/> (percentage of symbols in error that can be corrected, [0.0 - 1.0])</p>
         <p>Resolution: <input type="text" id="inputRes" value="1250"/></p>
         <p>Round Edges: <input type="checkbox" id="inputRound"/></p>
+        <p>Inverted Image: <input type="checkbox" id="inputInverted"/></p>
         <p id="error" style="color:#FF0000;"></p>
         <p id="time"></p>
         <canvas id="canvas" style="margin:12px;" hidden></canvas>
@@ -38,10 +39,12 @@
                 var inputEC = document.getElementById("inputEC");
                 var inputRes = document.getElementById("inputRes");
                 var inputRound = document.getElementById("inputRound");
+                var inputInverted = document.getElementById("inputInverted");
                 inputText.addEventListener("input", writeImage);
                 inputEC.addEventListener("input", writeImage);
                 inputRes.addEventListener("input", writeImage);
                 inputRound.addEventListener("input", writeImage);
+                inputInverted.addEventListener("input", writeImage);
             }
 
             function mousePos(evt) {
@@ -63,7 +66,8 @@
                 const ecLevel = Number(document.getElementById("inputEC").value);
                 const resolution = Number(document.getElementById("inputRes").value);
                 const roundEdges = document.getElementById("inputRound").checked;
-                const options = { ecLevel, resolution, roundEdges };
+                const inverted = document.getElementById("inputInverted").checked;
+                const options = { ecLevel, resolution, roundEdges, inverted };
 
                 try {
                     const encoded = iching.encode(text, options);

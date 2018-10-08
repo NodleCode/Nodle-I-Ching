@@ -39,7 +39,7 @@ const generateSample = (test: number, length: number, addErrorCorrection = true)
         const encoder = new Encoder();
         const code = encoder.encode(payload, ecLevel);
         for (const resolution of resolutions) {
-            const writer = new Writer(resolution, true);
+            const writer = new Writer(resolution, true, false);
             writer.render(code);
             const imgData = code.imageData;
 
