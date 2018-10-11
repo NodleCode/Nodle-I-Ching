@@ -70,6 +70,8 @@ IChing-JS library exports a method `iching.decode(imageData, width, height)`.
 - `imageData` - A `Uint8ClampedArray` of RGBA pixel values in the form `[r0, g0, b0, a0, r1, g1, b1, a1, ...]`. The length of this array should be `4 * width * height`.
 - `width` - The width of the image to be decoded.
 - `height` - The height of the image to be decoded.
+- `options` (optional) - Additional options:
+    - `inverted` - A boolean determining whether the input image is inverted, i.e. white on black instead of black on white. Defaults to false.
 
 #### Return value
 If the decoding process succeeds, the method will return an object that implements the [`DecodedIChing`](./src/core/decoder/DecodedIChing.ts) interface.

@@ -14,6 +14,7 @@
     </head>
     <body>
         <p>Open image: <input type="file" id="inputImage"/></p>
+        <p>Inverted Image: <input type="checkbox" id="inputInverted"/></p>
         <p id="output"></p>
         <p id="time"></p>
         <canvas id="canvas" style="margin:12px;"></canvas>
@@ -33,7 +34,9 @@
 
             window.onload = function() {
                 var inputImage = document.getElementById("inputImage");
-                inputImage.addEventListener("change", handleImageFiles, false);
+                var inputInverted = document.getElementById("inputInverted");
+                inputImage.addEventListener("input", handleImageFiles, false);
+                inputInverted.addEventListener("input", handleImageFiles, false);
             }
 
             function mousePos(evt) {
@@ -48,8 +51,8 @@
                 return { x, y };
             }
 
-            function handleImageFiles(e) {	
-                var url = URL.createObjectURL(e.target.files[0]);
+            function handleImageFiles() {	
+                var url = URL.createObjectURL(document.getElementById("inputImage").files[0]);
                 img.onload = decode;
                 img.src = url;
             }
@@ -65,7 +68,9 @@
 
                 try {
                     const imageData = ctx.getImageData(0, 0, img.width, img.height);
-                    const decoded = iching.decode(imageData.data, imageData.width, imageData.height);
+                    const inverted = document.getElementById("inputInverted").checked;
+                    const options = { inverted };
+                    const decoded = iching.decode(imageData.data, imageData.width, imageData.height, options);
                     output.removeAttribute("style");
                     output.innerHTML = "Version: " + decoded.version + "<br>Size: " + decoded.size + "<br>Data: " + decoded.data;
                 } catch (e) {
