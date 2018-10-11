@@ -61,15 +61,14 @@ export class Decoder {
         }
 
         // Convert corrected data to string.
-        const table = Encoder.MAPPING_TABLE;
+        const alphabet = Encoder.ALPHABET;
         let payload: string = "";
         for (let i = 0; i < dataLength; i++) {
-            const charCode = table.indexOf(corrected[offset + i]);
-            if (charCode === -1) {
+            if (corrected[offset + i] >= alphabet.length) {
                 throw new Error("Invalid IChing Code!");
             }
 
-            payload += String.fromCharCode(charCode);
+            payload += alphabet[corrected[offset + i]];
         }
 
         return {
