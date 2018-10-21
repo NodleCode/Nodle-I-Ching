@@ -18,7 +18,7 @@ export class FastAdaptiveBinarizer extends Binarizer {
      * Constant substracted from the local mean value for each block.
      */
 
-    public static MEAN_CONST = 2;
+    public static MEAN_CONST = 7;
     /**
      * Minimum possible variance for a block in order to be considered mix of different colors.
      */
@@ -26,7 +26,7 @@ export class FastAdaptiveBinarizer extends Binarizer {
     /**
      * Block size for the local mean calculations required in the adaptive thresholding algorithm.
      */
-    public static BLOCK_SIZE = 80;
+    public static BLOCK_SIZE = 30;
 
     /**
      * @description Main class method, converts RGBA image to binary image
