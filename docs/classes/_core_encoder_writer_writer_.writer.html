@@ -104,6 +104,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#inverted" class="tsd-kind-icon">inverted</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#matrix" class="tsd-kind-icon">matrix</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#pad" class="tsd-kind-icon">pad</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_core_encoder_writer_writer_.writer.html#resolution" class="tsd-kind-icon">resolution</a></li>
@@ -143,13 +144,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Writer<span class="tsd-signature-symbol">(</span>resolution<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, roundEdges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_core_encoder_writer_writer_.writer.html" class="tsd-signature-type">Writer</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Writer<span class="tsd-signature-symbol">(</span>resolution<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, roundEdges<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, inverted<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_core_encoder_writer_writer_.writer.html" class="tsd-signature-type">Writer</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:58</li>
+									<li>Defined in core/encoder/writer/Writer.ts:59</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -165,6 +166,9 @@
 								<li>
 									<h5>roundEdges: <span class="tsd-signature-type">boolean</span></h5>
 								</li>
+								<li>
+									<h5>inverted: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_core_encoder_writer_writer_.writer.html" class="tsd-signature-type">Writer</a></h4>
 						</li>
@@ -173,6 +177,16 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="inverted" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> inverted</h3>
+					<div class="tsd-signature tsd-kind-icon">inverted<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in core/encoder/writer/Writer.ts:58</li>
+						</ul>
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="matrix" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> matrix</h3>
@@ -189,7 +203,7 @@
 					<div class="tsd-signature tsd-kind-icon">pad<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in core/encoder/writer/Writer.ts:58</li>
+							<li>Defined in core/encoder/writer/Writer.ts:59</li>
 						</ul>
 					</aside>
 				</section>
@@ -387,7 +401,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:133</li>
+									<li>Defined in core/encoder/writer/Writer.ts:144</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -410,7 +424,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:118</li>
+									<li>Defined in core/encoder/writer/Writer.ts:129</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -433,7 +447,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:192</li>
+									<li>Defined in core/encoder/writer/Writer.ts:203</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -462,7 +476,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:150</li>
+									<li>Defined in core/encoder/writer/Writer.ts:161</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -502,7 +516,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:186</li>
+									<li>Defined in core/encoder/writer/Writer.ts:197</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -539,7 +553,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:258</li>
+									<li>Defined in core/encoder/writer/Writer.ts:269</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -574,7 +588,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:176</li>
+									<li>Defined in core/encoder/writer/Writer.ts:187</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -612,7 +626,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/writer/Writer.ts:78</li>
+									<li>Defined in core/encoder/writer/Writer.ts:80</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -657,6 +671,9 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_core_encoder_writer_writer_.writer.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_core_encoder_writer_writer_.writer.html#inverted" class="tsd-kind-icon">inverted</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_core_encoder_writer_writer_.writer.html#matrix" class="tsd-kind-icon">matrix</a>

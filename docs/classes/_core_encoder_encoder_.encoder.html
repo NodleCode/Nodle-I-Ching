@@ -98,11 +98,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#alphabet" class="tsd-kind-icon">ALPHABET</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#ec_high" class="tsd-kind-icon">EC_<wbr>HIGH</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#ec_low" class="tsd-kind-icon">EC_<wbr>LOW</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#ec_medium" class="tsd-kind-icon">EC_<wbr>MEDIUM</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#ec_none" class="tsd-kind-icon">EC_<wbr>NONE</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#mapping_table" class="tsd-kind-icon">MAPPING_<wbr>TABLE</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#max_size" class="tsd-kind-icon">MAX_<wbr>SIZE</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#offset" class="tsd-kind-icon">OFFSET</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="_core_encoder_encoder_.encoder.html#symbols_per_error" class="tsd-kind-icon">SYMBOLS_<wbr>PER_<wbr>ERROR</a></li>
@@ -120,6 +120,21 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="alphabet" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> ALPHABET</h3>
+					<div class="tsd-signature tsd-kind-icon">ALPHABET<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&#x60;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&amp;*(){}[]_+-&#x3D;.,:;/?&lt;&gt;&quot; &#x60;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in core/encoder/Encoder.ts:46</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Character set supported in IChing codes.</p>
+						</div>
+					</div>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="ec_high" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagStatic">Static</span> EC_<wbr>HIGH</h3>
@@ -177,22 +192,6 @@
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Error correction level none: no error correction capabilities will be added.</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
-					<a name="mapping_table" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> MAPPING_<wbr>TABLE</h3>
-					<div class="tsd-signature tsd-kind-icon">MAPPING_<wbr>TABLE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Int8Array</span><span class="tsd-signature-symbol"> =&nbsp;new Int8Array([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1, -1, -1, -1, -1, -1,-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,])</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in core/encoder/Encoder.ts:47</li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>MAPPING_TABLE - Table used to convert alpha-numeric characters from Unicode (table index)
-							to internal codes (table value) used in IChing.</p>
 						</div>
 					</div>
 				</section>
@@ -269,7 +268,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in core/encoder/Encoder.ts:73</li>
+									<li>Defined in core/encoder/Encoder.ts:64</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -335,6 +334,9 @@
 						<a href="_core_encoder_encoder_.encoder.html" class="tsd-kind-icon">Encoder</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="_core_encoder_encoder_.encoder.html#alphabet" class="tsd-kind-icon">ALPHABET</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="_core_encoder_encoder_.encoder.html#ec_high" class="tsd-kind-icon">EC_<wbr>HIGH</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
@@ -345,9 +347,6 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="_core_encoder_encoder_.encoder.html#ec_none" class="tsd-kind-icon">EC_<wbr>NONE</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
-								<a href="_core_encoder_encoder_.encoder.html#mapping_table" class="tsd-kind-icon">MAPPING_<wbr>TABLE</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
 								<a href="_core_encoder_encoder_.encoder.html#max_size" class="tsd-kind-icon">MAX_<wbr>SIZE</a>

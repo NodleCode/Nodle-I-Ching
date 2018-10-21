@@ -82,6 +82,7 @@
 							<li><code>ecLevel</code> - Error correction level, a number between 0 and 1 representing the maximum percentage of errors that can be corrected, relative to the payload length. Defaults to <a href="./src/core/encoder/Encoder.ts#L34"><code>Encoder.EC_MEDIUM</code></a> (0.15).</li>
 							<li><code>resolution</code> - A number representing the width and height of the square image produced by the method. Defaults to 1250.</li>
 							<li><code>roundEdges</code> - A boolean determining whether the symbols&#39; edges in the output image are straight or round. Defaults to false, which means straight edges.</li>
+							<li><code>inverted</code> - A boolean determining whether the output image is inverted, i.e. white on black instead of black on white. Defaults to false.</li>
 						</ul>
 					</li>
 				</ul>
@@ -90,14 +91,14 @@
 				<h4 id="example">Example</h4>
 				<p>Example usage with options specified:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> payload = <span class="hljs-string">"thisisanexample123"</span>;
-<span class="hljs-keyword">const</span> options = { <span class="hljs-attr">ecLevel</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">resolution</span>: <span class="hljs-number">2000</span>, <span class="hljs-attr">roundEdges</span>: <span class="hljs-literal">true</span> };
+<span class="hljs-keyword">const</span> options = { <span class="hljs-attr">ecLevel</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">resolution</span>: <span class="hljs-number">2000</span>, <span class="hljs-attr">roundEdges</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">inverted</span>: <span class="hljs-literal">false</span> };
 <span class="hljs-keyword">const</span> encoded = iching.encode(payload, options);</code></pre>
 				<p>Or without options:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> payload = <span class="hljs-string">"thisisanexample123"</span>;
 <span class="hljs-keyword">const</span> encoded = iching.encode(payload);</code></pre>
 				<p>Which is equivalent to:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">const</span> payload = <span class="hljs-string">"thisisanexample123"</span>;
-<span class="hljs-keyword">const</span> defaultOptions = { <span class="hljs-attr">ecLevel</span>: <span class="hljs-number">0.15</span>, <span class="hljs-attr">resolution</span>: <span class="hljs-number">1250</span>, <span class="hljs-attr">roundEdges</span>: <span class="hljs-literal">false</span> };
+<span class="hljs-keyword">const</span> defaultOptions = { <span class="hljs-attr">ecLevel</span>: <span class="hljs-number">0.15</span>, <span class="hljs-attr">resolution</span>: <span class="hljs-number">1250</span>, <span class="hljs-attr">roundEdges</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">inevrted</span>: <span class="hljs-literal">false</span> };
 <span class="hljs-keyword">const</span> encoded = iching.encode(payload, defaultOptions);</code></pre>
 				<p>Image can be displayed using HTML canvas:</p>
 				<pre><code class="language-javascript"><span class="hljs-comment">// 'cvs' and 'ctx' are an HTML canvas element, and its 2D rendering context, respectively.</span>
