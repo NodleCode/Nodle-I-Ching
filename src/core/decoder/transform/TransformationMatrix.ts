@@ -1,5 +1,3 @@
-import { networkInterfaces } from "os";
-
 /**
  * 2D 3 x 3 matrix of numbers representing 2D transformation matrix.
  */
