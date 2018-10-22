@@ -297,7 +297,7 @@ export class Extractor {
             throw new Error("No valid finder patterns found!");
         }
 
-        const averageRadius = sum / count;
+        const averageRadius = (sum - count) / count;
         const estimatedScale = averageRadius / Writer.FINDER_OUTER_RADIUS;
 
         return estimatedScale;
