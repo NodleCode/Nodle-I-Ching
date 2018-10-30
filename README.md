@@ -86,3 +86,7 @@ console.log(decoded.data);
 
 ## Documentation
 Detailed HTML docs can be found [here](./docs/index.html).
+
+## License
+IChing is released under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.txt) license.<br/>
+Copyright © [Nodle] (https://nodle.io/)
