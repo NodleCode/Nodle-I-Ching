@@ -44,11 +44,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://abdelrahman-elysian@bitbucket.org/elysianinc/iching.git"
   },
   "author": "",
-  "license": "ISC",
-  "homepage": "https://bitbucket.org/elysianinc/iching#readme",
+  "license": "GPLv3",
+  "homepage": "",
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^23.3.1",
