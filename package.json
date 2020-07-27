@@ -61,7 +61,7 @@
     "fs-extra": "^7.0.0",
     "get-image-data": "^3.0.1",
     "jest": "^23.5.0",
-    "jpeg-js": "^0.3.4",
+    "jpeg-js": "^0.4.0",
     "rimraf": "^2.6.2",
     "seedrandom": "^2.4.4",
     "sharp": "^0.20.7",
